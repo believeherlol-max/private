@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Windows OpSec Optimizer</title>
     <!-- Custom Favicon -->
-    <link rel="icon" type="image/png" href="https://media.discordapp.net/attachments/1537149921197826058/1537727446789656616/content.png?ex=6a8017c8&is=6a7ec648&hm=71d0a64be079c66132a4097e20b185ca10553b14a4ffe75fa252e2ea1735602f&=&format=webp&quality=lossless&width=711&height=768"[cite: 2]>
+    <link rel="icon" type="image/png" href="https://media.discordapp.net/attachments/1537149921197826058/1537727446789656616/content.png?ex=6a8017c8&is=6a7ec648&hm=71d0a64be079c66132a4097e20b185ca10553b14a4ffe75fa252e2ea1735602f&=&format=webp&quality=lossless&width=711&height=768">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Tailwind CSS CDN -->
@@ -97,49 +97,49 @@
             animation: fadeInUp 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.35s forwards;
         }
 
-        /* Ultra-Smooth Organic Auto-Tilt Animation for Info Widget Only */
+        /* Continuous Auto-Tilt Animation with Reduced Glow */
         @keyframes autoTilt {
             0% {
-                transform: perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px);
+                transform: perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px) scale(1);
             }
-            33% {
-                transform: perspective(1000px) rotateX(3deg) rotateY(-4deg) translateY(-3px);
+            25% {
+                transform: perspective(1000px) rotateX(5deg) rotateY(-8deg) translateY(-6px) scale(1.02);
             }
-            66% {
-                transform: perspective(1000px) rotateX(-3deg) rotateY(4deg) translateY(0px);
+            50% {
+                transform: perspective(1000px) rotateX(-5deg) rotateY(8deg) translateY(4px) scale(1);
+            }
+            75% {
+                transform: perspective(1000px) rotateX(4deg) rotateY(6deg) translateY(-4px) scale(1.01);
             }
             100% {
-                transform: perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px);
+                transform: perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px) scale(1);
             }
         }
 
         .auto-tilt-card {
-            animation: autoTilt 10s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+            animation: autoTilt 8s cubic-bezier(0.37, 0, 0.63, 1) infinite;
             transform-style: preserve-3d;
             will-change: transform;
+            box-shadow: 0 10px 30px -10px rgba(255, 255, 255, 0.015);
         }
 
-        /* Clean Minimal Stable Cards */
+        /* Clean Minimal Stable Cards (No Bright Hover Effect) */
         .tilt-card {
-            transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .tilt-card:hover {
-            background-color: rgba(24, 24, 27, 0.4);
-            border-color: rgba(255, 255, 255, 0.12);
+            transition: none;
         }
 
-        /* Ultra-Smooth Crossfade Navigation */
+        /* Fluid Slide-In Navigation Animation for Tabs */
         .page-content {
             display: none;
             opacity: 0;
-            transform: translateY(6px);
+            transform: translateX(50px);
             transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
             will-change: opacity, transform;
         }
         .page-content.active {
             display: block;
             opacity: 1;
-            transform: translateY(0);
+            transform: translateX(0);
         }
 
         /* Flashing Cursor */
@@ -229,14 +229,18 @@
                 
                 <!-- Logo Only -->
                 <div class="flex items-center">
-                    <img src="https://media.discordapp.net/attachments/1537149921197826058/1537727446789656616/content.png?ex=6a8017c8&is=6a7ec648&hm=71d0a64be079c66132a4097e20b185ca10553b14a4ffe75fa252e2ea1735602f&=&format=webp&quality=lossless&width=711&height=768" alt="Logo" class="w-10 h-10 object-contain"[cite: 2]>
+                    <img src="https://media.discordapp.net/attachments/1537149921197826058/1537727446789656616/content.png?ex=6a8017c8&is=6a7ec648&hm=71d0a64be079c66132a4097e20b185ca10553b14a4ffe75fa252e2ea1735602f&=&format=webp&quality=lossless&width=711&height=768" alt="Logo" class="w-10 h-10 object-contain">
                 </div>
 
                 <!-- Centered Nav Links -->
-                <nav class="flex items-center gap-8 text-xs font-medium text-zinc-400">
+                <nav class="flex items-center gap-6 sm:gap-8 text-xs font-medium text-zinc-400">
                     <button onclick="showPage('home')" id="nav-home" class="nav-link active text-white cursor-pointer py-1">Home</button>
                     <button onclick="showPage('compat')" id="nav-compat" class="nav-link hover:text-white cursor-pointer py-1">Windows Support</button>
                     <button onclick="showPage('faq')" id="nav-faq" class="nav-link hover:text-white cursor-pointer py-1">FAQ</button>
+                    <button onclick="showPage('sponsor')" id="nav-sponsor" class="nav-link hover:text-white cursor-pointer py-1 flex items-center gap-1.5 text-pink-400">
+                        <span class="w-1.5 h-1.5 rounded-full bg-pink-500 animate-pulse"></span>
+                        Our Sponsor
+                    </button>
                     <button onclick="openDownloadModal()" class="cta-btn px-4 py-2 rounded-lg bg-white text-black font-bold text-[11px] cursor-pointer">Download</button>
                 </nav>
 
@@ -247,7 +251,7 @@
         </header>
 
         <!-- CONTENT AREA -->
-        <main class="flex-grow py-12 relative z-10 overflow-y-auto flex items-center">
+        <main class="flex-grow py-12 relative z-10 overflow-y-auto flex flex-col justify-center">
             
             <!-- PAGE: HOME -->
             <div id="page-home" class="page-content active max-w-6xl mx-auto px-6 space-y-20 w-full">
@@ -274,9 +278,9 @@
                         </div>
                     </div>
 
-                    <!-- Hero Quick Status Widget (Auto-Tilt Enabled) -->
-                    <div class="lg:col-span-5 animate-from-right flex justify-center">
-                        <div class="auto-tilt-card w-full max-w-md p-6 rounded-3xl bg-zinc-950/80 border border-white/15 space-y-6 backdrop-blur-xl">
+                    <!-- Hero Quick Status Widget (Auto-Tilt with Subdued See-Thru Dark Background) -->
+                    <div class="lg:col-span-5 animate-from-right flex justify-center py-6">
+                        <div class="auto-tilt-card w-full max-w-md p-6 rounded-3xl bg-black/40 border border-white/5 space-y-6 backdrop-blur-xl">
                             <div class="flex items-center justify-between pb-2">
                                 <span class="text-xs font-mono text-zinc-400">Information</span>
                                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -389,6 +393,51 @@
                             <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.927 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
                             <span>Join Discord</span>
                         </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE: OUR SPONSOR -->
+            <div id="page-sponsor" class="page-content max-w-4xl mx-auto px-6 space-y-8 w-full">
+                <div class="flex justify-center">
+                    <div class="tilt-card p-8 sm:p-12 rounded-3xl bg-black/40 border border-white/10 space-y-8 relative overflow-hidden backdrop-blur-xl max-w-3xl w-full shadow-2xl">
+                        
+                        <!-- Top Header -->
+                        <div class="space-y-4 text-center max-w-xl mx-auto relative z-10">
+                            <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
+                                Monetize Your Digital Products with <span class="private-gradient">Gumroad</span>
+                            </h2>
+                            <p class="text-zinc-400 text-sm leading-relaxed">
+                                Turn your software builds, code utilities, plugins, and guides into steady revenue. Gumroad handles secure global payments, digital delivery, and customer management effortlessly.
+                            </p>
+                        </div>
+
+                        <!-- 3-Column Value Grid -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 relative z-10 text-xs">
+                            <div class="p-5 rounded-2xl bg-black/60 border border-white/5 space-y-2.5">
+                                <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white font-mono font-bold text-xs">01</div>
+                                <div class="font-bold text-white text-sm">Launch in Minutes</div>
+                                <p class="text-zinc-400 leading-relaxed">Set up clean, distraction-free product pages instantly without dealing with messy e-commerce plugins.</p>
+                            </div>
+                            <div class="p-5 rounded-2xl bg-black/60 border border-white/5 space-y-2.5">
+                                <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white font-mono font-bold text-xs">02</div>
+                                <div class="font-bold text-white text-sm">Global Payments</div>
+                                <p class="text-zinc-400 leading-relaxed">Accept credit cards and major currencies securely from buyers anywhere around the world.</p>
+                            </div>
+                            <div class="p-5 rounded-2xl bg-black/60 border border-white/5 space-y-2.5">
+                                <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white font-mono font-bold text-xs">03</div>
+                                <div class="font-bold text-white text-sm">Built-In Audience</div>
+                                <p class="text-zinc-400 leading-relaxed">Grow your customer base using built-in email newsletters, discount codes, and analytics tools.</p>
+                            </div>
+                        </div>
+
+                        <!-- Action Button -->
+                        <div class="flex justify-center pt-2 relative z-10">
+                            <a href="https://gumroad.com" target="_blank" rel="noopener noreferrer" class="cta-btn inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-white text-black font-bold text-sm hover:bg-zinc-200 transition-all cursor-pointer shadow-lg shadow-white/5">
+                                <span>Start Selling on Gumroad</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -518,6 +567,11 @@
             document.body.removeChild(a);
 
             closeDownloadModal();
+
+            // Open Gumroad in a new tab after download triggers
+            setTimeout(() => {
+                window.open('https://gumroad.com', '_blank');
+            }, 600);
         }
 
         // Close modal on background click
@@ -527,7 +581,7 @@
             }
         });
 
-        // Ultra-Smooth Screen Crossfade Navigation
+        // Fluid Slide-In Screen Navigation for Tabs
         function showPage(pageId) {
             const currentActive = document.querySelector('.page-content.active');
             const target = document.getElementById('page-' + pageId);
@@ -536,32 +590,40 @@
 
             if (currentActive) {
                 currentActive.style.opacity = '0';
-                currentActive.style.transform = 'translateY(4px)';
+                currentActive.style.transform = 'translateX(-50px)';
                 setTimeout(() => {
                     currentActive.classList.remove('active');
                     target.classList.add('active');
                     target.style.opacity = '0';
-                    target.style.transform = 'translateY(6px)';
+                    target.style.transform = 'translateX(50px)';
                     
                     target.offsetHeight;
 
                     target.style.opacity = '1';
-                    target.style.transform = 'translateY(0)';
+                    target.style.transform = 'translateX(0)';
                 }, 250);
             } else {
                 target.classList.add('active');
                 target.style.opacity = '1';
-                target.style.transform = 'translateY(0)';
+                target.style.transform = 'translateX(0)';
             }
 
-            const navs = ['home', 'compat', 'faq'];
+            const navs = ['home', 'compat', 'faq', 'sponsor'];
             navs.forEach(id => {
                 const btn = document.getElementById('nav-' + id);
                 if (btn) {
                     if (id === pageId) {
-                        btn.className = 'nav-link active text-white cursor-pointer py-1';
+                        if (id === 'sponsor') {
+                            btn.className = 'nav-link active text-white cursor-pointer py-1 flex items-center gap-1.5';
+                        } else {
+                            btn.className = 'nav-link active text-white cursor-pointer py-1';
+                        }
                     } else {
-                        btn.className = 'nav-link hover:text-white cursor-pointer py-1';
+                        if (id === 'sponsor') {
+                            btn.className = 'nav-link hover:text-white text-zinc-400 cursor-pointer py-1 flex items-center gap-1.5';
+                        } else {
+                            btn.className = 'nav-link hover:text-white text-zinc-400 cursor-pointer py-1';
+                        }
                     }
                 }
             });

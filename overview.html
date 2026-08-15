@@ -1,575 +1,70 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <!-- Custom Favicon -->
-    <link rel="icon" type="image/png" href="https://media.discordapp.net/attachments/1537149921197826058/1537727446789656616/content.png?ex=6a8017c8&is=6a7ec648&hm=71d0a64be079c66132a4097e20b185ca10553b14a4ffe75fa252e2ea1735602f&=&format=webp&quality=lossless&width=711&height=768">
-    
-    <!-- Open Graph / Discord Embed Meta Tags -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://semisoftware.xyz/">
-    <meta property="og:title" content="Admin Dashboard">
-    <meta property="og:description" content="Secure software build overview, metrics, and distribution statistics.">
-    <meta property="og:image" content="https://media.discordapp.net/attachments/1537149921197826058/1537727446789656616/content.png?ex=6a8017c8&is=6a7ec648&hm=71d0a64be079c66132a4097e20b185ca10553b14a4ffe75fa252e2ea1735602f&=&format=webp&quality=lossless&width=711&height=768">
-    <meta name="theme-color" content="#000000">
-
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    }
-                }
-            }
-        }
-    </script>
+    <title>Dashboard</title>
     <style>
         body {
-            background-color: #000000;
-            color: #ffffff;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            overflow-x: hidden;
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
+            margin: 0;
+            background-color: #ffffff;
+            color: #000000;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 13px;
+            padding: 16px;
         }
-
-        input, select, textarea, .selectable-text {
-            user-select: text;
-            -webkit-user-select: text;
-            -moz-user-select: text;
-            -ms-user-select: text;
+        #auth-screen {
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
-
-        ::-webkit-scrollbar { display: none; }
-        * { scrollbar-width: none; }
-
-        /* Floating Particle Canvas Background */
-        #particle-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 0;
+        input {
+            font-family: inherit;
+            font-size: 13px;
+            padding: 2px 4px;
+            border: 1px solid #999;
+            outline: none;
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px) scale(0.995); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
-
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .stats {
+            display: flex;
+            gap: 24px;
         }
-
-        @keyframes slideUpRight {
-            from { opacity: 0; transform: translateY(20px) translateX(10px); }
-            to { opacity: 1; transform: translateY(0) translateX(0); }
-        }
-
-        .animate-fade-in {
-            animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        .animate-slide-down {
-            animation: slideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        .animate-slide-up-right {
-            animation: slideUpRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        .clean-card {
-            background: rgba(10, 10, 14, 0.45);
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            backdrop-filter: blur(30px);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .clean-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(600px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(255, 255, 255, 0.03), transparent 50%);
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-        }
-
-        .clean-card:hover::before {
-            opacity: 1;
-        }
-
-        .clean-card:hover {
-            background: rgba(16, 16, 22, 0.65);
-            border-color: rgba(255, 255, 255, 0.08);
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-        }
-
-        .input-glow:focus {
-            box-shadow: 0 0 20px -5px rgba(255, 255, 255, 0.06);
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between selection:bg-white selection:text-black relative">
+<body>
 
-    <!-- BACKGROUND PARTICLES CANVAS -->
-    <canvas id="particle-canvas"></canvas>
+    <div id="auth-screen">
+        <span>Login:</span>
+        <input type="password" id="pass-input" autofocus autocomplete="off">
+    </div>
 
-    <!-- SUCCESS NOTIFICATION BANNER (Top Floating Alert - fades away shortly after login) -->
-    <div id="success-banner" class="fixed top-6 left-1/2 -translate-x-1/2 z-50 hidden opacity-0 transition-all duration-500 pointer-events-none">
-        <div class="px-4 py-2 rounded-xl bg-zinc-900/95 border border-white/10 backdrop-blur-xl shadow-2xl flex items-center gap-2.5 animate-slide-down">
-            <span id="success-text" class="text-[11px] font-mono text-white tracking-wide"></span>
+    <div id="dashboard" class="container hidden">
+        <div class="stats">
+            <div>Revenue: $25.20</div>
+            <div>Downloads: 35</div>
         </div>
     </div>
 
-    <!-- SYSTEM UPDATE POPUP NOTIFICATION (Bottom Right Floating Alert with countdown timer bar) -->
-    <div id="update-toast" class="fixed bottom-6 right-6 z-50 hidden opacity-0 transition-all duration-500 pointer-events-none">
-        <div class="rounded-xl bg-zinc-900/95 border border-white/10 backdrop-blur-xl shadow-2xl overflow-hidden animate-slide-up-right max-w-xs flex flex-col">
-            <div class="px-4 py-3 flex items-center gap-3">
-                <div class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse flex-shrink-0"></div>
-                <p class="text-[11px] font-mono text-zinc-300 leading-relaxed">System updates every 24 hours due to network traffic.</p>
-            </div>
-            <!-- Timer Countdown Bar -->
-            <div class="w-full h-1 bg-zinc-950">
-                <div id="toast-progress-bar" class="h-full bg-blue-500 w-full transition-all linear"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- AUTHENTICATION OVERLAY / SCREEN (Ultra Simple) -->
-    <div id="auth-screen" class="fixed inset-0 z-40 flex items-center justify-center bg-black/95 backdrop-blur-2xl px-4 transition-all duration-500">
-        <div class="w-full max-w-sm px-6 py-8 flex flex-col items-center space-y-5 relative z-10 animate-fade-in clean-card rounded-2xl shadow-2xl">
-            
-            <form id="login-form" onsubmit="handleLogin(event)" class="w-full space-y-4">
-                <!-- 12 Seed Phrase Grid Boxes -->
-                <div class="grid grid-cols-3 gap-2" id="seed-grid">
-                    <!-- Inputs generated via JS -->
-                </div>
-
-                <p id="error-msg" class="text-red-400 text-[11px] text-center hidden pt-1 animate-fade-in">Invalid recovery phrase.</p>
-
-                <button type="submit" class="w-full py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-medium transition-all cursor-pointer mt-1 shadow-md hover:scale-[1.01] active:scale-[0.99]">Authenticate</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- MAIN DASHBOARD CONTENT (Hidden until signed in) -->
-    <div id="dashboard-content" class="min-h-screen flex flex-col justify-between relative z-10 hidden opacity-0 transition-opacity duration-500">
-
-        <!-- HEADER -->
-        <header class="w-full pt-6 pb-2">
-            <div class="max-w-3xl mx-auto px-6 flex items-center justify-between">
-                <div class="flex items-center gap-2.5 group cursor-pointer">
-                    <img src="https://media.discordapp.net/attachments/1537149921197826058/1537727446789656616/content.png?ex=6a8017c8&is=6a7ec648&hm=71d0a64be079c66132a4097e20b185ca10553b14a4ffe75fa252e2ea1735602f&=&format=webp&quality=lossless&width=711&height=768" alt="Logo" class="w-7 h-7 object-contain opacity-85 transition-transform duration-300 group-hover:scale-105">
-                </div>
-
-                <div class="flex items-center gap-3">
-                    <div class="px-3 py-1 rounded-full bg-zinc-900/60 border border-white/5 text-[11px] font-mono text-zinc-300 backdrop-blur-md">
-                        <span id="user-display-badge">y</span>
-                    </div>
-                    <button onclick="handleLogout()" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white text-[11px] font-medium transition-all cursor-pointer border border-white/5 active:scale-95">Sign Out</button>
-                </div>
-            </div>
-        </header>
-
-        <!-- DASHBOARD BODY -->
-        <main class="flex-grow py-8 max-w-3xl mx-auto px-6 space-y-5 w-full animate-fade-in">
-            
-            <!-- OVERVIEW CARDS (2-column layout) -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <!-- Total Earnings -->
-                <div class="clean-card p-5 rounded-2xl space-y-2 shadow-xl">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">Total Revenue</span>
-                    </div>
-                    <div id="countup-revenue" class="text-2xl font-semibold text-white font-mono tracking-tight">$0.00</div>
-                </div>
-
-                <!-- Total Downloads -->
-                <div class="clean-card p-5 rounded-2xl space-y-2 shadow-xl">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">Total Downloads</span>
-                    </div>
-                    <div id="countup-downloads" class="text-2xl font-semibold text-white font-mono tracking-tight">0</div>
-                </div>
-            </div>
-
-            <!-- BUILD DISTRIBUTION -->
-            <div class="clean-card p-6 rounded-2xl space-y-5 shadow-xl">
-                <div class="flex items-center justify-between border-b border-white/5 pb-3">
-                    <h3 class="font-semibold text-white text-xs tracking-wide">Build Distribution Downloads</h3>
-                </div>
-
-                <div class="space-y-4 text-xs font-mono">
-                    <div class="space-y-2">
-                        <div class="flex justify-between text-zinc-400">
-                            <span class="text-zinc-200">Windows 10 Build</span>
-                            <span id="countup-win10" class="text-white font-semibold">0 downloads</span>
-                        </div>
-                        <div class="w-full h-2 rounded-full bg-zinc-900/90 overflow-hidden border border-white/5 p-0.5">
-                            <div class="h-full bg-gradient-to-r from-zinc-500 to-white rounded-full transition-all duration-1000 ease-out" style="width: 0%;" data-width="62.5%"></div>
-                        </div>
-                    </div>
-
-                    <div class="space-y-2 pt-1">
-                        <div class="flex justify-between text-zinc-400">
-                            <span class="text-zinc-200">Windows 11 Build</span>
-                            <span id="countup-win11" class="text-white font-semibold">0 downloads</span>
-                        </div>
-                        <div class="w-full h-2 rounded-full bg-zinc-900/90 overflow-hidden border border-white/5 p-0.5">
-                            <div class="h-full bg-gradient-to-r from-zinc-700 to-zinc-400 rounded-full transition-all duration-1000 ease-out" style="width: 0%;" data-width="37.5%"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </main>
-
-        <!-- FOOTER EMPTY SPACING (NO BAR) -->
-        <footer class="py-6 mt-auto"></footer>
-    </div>
-
-    <!-- SCRIPT ENGINE -->
     <script>
-        // Generate 12 seed phrase input boxes dynamically with global paste support
-        const seedGrid = document.getElementById('seed-grid');
-        for (let i = 1; i <= 12; i++) {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'relative flex items-center';
-            
-            const badge = document.createElement('span');
-            badge.className = 'absolute left-2.5 text-[10px] font-mono text-zinc-600 pointer-events-none';
-            badge.textContent = i < 10 ? `0${i}` : i;
+        const passInput = document.getElementById('pass-input');
+        const authScreen = document.getElementById('auth-screen');
+        const dashboard = document.getElementById('dashboard');
 
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'seed-input w-full pl-8 pr-2.5 py-2.5 rounded-xl bg-zinc-950/60 border border-white/5 text-white text-xs font-mono focus:outline-none focus:border-white/20 focus:bg-zinc-900 transition-all placeholder-transparent input-glow text-center';
-            input.placeholder = '';
-            input.setAttribute('autocomplete', 'off');
-            input.setAttribute('data-index', i - 1);
-
-            // Handle full 12-word paste into any box distributing words automatically
-            input.addEventListener('paste', (e) => {
-                e.preventDefault();
-                const pasteData = e.clipboardData.getData('text').trim().split(/\s+/);
-                const inputs = document.querySelectorAll('.seed-input');
-                pasteData.forEach((word, idx) => {
-                    if (inputs[idx]) {
-                        inputs[idx].value = word;
-                    }
-                });
-                if (pasteData.length > 0) {
-                    const targetIdx = Math.min(pasteData.length, inputs.length) - 1;
-                    inputs[targetIdx].focus();
-                }
-            });
-
-            // Handle keyboard navigation between boxes
-            input.addEventListener('keydown', (e) => {
-                const inputs = document.querySelectorAll('.seed-input');
-                const currentIndex = parseInt(input.getAttribute('data-index'));
-                if (e.key === 'Enter' || e.key === 'ArrowRight' || e.key === ' ') {
-                    e.preventDefault();
-                    if (inputs[currentIndex + 1]) inputs[currentIndex + 1].focus();
-                } else if (e.key === 'ArrowLeft' && currentIndex > 0) {
-                    e.preventDefault();
-                    inputs[currentIndex - 1].focus();
-                } else if (e.key === 'Backspace' && input.value === '' && currentIndex > 0) {
-                    inputs[currentIndex - 1].focus();
-                }
-            });
-
-            wrapper.appendChild(badge);
-            wrapper.appendChild(input);
-            seedGrid.appendChild(wrapper);
-        }
-
-        // Mouse coordinate tracking for advanced card lighting effects
-        document.addEventListener('mousemove', e => {
-            for (let card of document.getElementsByClassName('clean-card')) {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                card.style.setProperty('--mouse-x', `${x}px`);
-                card.style.setProperty('--mouse-y', `${y}px`);
+        passInput.addEventListener('input', () => {
+            const val = passInput.value.trim().toLowerCase();
+            if (val === 'catmeow') {
+                authScreen.classList.add('hidden');
+                dashboard.classList.remove('hidden');
             }
         });
-
-        // Floating Particle Background Engine
-        const canvas = document.getElementById('particle-canvas');
-        const ctx = canvas.getContext('2d');
-
-        let particles = [];
-        const particleCount = 35;
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 1.2 + 0.3;
-                this.speedX = (Math.random() - 0.5) * 0.12;
-                this.speedY = (Math.random() - 0.5) * 0.12 - 0.02;
-                this.opacity = Math.random() * 0.2 + 0.04;
-            }
-
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-
-                if (this.x < 0) this.x = canvas.width;
-                if (this.x > canvas.width) this.x = 0;
-                if (this.y < 0) this.y = canvas.height;
-                if (this.y > canvas.height) this.y = 0;
-            }
-
-            draw() {
-                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
-        for (let i = 0; i < particleCount; i++) {
-            particles.push(new Particle());
-        }
-
-        function animateParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(p => {
-                p.update();
-                p.draw();
-            });
-            requestAnimationFrame(animateParticles);
-        }
-
-        animateParticles();
-
-        // Audio Synthesizer for Clean Ding Sound Effect
-        function playDingSound() {
-            try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = audioCtx.createOscillator();
-                const gainNode = audioCtx.createGain();
-
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.15);
-
-                gainNode.gain.setValueAtTime(0.12, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
-
-                osc.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.8);
-            } catch (e) {
-                // AudioContext blocked or not allowed without prior interaction
-            }
-        }
-
-        // Count-Up Animation Function with realistic organic numbers around ~$4.2k and matching download scale (~$0.95/download)
-        function runCountUpAnimations() {
-            const duration = 1200; // 1.2 seconds
-            const startTime = performance.now();
-
-            const targets = {
-                revenue: 4185.20,
-                downloads: 4405,
-                win10: 2753,
-                win11: 1652
-            };
-
-            function updateNumbers(currentTime) {
-                const elapsed = currentTime - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                // Ease out expo
-                const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-
-                // Revenue
-                const currentRev = targets.revenue * easeProgress;
-                document.getElementById('countup-revenue').textContent = `$${currentRev.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-
-                // Total Downloads
-                const currentDownloads = Math.floor(targets.downloads * easeProgress);
-                document.getElementById('countup-downloads').textContent = currentDownloads.toLocaleString();
-
-                // Win 10 Downloads
-                const currentWin10 = Math.floor(targets.win10 * easeProgress);
-                document.getElementById('countup-win10').textContent = `${currentWin10.toLocaleString()} downloads`;
-
-                // Win 11 Downloads
-                const currentWin11 = Math.floor(targets.win11 * easeProgress);
-                document.getElementById('countup-win11').textContent = `${currentWin11.toLocaleString()} downloads`;
-
-                if (progress < 1) {
-                    requestAnimationFrame(updateNumbers);
-                } else {
-                    // Ensure exact final values
-                    document.getElementById('countup-revenue').textContent = `$${targets.revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-                    document.getElementById('countup-downloads').textContent = targets.downloads.toLocaleString();
-                    document.getElementById('countup-win10').textContent = `${targets.win10.toLocaleString()} downloads`;
-                    document.getElementById('countup-win11').textContent = `${targets.win11.toLocaleString()} downloads`;
-                }
-            }
-
-            requestAnimationFrame(updateNumbers);
-        }
-
-        // Multi-User Seed Phrase Directory Database
-        const registeredUsers = [
-            {
-                username: "y",
-                phrase: ['gun', 'cat', 'september', 'matrix', 'shadow', 'frost', 'signal', 'orbit', 'nexus', 'pulse', 'cipher', 'void']
-            }
-        ];
-
-        // Authentication Handler with Dynamic User Resolution & Ding Effect
-        function handleLogin(e) {
-            e.preventDefault();
-            const inputs = document.querySelectorAll('.seed-input');
-            const phraseWords = Array.from(inputs).map(inp => inp.value.trim().toLowerCase());
-            const errorMsg = document.getElementById('error-msg');
-
-            let authenticatedUser = null;
-
-            for (const user of registeredUsers) {
-                const isMatch = phraseWords.every((word, idx) => word === user.phrase[idx]);
-                if (isMatch) {
-                    authenticatedUser = user.username;
-                    break;
-                }
-            }
-
-            if (authenticatedUser) {
-                // Play success ding sound effect
-                playDingSound();
-
-                // Update UI badge with logged-in user
-                document.getElementById('user-display-badge').textContent = authenticatedUser;
-
-                // Show top success banner without dot, then fade away shortly after
-                const banner = document.getElementById('success-banner');
-                const successText = document.getElementById('success-text');
-                successText.textContent = `Logged in as ${authenticatedUser}`;
-                banner.classList.remove('hidden');
-                banner.style.opacity = '1';
-
-                // Fade away banner after 2.5 seconds
-                setTimeout(() => {
-                    banner.style.opacity = '0';
-                    setTimeout(() => banner.classList.add('hidden'), 500);
-                }, 2500);
-
-                // Show bottom-right update toast notification with running out countdown timer bar
-                setTimeout(() => {
-                    const updateToast = document.getElementById('update-toast');
-                    const progressBar = document.getElementById('toast-progress-bar');
-                    
-                    updateToast.classList.remove('hidden');
-                    updateToast.style.opacity = '1';
-                    
-                    // Reset and run timer bar animation (duration: 4000ms)
-                    progressBar.style.transition = 'none';
-                    progressBar.style.width = '100%';
-                    void progressBar.offsetWidth; // trigger reflow
-                    progressBar.style.transition = 'width 4s linear';
-                    progressBar.style.width = '0%';
-
-                    // Hide toast after 4 seconds
-                    setTimeout(() => {
-                        updateToast.style.opacity = '0';
-                        setTimeout(() => updateToast.classList.add('hidden'), 500);
-                    }, 4000);
-                }, 1000);
-
-                const authScreen = document.getElementById('auth-screen');
-                const dashContent = document.getElementById('dashboard-content');
-
-                // Smooth cinematic transition
-                authScreen.style.transition = 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
-                authScreen.style.opacity = '0';
-                authScreen.style.transform = 'scale(1.04)';
-
-                setTimeout(() => {
-                    authScreen.style.display = 'none';
-                    dashContent.classList.remove('hidden');
-                    void dashContent.offsetWidth; // trigger reflow
-                    dashContent.style.opacity = '1';
-
-                    // Run count-up animations for revenue & downloads
-                    runCountUpAnimations();
-
-                    // Animate progress bars smoothly after load
-                    setTimeout(() => {
-                        document.querySelectorAll('[data-width]').forEach(bar => {
-                            bar.style.width = bar.getAttribute('data-width');
-                        });
-                    }, 150);
-                }, 500);
-
-            } else {
-                errorMsg.classList.add('hidden');
-                inputs.forEach(inp => inp.value = '');
-                inputs[0].focus();
-            }
-        }
-
-        function handleLogout() {
-            document.querySelectorAll('.seed-input').forEach(inp => inp.value = '');
-            document.getElementById('error-msg').classList.add('hidden');
-            
-            const banner = document.getElementById('success-banner');
-            banner.style.opacity = '0';
-            banner.classList.add('hidden');
-
-            const updateToast = document.getElementById('update-toast');
-            updateToast.style.opacity = '0';
-            updateToast.classList.add('hidden');
-
-            const authScreen = document.getElementById('auth-screen');
-            authScreen.style.opacity = '1';
-            authScreen.style.transform = 'scale(1)';
-            authScreen.style.display = 'flex';
-            
-            const dashContent = document.getElementById('dashboard-content');
-            dashContent.style.opacity = '0';
-            dashContent.classList.add('hidden');
-            
-            // Reset progress bars and count-up values
-            document.querySelectorAll('[data-width]').forEach(bar => {
-                bar.style.width = '0%';
-            });
-            document.getElementById('countup-revenue').textContent = '$0.00';
-            document.getElementById('countup-downloads').textContent = '0';
-            document.getElementById('countup-win10').textContent = '0 downloads';
-            document.getElementById('countup-win11').textContent = '0 downloads';
-        }
     </script>
 </body>
 </html>

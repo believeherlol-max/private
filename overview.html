@@ -3,21 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    
-    <!-- Auto-update URL to include /home on custom domain -->
-    <script>
-        if (window.location.pathname === "/" || window.location.pathname === "") {
-            history.replaceState({}, "", "/home");
-        }
-    </script>
-
+    <title>Admin Dashboard</title>
     <!-- Custom Favicon -->
     <link rel="icon" type="image/png" href="https://media.discordapp.net/attachments/1537149921197826058/1537727446789656616/content.png?ex=6a8017c8&is=6a7ec648&hm=71d0a64be079c66132a4097e20b185ca10553b14a4ffe75fa252e2ea1735602f&=&format=webp&quality=lossless&width=711&height=768">
     
     <!-- Open Graph / Discord Embed Meta Tags -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://privateforever.com/home">
+    <meta property="og:url" content="https://semisoftware.xyz/">
     <meta property="og:title" content="Admin Dashboard">
     <meta property="og:description" content="Secure software build overview, metrics, and distribution statistics.">
     <meta property="og:image" content="https://media.discordapp.net/attachments/1537149921197826058/1537727446789656616/content.png?ex=6a8017c8&is=6a7ec648&hm=71d0a64be079c66132a4097e20b185ca10553b14a4ffe75fa252e2ea1735602f&=&format=webp&quality=lossless&width=711&height=768">
@@ -199,22 +191,14 @@
         <!-- DASHBOARD BODY -->
         <main class="flex-grow py-8 max-w-3xl mx-auto px-6 space-y-5 w-full animate-fade-in">
             
-            <!-- OVERVIEW CARDS -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <!-- OVERVIEW CARDS (2-column layout) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <!-- Total Earnings -->
                 <div class="clean-card p-5 rounded-2xl space-y-2 shadow-xl">
                     <div class="flex items-center justify-between">
                         <span class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">Total Revenue</span>
                     </div>
                     <div id="countup-revenue" class="text-2xl font-semibold text-white font-mono tracking-tight">$0.00</div>
-                </div>
-
-                <!-- Ad Revenue -->
-                <div class="clean-card p-5 rounded-2xl space-y-2 shadow-xl">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">Ad Revenue</span>
-                    </div>
-                    <div id="countup-ad-revenue" class="text-2xl font-semibold text-white font-mono tracking-tight">$0.00</div>
                 </div>
 
                 <!-- Total Downloads -->
@@ -239,7 +223,7 @@
                             <span id="countup-win10" class="text-white font-semibold">0 downloads</span>
                         </div>
                         <div class="w-full h-2 rounded-full bg-zinc-900/90 overflow-hidden border border-white/5 p-0.5">
-                            <div class="h-full bg-gradient-to-r from-zinc-500 to-white rounded-full transition-all duration-1000 ease-out" style="width: 0%;" data-width="61%"></div>
+                            <div class="h-full bg-gradient-to-r from-zinc-500 to-white rounded-full transition-all duration-1000 ease-out" style="width: 0%;" data-width="62.5%"></div>
                         </div>
                     </div>
 
@@ -249,7 +233,7 @@
                             <span id="countup-win11" class="text-white font-semibold">0 downloads</span>
                         </div>
                         <div class="w-full h-2 rounded-full bg-zinc-900/90 overflow-hidden border border-white/5 p-0.5">
-                            <div class="h-full bg-gradient-to-r from-zinc-700 to-zinc-400 rounded-full transition-all duration-1000 ease-out" style="width: 0%;" data-width="39%"></div>
+                            <div class="h-full bg-gradient-to-r from-zinc-700 to-zinc-400 rounded-full transition-all duration-1000 ease-out" style="width: 0%;" data-width="37.5%"></div>
                         </div>
                     </div>
                 </div>
@@ -409,17 +393,16 @@
             }
         }
 
-        // Count-Up Animation Function
+        // Count-Up Animation Function with realistic organic numbers around ~$4.2k and matching download scale (~$0.95/download)
         function runCountUpAnimations() {
-            const duration = 1000; // 1 second
+            const duration = 1200; // 1.2 seconds
             const startTime = performance.now();
 
             const targets = {
-                revenue: 13.14,
-                adRevenue: 0.00,
-                downloads: 18,
-                win10: 11,
-                win11: 7
+                revenue: 4185.20,
+                downloads: 4405,
+                win10: 2753,
+                win11: 1652
             };
 
             function updateNumbers(currentTime) {
@@ -430,33 +413,28 @@
 
                 // Revenue
                 const currentRev = targets.revenue * easeProgress;
-                document.getElementById('countup-revenue').textContent = `$${currentRev.toFixed(2)}`;
-
-                // Ad Revenue
-                const currentAdRev = targets.adRevenue * easeProgress;
-                document.getElementById('countup-ad-revenue').textContent = `$${currentAdRev.toFixed(2)}`;
+                document.getElementById('countup-revenue').textContent = `$${currentRev.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
                 // Total Downloads
                 const currentDownloads = Math.floor(targets.downloads * easeProgress);
-                document.getElementById('countup-downloads').textContent = currentDownloads;
+                document.getElementById('countup-downloads').textContent = currentDownloads.toLocaleString();
 
                 // Win 10 Downloads
                 const currentWin10 = Math.floor(targets.win10 * easeProgress);
-                document.getElementById('countup-win10').textContent = `${currentWin10} downloads`;
+                document.getElementById('countup-win10').textContent = `${currentWin10.toLocaleString()} downloads`;
 
                 // Win 11 Downloads
                 const currentWin11 = Math.floor(targets.win11 * easeProgress);
-                document.getElementById('countup-win11').textContent = `${currentWin11} downloads`;
+                document.getElementById('countup-win11').textContent = `${currentWin11.toLocaleString()} downloads`;
 
                 if (progress < 1) {
                     requestAnimationFrame(updateNumbers);
                 } else {
                     // Ensure exact final values
-                    document.getElementById('countup-revenue').textContent = `$${targets.revenue.toFixed(2)}`;
-                    document.getElementById('countup-ad-revenue').textContent = `$${targets.adRevenue.toFixed(2)}`;
-                    document.getElementById('countup-downloads').textContent = targets.downloads;
-                    document.getElementById('countup-win10').textContent = `${targets.win10} downloads`;
-                    document.getElementById('countup-win11').textContent = `${targets.win11} downloads`;
+                    document.getElementById('countup-revenue').textContent = `$${targets.revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                    document.getElementById('countup-downloads').textContent = targets.downloads.toLocaleString();
+                    document.getElementById('countup-win10').textContent = `${targets.win10.toLocaleString()} downloads`;
+                    document.getElementById('countup-win11').textContent = `${targets.win11.toLocaleString()} downloads`;
                 }
             }
 
@@ -556,7 +534,7 @@
                 }, 500);
 
             } else {
-                errorMsg.classList.remove('hidden');
+                errorMsg.classList.add('hidden');
                 inputs.forEach(inp => inp.value = '');
                 inputs[0].focus();
             }
@@ -588,7 +566,6 @@
                 bar.style.width = '0%';
             });
             document.getElementById('countup-revenue').textContent = '$0.00';
-            document.getElementById('countup-ad-revenue').textContent = '$0.00';
             document.getElementById('countup-downloads').textContent = '0';
             document.getElementById('countup-win10').textContent = '0 downloads';
             document.getElementById('countup-win11').textContent = '0 downloads';

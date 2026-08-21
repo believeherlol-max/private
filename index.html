@@ -234,8 +234,6 @@
             <nav class="flex items-center gap-1 px-3 py-1.5 rounded-full nav-pill shadow-lg">
                 <a href="https://discord.gg/florida" target="_blank" rel="noopener noreferrer" class="nav-link rounded-full">Purchase</a>
                 <div class="h-3 w-[1px] bg-white/10 mx-1"></div>
-                <button onclick="openMacroModal()" class="nav-link rounded-full bg-transparent border-none">Drag Macro</button>
-                <div class="h-3 w-[1px] bg-white/10 mx-1"></div>
                 <a href="https://discord.gg/florida" target="_blank" rel="noopener noreferrer" class="nav-link rounded-full">Discord</a>
             </nav>
         </header>
@@ -483,29 +481,6 @@
         </div>
     </div>
 
-    <!-- DRAG MACRO MODAL -->
-    <div id="macro-modal" class="modal-overlay">
-        <div class="modal-content space-y-4">
-            <div class="flex justify-between items-center">
-                <h3 class="text-white font-bold text-base">Download Drag Macro</h3>
-                <button onclick="closeMacroModal()" class="text-zinc-400 hover:text-white text-sm font-bold px-2 py-1">&times;</button>
-            </div>
-            
-            <div class="text-xs text-zinc-300 space-y-2 leading-relaxed">
-                <p>Your macro file download is ready. Due to macro automation scripts and script formatting structures, antivirus applications may occasionally flag script text configuration items as a <strong>False Positive</strong>.</p>
-                <div class="p-3 rounded-xl bg-zinc-900 border border-white/5 text-[11px] text-zinc-400 space-y-1">
-                    <span class="font-bold text-zinc-200 block">Safe to use</span>
-                    <p>This script file is fully clean and verified for use.</p>
-                </div>
-            </div>
-
-            <div class="pt-2 flex gap-3">
-                <button onclick="closeMacroModal()" class="w-1/2 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs font-bold text-zinc-300 hover:bg-white/10 transition">Cancel</button>
-                <a href="https://cdn.discordapp.com/attachments/1539895417494437890/1540131872238215228/New_Text_Document_2.txt?ex=6a88d714&is=6a878594&hm=cc2bdec03c2934be94efeb1dc1b18ed24077ce8f90f9c35172a5fa391d4e7ec1&" download class="w-1/2 py-2.5 rounded-xl bg-red-600 text-white text-xs font-bold text-center hover:bg-red-500 transition flex items-center justify-center">Download File</a>
-            </div>
-        </div>
-    </div>
-
     <!-- SCRIPTS FOR MODALS & COPY KEY -->
     <script>
         function openModal() {
@@ -532,12 +507,6 @@
                 copyBtn.textContent = 'Copy';
                 copyBtn.classList.remove('bg-red-600', 'text-white');
             }, 2000);
-        }
-        function openMacroModal() {
-            document.getElementById('macro-modal').classList.add('active');
-        }
-        function closeMacroModal() {
-            document.getElementById('macro-modal').classList.remove('active');
         }
     </script>
 

@@ -3,34 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Site Unavailable</title>
+    <title>Coming Soon.</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background-color: #121212;
-            color: #e0e0e0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0a0a0a;
+            color: #f0f0f0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            text-align: center;
+            justify-content: center;
+            overflow-x: hidden;
         }
+
         .container {
-            max-width: 600px;
+            text-align: center;
             padding: 2rem;
+            max-width: 800px;
+            animation: fadeIn 1.5s ease-out;
         }
-        p {
-            font-size: 1.25rem;
-            color: #cccccc;
-            line-height: 1.5;
-            margin: 0;
+
+        .emoji-switcher {
+            font-size: 6rem;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+            animation: floatAndGlow 3s infinite ease-in-out;
+            user-select: none;
+            display: inline-block;
+            line-height: 1;
+        }
+
+        .image-container {
+            margin: 1rem 0;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid #222;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .image-container:hover {
+            transform: scale(1.02);
+            box-shadow: 0 15px 40px rgba(255, 0, 0, 0.2);
+        }
+
+        .image-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes floatAndGlow {
+            0%, 100% {
+                transform: translateY(0) scale(1);
+                text-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
+            }
+            50% {
+                transform: translateY(-12px) scale(1.08);
+                text-shadow: 0 0 30px rgba(255, 0, 0, 0.7);
+            }
+        }
+
+        @keyframes switchPop {
+            0% {
+                transform: scale(0.8) rotate(-10deg);
+                opacity: 0.5;
+            }
+            50% {
+                transform: scale(1.2) rotate(10deg);
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        .pop {
+            animation: switchPop 0.4s ease-out;
         }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <p>this website is no longer available too bored to do anyhting with it</p>
+        <div class="emoji-switcher" id="emojiElement">🤡</div>
+
+        <div class="image-container">
+            <img src="https://media.discordapp.net/attachments/1544500849584250882/1544837294727495720/image.png?ex=6a99f558&is=6a98a3d8&hm=fd339cb20ac8214b49a98dbaf1a0e5b1e0c0d87a1838da98d49af0c5c0566a8b&=&format=webp&quality=lossless" alt="Clown Image">
+        </div>
     </div>
+
+    <script>
+        const emojis = ["🤡", "👉"];
+        let currentIndex = 1;
+        const emojiElement = document.getElementById('emojiElement');
+
+        function updateEmoji() {
+            emojiElement.classList.remove('pop');
+            void emojiElement.offsetWidth; // Trigger reflow to restart animation
+            emojiElement.textContent = emojis[currentIndex];
+            emojiElement.classList.add('pop');
+            currentIndex = (currentIndex + 1) % emojis.length;
+        }
+
+        // Switch every 1.5 seconds automatically
+        setInterval(updateEmoji, 1500);
+
+        // Also allow clicking to manually switch
+        emojiElement.addEventListener('click', updateEmoji);
+    </script>
+
 </body>
 </html>

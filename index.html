@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coming Soon.</title>
+    <title>FOUND FOOTAGE OF BRO 💀</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@800&family=Permanent+Marker&display=swap');
+
         * {
             margin: 0;
             padding: 0;
@@ -12,84 +14,263 @@
         }
 
         body {
-            background-color: #0a0a0a;
-            color: #f0f0f0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #010101;
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            cursor: crosshair;
+        }
+
+        /* Ambient neon lighting canvas */
+        canvas#bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Falling Emoji Rain Container */
+        #emoji-rain-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 2;
+            overflow: hidden;
+        }
+
+        .falling-emoji {
+            position: absolute;
+            top: -10vh;
+            font-size: 2.2rem;
+            user-select: none;
+            animation: fallEmojiParticle linear infinite;
+            filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.7));
+        }
+
+        @keyframes fallEmojiParticle {
+            0% {
+                transform: translateY(0vh) rotate(0deg) scale(0.8);
+                opacity: 0;
+            }
+            15% {
+                opacity: 1;
+            }
+            85% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(115vh) rotate(360deg) scale(1.3);
+                opacity: 0;
+            }
+        }
+
+        /* CRT Scanline & Vignette Effect */
+        .crt-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.05));
+            background-size: 100% 3px, 4px 100%;
+            pointer-events: none;
+            z-index: 4;
+        }
+
+        .vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.98), inset 0 0 300px rgba(255, 0, 0, 0.25);
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        /* Main Wrapper */
+        .wrapper {
+            position: relative;
+            z-index: 10;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            overflow-x: hidden;
+            padding: 2rem 1.5rem;
         }
 
-        .container {
+        .stage-card {
+            position: relative;
+            background: rgba(8, 8, 8, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 0, 0, 0.25);
+            border-radius: 28px;
+            padding: 2.5rem 2.5rem;
             text-align: center;
-            padding: 2rem;
-            max-width: 800px;
-            animation: fadeIn 1.5s ease-out;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 40px 120px rgba(0, 0, 0, 0.95), 0 0 60px rgba(255, 0, 0, 0.2);
+            animation: cardEntrance 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            transform-style: preserve-3d;
+            transition: border-color 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .stage-card:hover {
+            border-color: rgba(255, 0, 0, 0.7);
+            box-shadow: 0 50px 140px rgba(0, 0, 0, 0.98), 0 0 90px rgba(255, 0, 0, 0.4);
+        }
+
+        /* Roasting Header Text */
+        .roast-header {
+            font-family: 'Permanent Marker', cursive;
+            font-size: 2.2rem;
+            color: #ff3333;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
+            letter-spacing: 2px;
+            animation: textPulse 2s infinite ease-in-out;
+        }
+
+        @keyframes textPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
+        /* Interactive Multi-State Emoji Switcher */
+        .emoji-hub {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+            user-select: none;
         }
 
         .emoji-switcher {
-            font-size: 6rem;
-            margin-bottom: 1.5rem;
-            cursor: pointer;
-            animation: floatAndGlow 3s infinite ease-in-out;
-            user-select: none;
-            display: inline-block;
+            font-size: 6.5rem;
             line-height: 1;
+            filter: drop-shadow(0 0 35px rgba(255, 0, 0, 0.6));
+            animation: floatEmoji 3.5s ease-in-out infinite;
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        .image-container {
-            margin: 1rem 0;
-            border-radius: 12px;
+        .emoji-hub:hover .emoji-switcher {
+            transform: scale(1.3) rotate(15deg);
+            filter: drop-shadow(0 0 60px rgba(255, 0, 0, 0.95));
+        }
+
+        .click-hint {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+        }
+
+        .emoji-hub:hover .click-hint {
+            opacity: 1;
+        }
+
+        /* Discord Picture Container with 3D Tilt & Hologram Glare */
+        .hologram-frame {
+            position: relative;
+            border-radius: 18px;
             overflow: hidden;
-            border: 2px solid #222;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            background: #000;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.95);
+            transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
+            transition: transform 0.1s ease-out, border-color 0.4s ease, box-shadow 0.4s ease;
         }
 
-        .image-container:hover {
-            transform: scale(1.02);
-            box-shadow: 0 15px 40px rgba(255, 0, 0, 0.2);
-        }
-
-        .image-container img {
+        .hologram-frame img {
             width: 100%;
             height: auto;
             display: block;
+            filter: contrast(1.15) saturate(1.2);
         }
 
-        /* Animations */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
+        /* Glare effect inside frame */
+        .glare {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%, rgba(255,0,0,0.15) 100%);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .hologram-frame:hover .glare {
+            opacity: 1;
+        }
+
+        /* Explosive click ripple */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,0,0,0.9) 0%, rgba(255,255,255,0.5) 40%, transparent 100%);
+            transform: scale(0);
+            animation: rippleAnim 0.7s cubic-bezier(0, 0.5, 0.5, 1) forwards;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        @keyframes rippleAnim {
             to {
-                opacity: 1;
-                transform: translateY(0);
+                transform: scale(6);
+                opacity: 0;
             }
         }
 
-        @keyframes floatAndGlow {
-            0%, 100% {
-                transform: translateY(0) scale(1);
-                text-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
-            }
-            50% {
-                transform: translateY(-12px) scale(1.08);
-                text-shadow: 0 0 30px rgba(255, 0, 0, 0.7);
-            }
-        }
-
-        @keyframes switchPop {
+        /* Keyframes */
+        @keyframes cardEntrance {
             0% {
-                transform: scale(0.8) rotate(-10deg);
-                opacity: 0.5;
+                opacity: 0;
+                transform: translateY(50px) scale(0.92);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes floatEmoji {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
             }
             50% {
-                transform: scale(1.2) rotate(10deg);
+                transform: translateY(-18px) rotate(-6deg);
+            }
+        }
+
+        @keyframes popSwitch {
+            0% {
+                transform: scale(0.5) rotate(-30deg);
+                opacity: 0;
+            }
+            60% {
+                transform: scale(1.3) rotate(12deg);
+                opacity: 1;
             }
             100% {
                 transform: scale(1) rotate(0deg);
@@ -98,39 +279,230 @@
         }
 
         .pop {
-            animation: switchPop 0.4s ease-out;
+            animation: popSwitch 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        .footer-tag {
+            margin-top: 1.5rem;
+            font-size: 0.75rem;
+            letter-spacing: 5px;
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="emoji-switcher" id="emojiElement">🤡</div>
+    <canvas id="bg-canvas"></canvas>
+    <div id="emoji-rain-container"></div>
+    <div class="vignette"></div>
+    <div class="crt-overlay"></div>
 
-        <div class="image-container">
-            <img src="https://media.discordapp.net/attachments/1544500849584250882/1544837294727495720/image.png?ex=6a99f558&is=6a98a3d8&hm=fd339cb20ac8214b49a98dbaf1a0e5b1e0c0d87a1838da98d49af0c5c0566a8b&=&format=webp&quality=lossless" alt="Clown Image">
+    <div class="wrapper">
+        <div class="stage-card" id="stageCard">
+            
+            <div class="roast-header" id="roastText">LOOK AT THIS ABSOLUTE BUFFOON 💀</div>
+
+            <div class="emoji-hub" id="emojiHub" title="Click to Switch!">
+                <div class="emoji-switcher" id="emojiElement">🤡</div>
+                <div class="click-hint">[ CLOWN MODE ]</div>
+            </div>
+
+            <div class="hologram-frame" id="holoFrame">
+                <div class="glare"></div>
+                <img src="https://media.discordapp.net/attachments/1544500849584250882/1544837294727495720/image.png?ex=6a99f558&is=6a98a3d8&hm=fd339cb20ac8214b49a98dbaf1a0e5b1e0c0d87a1838da98d49af0c5c0566a8b&=&format=webp&quality=lossless" alt="Clown Art">
+            </div>
+
+            <div class="footer-tag">BRO IS ACTUALLY A MENACE TO SOCIETY</div>
         </div>
     </div>
 
     <script>
-        const emojis = ["🤡", "👉"];
+        // --- Rotating Savage Roast Captions ---
+        const roasts = [
+            "LOOK AT THIS ABSOLUTE BUFFOON 💀",
+            "BRO THOUGHT HE COOKED 😭",
+            "OFFICIAL CITIZEN OF CLOWN TOWN 🤡",
+            "GENETICALLY ENGINEERED L 📉",
+            "BRO IS A WHOLE CIRCUS DIRECTLY 🎪",
+            "AURA: -9999999 ☠️"
+        ];
+        
+        let roastIndex = 0;
+        const roastElement = document.getElementById('roastText');
+        
+        setInterval(() => {
+            roastIndex = (roastIndex + 1) % roasts.length;
+            roastElement.style.opacity = 0;
+            setTimeout(() => {
+                roastElement.textContent = roasts[roastIndex];
+                roastElement.style.opacity = 1;
+            }, 200);
+        }, 3000);
+        roastElement.style.transition = "opacity 0.2s ease";
+
+
+        // --- Falling Emoji Rain Particles ---
+        const rainContainer = document.getElementById('emoji-rain-container');
+        const rainEmojis = ["🤡", "🫵", "💀", "💩", "😭", "📉", "🤡", "💀"];
+        const maxParticles = 40;
+
+        function createFallingEmoji() {
+            if (rainContainer.children.length >= maxParticles) return;
+
+            const el = document.createElement('div');
+            el.classList.add('falling-emoji');
+            el.textContent = rainEmojis[Math.floor(Math.random() * rainEmojis.length)];
+            
+            el.style.left = Math.random() * 100 + 'vw';
+            const duration = Math.random() * 3 + 2.5; 
+            el.style.animationDuration = duration + 's';
+            el.style.fontSize = (Math.random() * 1.8 + 1.2) + 'rem';
+            el.style.opacity = Math.random() * 0.8 + 0.2;
+
+            rainContainer.appendChild(el);
+
+            setTimeout(() => {
+                el.remove();
+            }, duration * 1000);
+        }
+
+        setInterval(createFallingEmoji, 200);
+
+
+        // --- Interactive Canvas Background (Neon Web) ---
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let particles = [];
+
+        function resizeCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const mouse = { x: null, y: null };
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = Math.random() * 3 + 1;
+                this.speedX = (Math.random() - 0.5) * 1.5;
+                this.speedY = (Math.random() - 0.5) * 1.5;
+                this.color = Math.random() > 0.2 ? 'rgba(255, 0, 0, ' : 'rgba(255, 255, 255, ';
+                this.alpha = Math.random() * 0.6 + 0.2;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x < 0) this.x = width;
+                if (this.x > width) this.x = 0;
+                if (this.y < 0) this.y = height;
+                if (this.y > height) this.y = 0;
+            }
+            draw() {
+                ctx.fillStyle = this.color + this.alpha + ')';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 90; i++) particles.push(new Particle());
+
+        function animateCanvas() {
+            ctx.clearRect(0, 0, width, height);
+            
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+
+                if (mouse.x !== null && mouse.y !== null) {
+                    let dx = particles[i].x - mouse.x;
+                    let dy = particles[i].y - mouse.y;
+                    let dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 160) {
+                        ctx.strokeStyle = `rgba(255, 0, 0, ${(1 - dist / 160) * 0.45})`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(mouse.x, mouse.y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animateCanvas);
+        }
+        animateCanvas();
+
+
+        // --- Multi-State Emoji Switcher Logic ---
+        const emojis = ["🤡", "🫵", "💀", "💩", "🎪"];
         let currentIndex = 1;
         const emojiElement = document.getElementById('emojiElement');
+        const emojiHub = document.getElementById('emojiHub');
 
         function updateEmoji() {
             emojiElement.classList.remove('pop');
-            void emojiElement.offsetWidth; // Trigger reflow to restart animation
+            void emojiElement.offsetWidth;
             emojiElement.textContent = emojis[currentIndex];
             emojiElement.classList.add('pop');
             currentIndex = (currentIndex + 1) % emojis.length;
         }
 
-        // Switch every 1.5 seconds automatically
-        setInterval(updateEmoji, 1500);
+        let emojiInterval = setInterval(updateEmoji, 1300);
 
-        // Also allow clicking to manually switch
-        emojiElement.addEventListener('click', updateEmoji);
+        emojiHub.addEventListener('click', () => {
+            updateEmoji();
+            clearInterval(emojiInterval);
+            emojiInterval = setInterval(updateEmoji, 1300);
+        });
+
+
+        // --- 3D Holographic Card Tilt Effect ---
+        const stageCard = document.getElementById('stageCard');
+        const holoFrame = document.getElementById('holoFrame');
+
+        stageCard.addEventListener('mousemove', (e) => {
+            const rect = stageCard.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
+
+            const rotateX = (-y / (rect.height / 2)) * 12;
+            const rotateY = (x / (rect.width / 2)) * 12;
+
+            holoFrame.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.03, 1.03, 1.03)`;
+        });
+
+        stageCard.addEventListener('mouseleave', () => {
+            holoFrame.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+        });
+
+
+        // --- Explosive Click Ripple Effect ---
+        stageCard.addEventListener('click', (e) => {
+            const rect = stageCard.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            const ripple = document.createElement('div');
+            ripple.classList.add('ripple');
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            stageCard.appendChild(ripple);
+
+            setTimeout(() => ripple.remove(), 700);
+        });
     </script>
-
 </body>
 </html>

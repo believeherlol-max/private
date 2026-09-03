@@ -3,506 +3,994 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FOUND FOOTAGE OF BRO 💀</title>
+    <title>Private Forever - Aim Trainer</title>
+    <link rel="icon" type="image/png" href="./favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;650&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@800&family=Permanent+Marker&display=swap');
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            background-color: #010101;
-            color: #fff;
-            font-family: 'JetBrains Mono', monospace;
-            min-height: 100vh;
-            overflow-x: hidden;
-            overflow-y: auto;
-            cursor: crosshair;
-        }
-
-        /* Ambient neon lighting canvas */
-        canvas#bg-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        /* Falling Emoji Rain Container */
-        #emoji-rain-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 2;
             overflow: hidden;
-        }
-
-        .falling-emoji {
-            position: absolute;
-            top: -10vh;
-            font-size: 2.2rem;
+            background-color: #000;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             user-select: none;
-            animation: fallEmojiParticle linear infinite;
-            filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.7));
+            color: #ffffff;
+            cursor: none;
         }
 
-        @keyframes fallEmojiParticle {
-            0% {
-                transform: translateY(0vh) rotate(0deg) scale(0.8);
-                opacity: 0;
-            }
-            15% {
-                opacity: 1;
-            }
-            85% {
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(115vh) rotate(360deg) scale(1.3);
-                opacity: 0;
-            }
-        }
-
-        /* CRT Scanline & Vignette Effect */
-        .crt-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.05));
-            background-size: 100% 3px, 4px 100%;
-            pointer-events: none;
-            z-index: 4;
-        }
-
-        .vignette {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.98), inset 0 0 300px rgba(255, 0, 0, 0.25);
-            pointer-events: none;
-            z-index: 3;
-        }
-
-        /* Main Wrapper */
-        .wrapper {
-            position: relative;
-            z-index: 10;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem 1.5rem;
-        }
-
-        .stage-card {
-            position: relative;
-            background: rgba(8, 8, 8, 0.9);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 2px solid rgba(255, 0, 0, 0.25);
-            border-radius: 28px;
-            padding: 2.5rem 2.5rem;
-            text-align: center;
-            max-width: 900px;
-            width: 100%;
-            box-shadow: 0 40px 120px rgba(0, 0, 0, 0.95), 0 0 60px rgba(255, 0, 0, 0.2);
-            animation: cardEntrance 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            transform-style: preserve-3d;
-            transition: border-color 0.4s ease, box-shadow 0.4s ease;
-        }
-
-        .stage-card:hover {
-            border-color: rgba(255, 0, 0, 0.7);
-            box-shadow: 0 50px 140px rgba(0, 0, 0, 0.98), 0 0 90px rgba(255, 0, 0, 0.4);
-        }
-
-        /* Roasting Header Text */
-        .roast-header {
-            font-family: 'Permanent Marker', cursive;
-            font-size: 2.2rem;
-            color: #ff3333;
-            margin-bottom: 1rem;
-            text-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
-            letter-spacing: 2px;
-            animation: textPulse 2s infinite ease-in-out;
-        }
-
-        @keyframes textPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.03); }
-        }
-
-        /* Interactive Multi-State Emoji Switcher */
-        .emoji-hub {
-            position: relative;
-            display: inline-block;
-            margin-bottom: 1.5rem;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .emoji-switcher {
-            font-size: 6.5rem;
-            line-height: 1;
-            filter: drop-shadow(0 0 35px rgba(255, 0, 0, 0.6));
-            animation: floatEmoji 3.5s ease-in-out infinite;
-            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .emoji-hub:hover .emoji-switcher {
-            transform: scale(1.3) rotate(15deg);
-            filter: drop-shadow(0 0 60px rgba(255, 0, 0, 0.95));
-        }
-
-        .click-hint {
-            position: absolute;
-            bottom: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.7rem;
-            letter-spacing: 3px;
-            color: rgba(255, 255, 255, 0.6);
-            text-transform: uppercase;
-            white-space: nowrap;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
-        }
-
-        .emoji-hub:hover .click-hint {
-            opacity: 1;
-        }
-
-        /* Discord Picture Container with 3D Tilt & Hologram Glare */
-        .hologram-frame {
-            position: relative;
-            border-radius: 18px;
-            overflow: hidden;
-            border: 2px solid rgba(255, 255, 255, 0.15);
-            background: #000;
-            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.95);
-            transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
-            transition: transform 0.1s ease-out, border-color 0.4s ease, box-shadow 0.4s ease;
-        }
-
-        .hologram-frame img {
-            width: 100%;
-            height: auto;
-            display: block;
-            filter: contrast(1.15) saturate(1.2);
-        }
-
-        /* Glare effect inside frame */
-        .glare {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%, rgba(255,0,0,0.15) 100%);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .hologram-frame:hover .glare {
-            opacity: 1;
-        }
-
-        /* Explosive click ripple */
-        .ripple {
-            position: absolute;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(255,0,0,0.9) 0%, rgba(255,255,255,0.5) 40%, transparent 100%);
-            transform: scale(0);
-            animation: rippleAnim 0.7s cubic-bezier(0, 0.5, 0.5, 1) forwards;
-            pointer-events: none;
+        #start-screen {
+            position: absolute; inset: 0; 
+            background: #000000;
             z-index: 100;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            cursor: pointer;
+            overflow: hidden;
         }
 
-        @keyframes rippleAnim {
-            to {
-                transform: scale(6);
-                opacity: 0;
-            }
+        #start-bg-canvas, #particle-canvas {
+            position: absolute; inset: 0; pointer-events: none;
+        }
+        #start-bg-canvas { z-index: 1; }
+        #particle-canvas { z-index: 2; }
+
+        .start-content {
+            position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center;
+            pointer-events: none;
+            animation: fadeInScale 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        /* Keyframes */
-        @keyframes cardEntrance {
-            0% {
-                opacity: 0;
-                transform: translateY(50px) scale(0.92);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+        @keyframes fadeInScale {
+            0% { opacity: 0; transform: scale(0.95) translateY(10px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
         }
 
-        @keyframes floatEmoji {
-            0%, 100% {
-                transform: translateY(0) rotate(0deg);
-            }
-            50% {
-                transform: translateY(-18px) rotate(-6deg);
-            }
+        .start-title {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-weight: 400;
+            font-size: 46px;
+            letter-spacing: 2px;
+            color: #fff;
+            text-shadow: 0 0 30px rgba(255,255,255,0.15);
+            line-height: 1.1;
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .start-prompt {
+            color: #777;
+            font-size: 11px; font-weight: 600;
+            letter-spacing: 4px; text-transform: uppercase;
+            animation: pulsePrompt 2s infinite ease-in-out;
         }
 
-        @keyframes popSwitch {
-            0% {
-                transform: scale(0.5) rotate(-30deg);
-                opacity: 0;
-            }
-            60% {
-                transform: scale(1.3) rotate(12deg);
-                opacity: 1;
-            }
-            100% {
-                transform: scale(1) rotate(0deg);
-                opacity: 1;
-            }
+        @keyframes pulsePrompt {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.9; }
         }
 
-        .pop {
-            animation: popSwitch 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        #pause-screen {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.94);
+            z-index: 50; display: none; justify-content: center; align-items: center; cursor: default;
+        }
+        .pause-box {
+            background: #080808; border: 1px solid #222; border-radius: 4px;
+            padding: 22px; display: flex; flex-direction: column; gap: 12px; width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+        .pause-btn {
+            background: #141414; border: 1px solid #333; border-radius: 2px;
+            padding: 10px; color: #ccc; font-size: 11px; font-weight: 700;
+            text-align: center; cursor: pointer; letter-spacing: 1px;
+            text-transform: uppercase; transition: all 0.15s ease;
+        }
+        .pause-btn:hover { background: #222; color: #fff; border-color: #666; }
+        .pause-btn.primary { background: #fff; color: #000; border-color: #fff; }
+        .pause-btn.primary:hover { background: #ddd; }
+
+        .settings-scroll {
+            max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;
+            padding-right: 4px;
+        }
+        .settings-scroll::-webkit-scrollbar { width: 4px; }
+        .settings-scroll::-webkit-scrollbar-track { background: #111; }
+        .settings-scroll::-webkit-scrollbar-thumb { background: #333; }
+
+        .settings-group {
+            background: #000; border: 1px solid #1a1a1a; border-radius: 2px;
+            padding: 12px; display: flex; flex-direction: column; gap: 10px; font-size: 11px;
+        }
+        .settings-row { display: flex; justify-content: space-between; align-items: center; color: #777; font-weight: 600; letter-spacing: 0.5px; }
+        .settings-row span:first-child { color: #aaa; }
+        
+        .slider-wrapper { display: flex; flex-direction: column; gap: 4px; }
+        input[type="range"] {
+            -webkit-appearance: none; width: 100%; height: 3px; background: #222; border-radius: 0px; outline: none; cursor: pointer;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none; width: 10px; height: 10px; border-radius: 0px; background: #fff; cursor: pointer;
         }
 
-        .footer-tag {
-            margin-top: 1.5rem;
-            font-size: 0.75rem;
-            letter-spacing: 5px;
-            color: rgba(255, 255, 255, 0.4);
-            text-transform: uppercase;
-            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        .color-picker-wrapper { display: flex; align-items: center; gap: 10px; }
+        input[type="color"] {
+            -webkit-appearance: none; border: 1px solid #333; width: 22px; height: 22px; border-radius: 2px; cursor: pointer; background: none; outline: none;
+        }
+        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        input[type="color"]::-webkit-color-swatch { border: none; border-radius: 2px; }
+
+        .select-wrapper { display: flex; flex-direction: column; gap: 4px; }
+        select {
+            background: #111; border: 1px solid #333; color: #fff; padding: 6px; border-radius: 2px;
+            font-size: 11px; outline: none; cursor: pointer; font-weight: 600; letter-spacing: 0.5px;
+        }
+        select:hover { background: #1a1a1a; }
+        option { background: #111; color: #fff; }
+
+        .toggle-row { display: flex; justify-content: space-between; align-items: center; }
+        .switch { position: relative; display: inline-block; width: 30px; height: 15px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider-switch {
+            position: absolute; cursor: pointer; inset: 0; background-color: #222; transition: .1s; border-radius: 2px;
+        }
+        .slider-switch:before {
+            position: absolute; content: ""; height: 11px; width: 11px; left: 2px; bottom: 2px; background-color: #fff; transition: .1s; border-radius: 2px;
+        }
+        input:checked + .slider-switch { background-color: #fff; }
+        input:checked + .slider-switch:before { transform: translateX(15px); background-color: #000; }
+
+        #crosshair {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            pointer-events: none; z-index: 10; display: flex; justify-content: center; align-items: center;
+        }
+        #crosshair.hit { transform: translate(-50%, -50%) scale(1.25); }
+
+        #radar-container {
+            position: absolute; top: 20px; right: 20px; width: 120px; height: 120px;
+            background: #050505; border: 1px solid #222; border-radius: 2px;
+            z-index: 10; pointer-events: none; overflow: hidden;
+        }
+        #radar-canvas { width: 100%; height: 100%; display: block; }
+
+        #stats-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.9); z-index: 80;
+            display: none; justify-content: center; align-items: center; cursor: default;
+        }
+        .stats-box {
+            background: #080808; border: 1px solid #222; border-radius: 4px; padding: 24px;
+            width: 360px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+        .stats-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #fff; border-bottom: 1px solid #222; padding-bottom: 8px; }
+        .stat-row { display: flex; justify-content: space-between; font-size: 11px; color: #888; font-weight: 600; }
+        .stat-row span:last-child { color: #fff; }
+
+        .floating-score {
+            position: absolute; font-size: 14px; font-weight: 800; color: #fff; pointer-events: none; z-index: 20;
+            animation: floatUp 0.4s ease-out forwards;
+        }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-30px); }
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
-    <canvas id="bg-canvas"></canvas>
-    <div id="emoji-rain-container"></div>
-    <div class="vignette"></div>
-    <div class="crt-overlay"></div>
-
-    <div class="wrapper">
-        <div class="stage-card" id="stageCard">
-            
-            <div class="roast-header" id="roastText">LOOK AT THIS ABSOLUTE BUFFOON 💀</div>
-
-            <div class="emoji-hub" id="emojiHub" title="Click to Switch!">
-                <div class="emoji-switcher" id="emojiElement">🤡</div>
-                <div class="click-hint">[ CLOWN MODE ]</div>
-            </div>
-
-            <div class="hologram-frame" id="holoFrame">
-                <div class="glare"></div>
-                <img src="https://media.discordapp.net/attachments/1544500849584250882/1544837294727495720/image.png?ex=6a99f558&is=6a98a3d8&hm=fd339cb20ac8214b49a98dbaf1a0e5b1e0c0d87a1838da98d49af0c5c0566a8b&=&format=webp&quality=lossless" alt="Clown Art">
-            </div>
-
-            <div class="footer-tag">BRO IS ACTUALLY A MENACE TO SOCIETY</div>
+    <div id="start-screen" onclick="startGame()">
+        <canvas id="start-bg-canvas"></canvas>
+        <canvas id="particle-canvas"></canvas>
+        <div class="start-content">
+            <div class="start-title">Private Forever</div>
+            <div class="start-prompt">Click anywhere to enter the range</div>
         </div>
     </div>
 
+    <div id="stats-overlay" oncontextmenu="event.preventDefault()">
+        <div class="stats-box">
+            <div class="stats-title">Session Statistics</div>
+            <div class="stat-row"><span>Total Hits Scored</span><span id="stat-hits">0</span></div>
+            <div class="stat-row"><span>Total Shots Fired</span><span id="stat-shots">0</span></div>
+            <div class="stat-row"><span>Accuracy</span><span id="stat-accuracy">0.00%</span></div>
+            <div class="stat-row"><span>Time Elapsed</span><span id="stat-time">0s</span></div>
+            <div class="pause-btn primary" onclick="closeStats()">Resume</div>
+        </div>
+    </div>
+
+    <div id="pause-screen">
+        <div class="pause-box">
+            <div class="pause-btn" onclick="restartGame()">Restart Score</div>
+            
+            <div class="settings-scroll">
+                <div class="settings-group">
+                    <div class="slider-wrapper">
+                        <div class="settings-row">
+                            <span>Sensitivity</span>
+                            <span id="sens-val">0.002</span>
+                        </div>
+                        <input type="range" id="sens-slider" min="0.0005" max="0.006" step="0.0001" value="0.002" oninput="updateSensitivity(this.value)">
+                    </div>
+
+                    <div class="slider-wrapper">
+                        <div class="settings-row">
+                            <span>Target Size</span>
+                            <span id="size-val">0.25</span>
+                        </div>
+                        <input type="range" id="size-slider" min="0.1" max="1.0" step="0.05" value="0.25" oninput="updateTargetSize(this.value)">
+                    </div>
+
+                    <div class="settings-row" id="color-row">
+                        <span>Target Color</span>
+                        <div class="color-picker-wrapper">
+                            <input type="color" id="target-color-picker" value="#ffffff" oninput="updateTargetColor(this.value)">
+                        </div>
+                    </div>
+
+                    <div class="select-wrapper">
+                        <div class="settings-row">
+                            <span>Movement Type</span>
+                        </div>
+                        <select id="movement-select" onchange="updateMovementType(this.value)">
+                            <option value="static" selected>Static (Still)</option>
+                            <option value="floating">Floating 3D</option>
+                            <option value="strafe">Horizontal Strafe</option>
+                        </select>
+                    </div>
+
+                    <div class="slider-wrapper" id="speed-wrapper" style="display: none;">
+                        <div class="settings-row">
+                            <span>Target Speed</span>
+                            <span id="speed-val">2.0</span>
+                        </div>
+                        <input type="range" id="speed-slider" min="0" max="8" step="0.5" value="2.0" oninput="updateSpeed(this.value)">
+                    </div>
+
+                    <div class="select-wrapper">
+                        <div class="settings-row"><span>Target Image / Texture</span></div>
+                        <div style="display: flex; gap: 6px;">
+                            <div class="pause-btn" style="flex:1; padding: 6px; font-size:10px;" onclick="document.getElementById('custom-img-file').click()">Upload Custom Image</div>
+                            <div class="pause-btn" style="flex:1; padding: 6px; font-size:10px;" onclick="clearCustomImage()">Reset Default</div>
+                        </div>
+                        <input type="file" id="custom-img-file" style="display:none" accept="image/*" onchange="uploadCustomImage(event)">
+                    </div>
+
+                    <div class="toggle-row">
+                        <span style="color: #aaa;">NSFW Mode (Preset Image)</span>
+                        <label class="switch">
+                            <input type="checkbox" id="nsfw-toggle" onchange="toggleNSFW(this.checked)">
+                            <span class="slider-switch"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <div class="select-wrapper">
+                        <div class="settings-row"><span>Crosshair Style</span></div>
+                        <select id="ch-style" onchange="updateCrosshair()">
+                            <option value="dot">Dot</option>
+                            <option value="cross">Cross / Plus</option>
+                            <option value="circle">Circle</option>
+                            <option value="square">Square</option>
+                        </select>
+                    </div>
+                    <div class="slider-wrapper">
+                        <div class="settings-row">
+                            <span>Crosshair Size</span>
+                            <span id="ch-size-val">12px</span>
+                        </div>
+                        <input type="range" id="ch-size" min="2" max="30" step="1" value="12" oninput="updateCrosshair()">
+                    </div>
+                    <div class="slider-wrapper">
+                        <div class="settings-row">
+                            <span>Crosshair Thickness</span>
+                            <span id="ch-thick-val">3px</span>
+                        </div>
+                        <input type="range" id="ch-thick" min="1" max="10" step="1" value="3" oninput="updateCrosshair()">
+                    </div>
+                    <div class="slider-wrapper" id="ch-gap-wrapper">
+                        <div class="settings-row">
+                            <span>Center Gap</span>
+                            <span id="ch-gap-val">3px</span>
+                        </div>
+                        <input type="range" id="ch-gap" min="0" max="16" step="1" value="3" oninput="updateCrosshair()">
+                    </div>
+                    <div class="settings-row">
+                        <span>Crosshair Color</span>
+                        <div class="color-picker-wrapper">
+                            <input type="color" id="ch-color" value="#ffffff" oninput="updateCrosshair()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 8px;">
+                <div class="pause-btn" style="flex:1;" onclick="saveConfig()">Save Config</div>
+                <div class="pause-btn" style="flex:1;" onclick="document.getElementById('import-file').click()">Import Config</div>
+                <input type="file" id="import-file" style="display:none" accept=".txt,.json" onchange="importConfig(event)">
+            </div>
+
+            <div class="pause-btn primary" onclick="resumeGame()">Back to game</div>
+        </div>
+    </div>
+
+    <div id="crosshair"></div>
+
+    <div id="radar-container">
+        <canvas id="radar-canvas" width="120" height="120"></canvas>
+    </div>
+
     <script>
-        // --- Rotating Savage Roast Captions ---
-        const roasts = [
-            "LOOK AT THIS ABSOLUTE BUFFOON 💀",
-            "BRO THOUGHT HE COOKED 😭",
-            "OFFICIAL CITIZEN OF CLOWN TOWN 🤡",
-            "GENETICALLY ENGINEERED L 📉",
-            "BRO IS A WHOLE CIRCUS DIRECTLY 🎪",
-            "AURA: -9999999 ☠️"
-        ];
-        
-        let roastIndex = 0;
-        const roastElement = document.getElementById('roastText');
-        
-        setInterval(() => {
-            roastIndex = (roastIndex + 1) % roasts.length;
-            roastElement.style.opacity = 0;
-            setTimeout(() => {
-                roastElement.textContent = roasts[roastIndex];
-                roastElement.style.opacity = 1;
-            }, 200);
-        }, 3000);
-        roastElement.style.transition = "opacity 0.2s ease";
+        const bgCanvas = document.getElementById('start-bg-canvas');
+        const bgCtx = bgCanvas.getContext('2d');
+        const pCanvas = document.getElementById('particle-canvas');
+        const pCtx = pCanvas.getContext('2d');
 
+        function resizeCanvases() {
+            bgCanvas.width = window.innerWidth;
+            bgCanvas.height = window.innerHeight;
+            pCanvas.width = window.innerWidth;
+            pCanvas.height = window.innerHeight;
+            drawBuildingSilhouette();
+        }
+        window.addEventListener('resize', resizeCanvases);
 
-        // --- Falling Emoji Rain Particles ---
-        const rainContainer = document.getElementById('emoji-rain-container');
-        const rainEmojis = ["🤡", "🫵", "💀", "💩", "😭", "📉", "🤡", "💀"];
-        const maxParticles = 40;
+        function drawBuildingSilhouette() {
+            bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+            bgCtx.fillStyle = '#020202';
+            bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
 
-        function createFallingEmoji() {
-            if (rainContainer.children.length >= maxParticles) return;
+            const w = bgCanvas.width;
+            const h = bgCanvas.height;
 
-            const el = document.createElement('div');
-            el.classList.add('falling-emoji');
-            el.textContent = rainEmojis[Math.floor(Math.random() * rainEmojis.length)];
+            bgCtx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+            bgCtx.fillStyle = 'rgba(10, 10, 10, 0.85)';
+            bgCtx.lineWidth = 1;
+
+            const buildings = [
+                { x: w * 0.1, width: w * 0.18, height: h * 0.75 },
+                { x: w * 0.26, width: w * 0.14, height: h * 0.9 },
+                { x: w * 0.38, width: w * 0.22, height: h * 0.65 },
+                { x: w * 0.58, width: w * 0.16, height: h * 0.85 },
+                { x: w * 0.72, width: w * 0.2, height: h * 0.7 }
+            ];
+
+            buildings.forEach(b => {
+                const bx = b.x;
+                const by = h - b.height;
+                const bw = b.width;
+                const bh = b.height;
+
+                bgCtx.fillRect(bx, by, bw, bh);
+                bgCtx.strokeRect(bx, by, bw, bh);
+
+                bgCtx.fillStyle = 'rgba(255, 255, 255, 0.015)';
+                const cols = Math.floor(bw / 25);
+                const rows = Math.floor(bh / 35);
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        if ((r * c) % 5 !== 0) {
+                            bgCtx.fillRect(bx + 8 + c * 22, by + 12 + r * 30, 10, 18);
+                        }
+                    }
+                }
+            });
+
+            const gradient = bgCtx.createRadialGradient(w/2, h/2, h*0.2, w/2, h/2, h*0.9);
+            gradient.addColorStop(0, 'rgba(0,0,0,0)');
+            gradient.addColorStop(1, 'rgba(0,0,0,0.85)');
+            bgCtx.fillStyle = gradient;
+            bgCtx.fillRect(0, 0, w, h);
+        }
+        resizeCanvases();
+
+        const particles = [];
+        for(let i=0; i<100; i++) {
+            particles.push({
+                x: Math.random() * pCanvas.width,
+                y: Math.random() * pCanvas.height,
+                size: Math.random() * 1.5 + 0.4,
+                speed: Math.random() * 0.8 + 0.2,
+                opacity: Math.random() * 0.4 + 0.1,
+                drift: (Math.random() - 0.5) * 0.2
+            });
+        }
+
+        function drawParticles() {
+            pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
             
-            el.style.left = Math.random() * 100 + 'vw';
-            const duration = Math.random() * 3 + 2.5; 
-            el.style.animationDuration = duration + 's';
-            el.style.fontSize = (Math.random() * 1.8 + 1.2) + 'rem';
-            el.style.opacity = Math.random() * 0.8 + 0.2;
-
-            rainContainer.appendChild(el);
-
-            setTimeout(() => {
-                el.remove();
-            }, duration * 1000);
+            particles.forEach(p => {
+                p.y -= p.speed;
+                p.x += p.drift;
+                if(p.y < 0) { 
+                    p.y = pCanvas.height + 10; 
+                    p.x = Math.random() * pCanvas.width; 
+                }
+                pCtx.fillStyle = '#ffffff';
+                pCtx.globalAlpha = p.opacity;
+                pCtx.fillRect(p.x, p.y, p.size, p.size);
+            });
+            requestAnimationFrame(drawParticles);
         }
+        drawParticles();
 
-        setInterval(createFallingEmoji, 200);
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let mouseSensitivity = 0.002;
+        let targetSpeed = 2.0;
+        let targetScale = 0.25;
+        let targetHexColor = '#ffffff';
+        let movementType = 'static';
+        let nsfwEnabled = false;
+        let customImageTexture = null;
+        let yaw = 0, pitch = 0;
+        
+        let score = 0;
+        let totalShots = 0;
+        let sessionStartTime = performance.now();
 
-
-        // --- Interactive Canvas Background (Neon Web) ---
-        const canvas = document.getElementById('bg-canvas');
-        const ctx = canvas.getContext('2d');
-
-        let width, height;
-        let particles = [];
-
-        function resizeCanvas() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        const mouse = { x: null, y: null };
-        window.addEventListener('mousemove', (e) => {
-            mouse.x = e.clientX;
-            mouse.y = e.clientY;
-        });
-
-        class Particle {
-            constructor() {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.size = Math.random() * 3 + 1;
-                this.speedX = (Math.random() - 0.5) * 1.5;
-                this.speedY = (Math.random() - 0.5) * 1.5;
-                this.color = Math.random() > 0.2 ? 'rgba(255, 0, 0, ' : 'rgba(255, 255, 255, ';
-                this.alpha = Math.random() * 0.6 + 0.2;
-            }
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-
-                if (this.x < 0) this.x = width;
-                if (this.x > width) this.x = 0;
-                if (this.y < 0) this.y = height;
-                if (this.y > height) this.y = 0;
-            }
-            draw() {
-                ctx.fillStyle = this.color + this.alpha + ')';
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
+        function loadStats() {
+            const saved = localStorage.getItem('aim_stats_local');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    score = data.score || 0;
+                    totalShots = data.totalShots || 0;
+                } catch(e) {}
             }
         }
+        loadStats();
 
-        for (let i = 0; i < 90; i++) particles.push(new Particle());
+        function saveStats() {
+            const statsData = { score, totalShots, timeElapsed: Math.floor((performance.now() - sessionStartTime)/1000) };
+            localStorage.setItem('aim_stats_local', JSON.stringify(statsData));
+        }
 
-        function animateCanvas() {
-            ctx.clearRect(0, 0, width, height);
+        let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
+        let walkCycle = 0;
+        const playerPosition = new THREE.Vector3(0, 1.6, 0);
+
+        function updateSensitivity(val) { mouseSensitivity = parseFloat(val); document.getElementById('sens-val').innerText = mouseSensitivity.toFixed(4); }
+        function updateSpeed(val) { 
+            targetSpeed = parseFloat(val); 
+            document.getElementById('speed-val').innerText = targetSpeed.toFixed(1); 
+        }
+        function updateTargetSize(val) {
+            targetScale = parseFloat(val);
+            document.getElementById('size-val').innerText = targetScale.toFixed(2);
+            updateTargetMaterials();
+        }
+        function updateTargetColor(val) {
+            targetHexColor = val;
+            if(!nsfwEnabled && !customImageTexture) customMaterial.color.set(targetHexColor);
+        }
+        function updateMovementType(val) {
+            movementType = val;
+            const speedWrapper = document.getElementById('speed-wrapper');
+            speedWrapper.style.display = (val === 'static') ? 'none' : 'flex';
+        }
+        function toggleNSFW(checked) {
+            nsfwEnabled = checked;
+            if (checked) {
+                customImageTexture = null;
+                document.getElementById('color-row').style.display = 'none';
+            } else {
+                document.getElementById('color-row').style.display = 'flex';
+            }
+            updateTargetMaterials();
+        }
+
+        function uploadCustomImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const tex = new THREE.Texture(img);
+                    tex.colorSpace = THREE.SRGBColorSpace;
+                    tex.needsUpdate = true;
+                    customImageTexture = new THREE.MeshBasicMaterial({ map: tex, side: THREE.DoubleSide, transparent: true });
+                    nsfwEnabled = false;
+                    document.getElementById('nsfw-toggle').checked = false;
+                    document.getElementById('color-row').style.display = 'none';
+                    updateTargetMaterials();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearCustomImage() {
+            customImageTexture = null;
+            nsfwEnabled = false;
+            document.getElementById('nsfw-toggle').checked = false;
+            document.getElementById('color-row').style.display = 'flex';
+            updateTargetMaterials();
+        }
+
+        function updateCrosshair() {
+            const style = document.getElementById('ch-style').value;
+            const size = parseInt(document.getElementById('ch-size').value);
+            const thickness = parseInt(document.getElementById('ch-thick').value);
+            const gap = parseInt(document.getElementById('ch-gap').value);
+            const color = document.getElementById('ch-color').value;
             
-            for (let i = 0; i < particles.length; i++) {
-                particles[i].update();
-                particles[i].draw();
+            document.getElementById('ch-gap-wrapper').style.display = (style === 'cross') ? 'flex' : 'none';
+            document.getElementById('ch-size-val').innerText = size + 'px';
+            document.getElementById('ch-thick-val').innerText = thickness + 'px';
+            document.getElementById('ch-gap-val').innerText = gap + 'px';
 
-                if (mouse.x !== null && mouse.y !== null) {
-                    let dx = particles[i].x - mouse.x;
-                    let dy = particles[i].y - mouse.y;
-                    let dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < 160) {
-                        ctx.strokeStyle = `rgba(255, 0, 0, ${(1 - dist / 160) * 0.45})`;
-                        ctx.lineWidth = 1;
-                        ctx.beginPath();
-                        ctx.moveTo(particles[i].x, particles[i].y);
-                        ctx.lineTo(mouse.x, mouse.y);
-                        ctx.stroke();
+            const ch = document.getElementById('crosshair');
+            ch.innerHTML = '';
+
+            if (style === 'dot') {
+                ch.style.width = thickness + 'px';
+                ch.style.height = thickness + 'px';
+                ch.style.backgroundColor = color;
+                ch.style.borderRadius = '50%';
+                ch.style.boxShadow = '0 0 2px rgba(0,0,0,0.8)';
+            } else if (style === 'square') {
+                ch.style.width = thickness + 'px';
+                ch.style.height = thickness + 'px';
+                ch.style.backgroundColor = color;
+                ch.style.borderRadius = '0px';
+                ch.style.boxShadow = '0 0 2px rgba(0,0,0,0.8)';
+            } else if (style === 'circle') {
+                ch.style.width = (size * 2) + 'px';
+                ch.style.height = (size * 2) + 'px';
+                ch.style.border = thickness + 'px solid ' + color;
+                ch.style.borderRadius = '50%';
+                ch.style.backgroundColor = 'transparent';
+                ch.style.boxShadow = 'none';
+            } else if (style === 'cross') {
+                ch.style.width = '0px';
+                ch.style.height = '0px';
+                ch.style.backgroundColor = 'transparent';
+                ch.style.border = 'none';
+                ch.style.boxShadow = 'none';
+
+                const positions = [
+                    { t: `transform: translate(-50%, -${gap + size}px); width: ${thickness}px; height: ${size}px;`, dir: 'v' },
+                    { t: `transform: translate(-50%, ${gap}px); width: ${thickness}px; height: ${size}px;`, dir: 'v' },
+                    { t: `transform: translate(-${gap + size}px, -50%); width: ${size}px; height: ${thickness}px;`, dir: 'h' },
+                    { t: `transform: translate(${gap}px, -50%); width: ${size}px; height: ${thickness}px;`, dir: 'h' }
+                ];
+                positions.forEach(p => {
+                    const line = document.createElement('div');
+                    line.style.position = 'absolute';
+                    line.style.top = '50%'; line.style.left = '50%';
+                    line.style.cssText += p.t;
+                    line.style.backgroundColor = color;
+                    line.style.boxShadow = '0 0 2px rgba(0,0,0,0.8)';
+                    ch.appendChild(line);
+                });
+            }
+        }
+        updateCrosshair();
+
+        function saveConfig() {
+            const configData = {
+                mouseSensitivity, targetSpeed, targetScale, targetHexColor, movementType, nsfwEnabled,
+                chStyle: document.getElementById('ch-style').value,
+                chSize: document.getElementById('ch-size').value,
+                chThick: document.getElementById('ch-thick').value,
+                chGap: document.getElementById('ch-gap').value,
+                chColor: document.getElementById('ch-color').value
+            };
+            const blob = new Blob([JSON.stringify(configData, null, 2)], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'aim_trainer_config.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function importConfig(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const config = JSON.parse(e.target.result);
+                    if (config.mouseSensitivity !== undefined) {
+                        mouseSensitivity = config.mouseSensitivity;
+                        document.getElementById('sens-slider').value = mouseSensitivity;
+                        document.getElementById('sens-val').innerText = mouseSensitivity.toFixed(4);
+                    }
+                    if (config.targetSpeed !== undefined) {
+                        targetSpeed = config.targetSpeed;
+                        document.getElementById('speed-slider').value = targetSpeed;
+                        document.getElementById('speed-val').innerText = targetSpeed.toFixed(1);
+                    }
+                    if (config.targetScale !== undefined) {
+                        targetScale = config.targetScale;
+                        document.getElementById('size-slider').value = targetScale;
+                        document.getElementById('size-val').innerText = targetScale.toFixed(2);
+                    }
+                    if (config.targetHexColor !== undefined) {
+                        targetHexColor = config.targetHexColor;
+                        document.getElementById('target-color-picker').value = targetHexColor;
+                        if (!nsfwEnabled && !customImageTexture) customMaterial.color.set(targetHexColor);
+                    }
+                    if (config.movementType !== undefined) {
+                        movementType = config.movementType;
+                        document.getElementById('movement-select').value = movementType;
+                        updateMovementType(movementType);
+                    }
+                    if (config.nsfwEnabled !== undefined) {
+                        nsfwEnabled = config.nsfwEnabled;
+                        document.getElementById('nsfw-toggle').checked = nsfwEnabled;
+                        toggleNSFW(nsfwEnabled);
+                    }
+                    if (config.chStyle) document.getElementById('ch-style').value = config.chStyle;
+                    if (config.chSize) document.getElementById('ch-size').value = config.chSize;
+                    if (config.chThick) document.getElementById('ch-thick').value = config.chThick;
+                    if (config.chGap) document.getElementById('ch-gap').value = config.chGap;
+                    if (config.chColor) document.getElementById('ch-color').value = config.chColor;
+                    updateCrosshair();
+                    updateTargetMaterials();
+                } catch (err) {
+                    alert('Invalid configuration file.');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        const startScreen = document.getElementById('start-screen');
+        const pauseScreen = document.getElementById('pause-screen');
+        const statsOverlay = document.getElementById('stats-overlay');
+
+        function startGame() {
+            startScreen.style.display = 'none';
+            document.body.requestPointerLock();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function resumeGame() { 
+            pauseScreen.style.display = 'none'; 
+            statsOverlay.style.display = 'none';
+            document.body.requestPointerLock();
+        }
+
+        function closeStats() {
+            statsOverlay.style.display = 'none';
+            document.body.requestPointerLock();
+        }
+
+        function restartGame() {
+            score = 0;
+            totalShots = 0;
+            saveStats();
+            setupMap();
+            resumeGame();
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'KeyW') moveForward = true;
+            if (e.code === 'KeyS') moveBackward = true;
+            if (e.code === 'KeyA') moveLeft = true;
+            if (e.code === 'KeyD') moveRight = true;
+
+            if (e.code === 'Digit2' || e.code === 'Numpad2') {
+                if (startScreen.style.display === 'flex') return;
+                const isPaused = pauseScreen.style.display === 'flex';
+                const isStatsOpen = statsOverlay.style.display === 'flex';
+
+                if (!isPaused) {
+                    if (isStatsOpen) {
+                        resumeGame();
+                    } else {
+                        document.exitPointerLock();
+                        pauseScreen.style.display = 'none';
+                        
+                        document.getElementById('stat-hits').innerText = score;
+                        document.getElementById('stat-shots').innerText = totalShots;
+                        const acc = totalShots > 0 ? ((score / totalShots) * 100).toFixed(2) : '0.00';
+                        document.getElementById('stat-accuracy').innerText = acc + '%';
+                        const elapsed = Math.floor((performance.now() - sessionStartTime) / 1000);
+                        document.getElementById('stat-time').innerText = elapsed + 's';
+
+                        statsOverlay.style.display = 'flex';
                     }
                 }
             }
-            requestAnimationFrame(animateCanvas);
+
+            if (e.code === 'Escape') {
+                if (startScreen.style.display !== 'flex') {
+                    if (statsOverlay.style.display === 'flex') {
+                        statsOverlay.style.display = 'none';
+                        document.body.requestPointerLock();
+                        return;
+                    }
+                    if (pauseScreen.style.display !== 'flex') {
+                        document.exitPointerLock();
+                        pauseScreen.style.display = 'flex';
+                    }
+                }
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.code === 'KeyW') moveForward = false;
+            if (e.code === 'KeyS') moveBackward = false;
+            if (e.code === 'KeyA') moveLeft = false;
+            if (e.code === 'KeyD') moveRight = false;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (document.pointerLockElement !== document.body) return;
+            yaw -= e.movementX * mouseSensitivity;
+            pitch -= e.movementY * mouseSensitivity;
+            pitch = Math.max(-1.5, Math.min(1.5, pitch));
+        });
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        camera.position.copy(playerPosition);
+        scene.add(camera);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        document.body.appendChild(renderer.domElement);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+        scene.add(ambientLight);
+
+        const roomGeo = new THREE.BoxGeometry(130, 60, 130);
+        const roomMat = new THREE.MeshBasicMaterial({ color: 0x010101, side: THREE.BackSide });
+        const room = new THREE.Mesh(roomGeo, roomMat);
+        room.position.y = 30;
+        scene.add(room);
+
+        const groundPlane = new THREE.Mesh(
+            new THREE.PlaneGeometry(130, 130),
+            new THREE.MeshBasicMaterial({ color: 0x000000 })
+        );
+        groundPlane.rotation.x = -Math.PI / 2;
+        groundPlane.position.y = -0.02;
+        scene.add(groundPlane);
+
+        const gridHelper = new THREE.GridHelper(130, 65, 0x151515, 0x080808);
+        gridHelper.position.y = -0.01;
+        scene.add(gridHelper);
+
+        const textureLoader = new THREE.TextureLoader();
+        let customMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        let nsfwMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const sphereGeo = new THREE.SphereGeometry(1.2, 32, 32);
+        const planeCardGeo = new THREE.PlaneGeometry(2.5, 2.5);
+
+        textureLoader.load('https://tse1.explicit.bing.net/th/id/OIP.H6u2sZJYUM1mkVZCilG71wHaJ4?r=0&rs=1&pid=ImgDetMain&o=7&rm=3', (tex) => {
+            tex.colorSpace = THREE.SRGBColorSpace;
+            nsfwMaterial = new THREE.MeshBasicMaterial({ map: tex, side: THREE.DoubleSide });
+            updateTargetMaterials();
+        });
+
+        function updateTargetMaterials() {
+            let activeMat = customMaterial;
+            let activeGeo = sphereGeo;
+
+            if (customImageTexture) {
+                activeMat = customImageTexture;
+                activeGeo = planeCardGeo;
+            } else if (nsfwEnabled) {
+                activeMat = nsfwMaterial;
+                activeGeo = planeCardGeo;
+            } else {
+                activeMat = customMaterial;
+                activeGeo = sphereGeo;
+            }
+
+            targets.forEach(t => {
+                t.geometry = activeGeo;
+                t.material = activeMat;
+                t.scale.set(targetScale, targetScale, targetScale);
+            });
         }
-        animateCanvas();
 
+        const targets = [];
+        const raycaster = new THREE.Raycaster();
 
-        // --- Multi-State Emoji Switcher Logic ---
-        const emojis = ["🤡", "🫵", "💀", "💩", "🎪"];
-        let currentIndex = 1;
-        const emojiElement = document.getElementById('emojiElement');
-        const emojiHub = document.getElementById('emojiHub');
-
-        function updateEmoji() {
-            emojiElement.classList.remove('pop');
-            void emojiElement.offsetWidth;
-            emojiElement.textContent = emojis[currentIndex];
-            emojiElement.classList.add('pop');
-            currentIndex = (currentIndex + 1) % emojis.length;
+        function setupMap() {
+            targets.forEach(t => scene.remove(t)); 
+            targets.length = 0;
+            playerPosition.set(0, 1.6, 0);
+            camera.position.copy(playerPosition);
+            yaw = 0; pitch = 0;
+            for(let i=0; i<5; i++) spawnTarget();
         }
 
-        let emojiInterval = setInterval(updateEmoji, 1300);
+        function spawnTarget() {
+            let activeMat = customMaterial;
+            let activeGeo = sphereGeo;
 
-        emojiHub.addEventListener('click', () => {
-            updateEmoji();
-            clearInterval(emojiInterval);
-            emojiInterval = setInterval(updateEmoji, 1300);
+            if (customImageTexture) {
+                activeMat = customImageTexture;
+                activeGeo = planeCardGeo;
+            } else if (nsfwEnabled) {
+                activeMat = nsfwMaterial;
+                activeGeo = planeCardGeo;
+            } else {
+                activeMat = customMaterial;
+                activeGeo = sphereGeo;
+            }
+
+            const mesh = new THREE.Mesh(activeGeo, activeMat);
+            mesh.scale.set(targetScale, targetScale, targetScale);
+
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 12 + Math.random() * 20;
+            mesh.position.set(Math.cos(angle) * distance, 1.5 + Math.random() * 6, Math.sin(angle) * distance);
+
+            mesh.userData.velX = (Math.random() - 0.5) * 2;
+            mesh.userData.velY = (Math.random() - 0.5) * 2;
+            mesh.userData.velZ = (Math.random() - 0.5) * 2;
+            mesh.userData.strafeDir = Math.random() > 0.5 ? 1 : -1;
+            
+            scene.add(mesh);
+            targets.push(mesh);
+        }
+
+        function playFootstepSound() {
+            if (audioCtx.state === 'suspended') return;
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(80, now);
+            osc.frequency.exponentialRampToValueAtTime(30, now + 0.08);
+            gain.gain.setValueAtTime(0.08, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(now); osc.stop(now + 0.08);
+        }
+
+        window.addEventListener('mousedown', () => {
+            if (document.pointerLockElement !== document.body) return;
+
+            totalShots++;
+            const ch = document.getElementById('crosshair');
+            ch.classList.add('hit');
+            setTimeout(() => ch.classList.remove('hit'), 50);
+
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.frequency.setValueAtTime(600, now);
+            osc.frequency.exponentialRampToValueAtTime(100, now + 0.05);
+            gain.gain.setValueAtTime(0.15, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(now); osc.stop(now + 0.05);
+
+            raycaster.setFromCamera(new THREE.Vector2(0,0), camera);
+            const hits = raycaster.intersectObjects(targets, true);
+            
+            if (hits.length > 0) {
+                const targetObj = hits[0].object;
+                score += 1;
+                saveStats();
+                createFloatingText('+1', window.innerWidth / 2 + (Math.random() * 40 - 20), window.innerHeight / 2 - 30);
+
+                scene.remove(targetObj);
+                targets.splice(targets.indexOf(targetObj), 1);
+                spawnTarget();
+            } else {
+                saveStats();
+            }
         });
 
+        function createFloatingText(text, x, y) {
+            const el = document.createElement('div');
+            el.className = 'floating-score';
+            el.innerText = text;
+            el.style.left = `${x}px`;
+            el.style.top = `${y}px`;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 400);
+        }
 
-        // --- 3D Holographic Card Tilt Effect ---
-        const stageCard = document.getElementById('stageCard');
-        const holoFrame = document.getElementById('holoFrame');
+        const radarCanvas = document.getElementById('radar-canvas');
+        const radarCtx = radarCanvas.getContext('2d');
 
-        stageCard.addEventListener('mousemove', (e) => {
-            const rect = stageCard.getBoundingClientRect();
-            const x = e.clientX - rect.left - rect.width / 2;
-            const y = e.clientY - rect.top - rect.height / 2;
+        function drawRadar() {
+            radarCtx.clearRect(0, 0, 120, 120);
+            radarCtx.fillStyle = '#050505';
+            radarCtx.fillRect(0, 0, 120, 120);
 
-            const rotateX = (-y / (rect.height / 2)) * 12;
-            const rotateY = (x / (rect.width / 2)) * 12;
+            radarCtx.fillStyle = '#fff';
+            radarCtx.fillRect(58, 58, 4, 4);
 
-            holoFrame.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.03, 1.03, 1.03)`;
+            const scale = 2.0;
+            targets.forEach(t => {
+                const relX = t.position.x - camera.position.x;
+                const relZ = t.position.z - camera.position.z;
+                
+                const rotX = relX * Math.cos(-yaw) - relZ * Math.sin(-yaw);
+                const rotZ = relX * Math.sin(-yaw) + relZ * Math.cos(-yaw);
+
+                const mapX = 60 + rotX * scale;
+                const mapY = 60 + rotZ * scale;
+
+                if (mapX >= 0 && mapX <= 120 && mapY >= 0 && mapY <= 120) {
+                    radarCtx.fillStyle = '#777';
+                    radarCtx.fillRect(mapX - 1, mapY - 1, 2, 2);
+                }
+            });
+        }
+
+        let prevTime = performance.now();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = performance.now();
+            const delta = Math.min((time - prevTime) / 1000, 0.1);
+
+            const moveSpeed = 6.0;
+            const dir = new THREE.Vector3();
+            if (moveForward) dir.z -= 1;
+            if (moveBackward) dir.z += 1;
+            if (moveLeft) dir.x -= 1;
+            if (moveRight) dir.x += 1;
+            dir.normalize();
+
+            if (dir.length() > 0) {
+                dir.applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
+                playerPosition.x += dir.x * moveSpeed * delta;
+                playerPosition.z += dir.z * moveSpeed * delta;
+
+                playerPosition.x = Math.max(-55, Math.min(55, playerPosition.x));
+                playerPosition.z = Math.max(-55, Math.min(55, playerPosition.z));
+
+                walkCycle += delta * 10;
+                if (walkCycle > Math.PI * 2) {
+                    walkCycle = 0;
+                    playFootstepSound();
+                }
+            }
+
+            camera.position.copy(playerPosition);
+            camera.rotation.order = 'YXZ';
+            camera.rotation.y = yaw;
+            camera.rotation.x = pitch;
+
+            if (customImageTexture || nsfwEnabled) {
+                targets.forEach(t => t.lookAt(camera.position));
+            }
+
+            targets.forEach(t => {
+                if (movementType === 'floating') {
+                    t.position.x += t.userData.velX * targetSpeed * delta * 2;
+                    t.position.y += t.userData.velY * targetSpeed * delta * 2;
+                    t.position.z += t.userData.velZ * targetSpeed * delta * 2;
+
+                    if (Math.abs(t.position.x - camera.position.x) > 45) t.userData.velX *= -1;
+                    if (t.position.y < 1.5 || t.position.y > 20) t.userData.velY *= -1;
+                    if (Math.abs(t.position.z - camera.position.z) > 45) t.userData.velZ *= -1;
+                } else if (movementType === 'strafe') {
+                    t.position.x += t.userData.strafeDir * targetSpeed * delta * 3;
+                    if (Math.abs(t.position.x) > 45) t.userData.strafeDir *= -1;
+                }
+            });
+
+            drawRadar();
+            prevTime = time;
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        stageCard.addEventListener('mouseleave', () => {
-            holoFrame.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
-        });
-
-
-        // --- Explosive Click Ripple Effect ---
-        stageCard.addEventListener('click', (e) => {
-            const rect = stageCard.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-
-            const ripple = document.createElement('div');
-            ripple.classList.add('ripple');
-            ripple.style.left = x + 'px';
-            ripple.style.top = y + 'px';
-            stageCard.appendChild(ripple);
-
-            setTimeout(() => ripple.remove(), 700);
-        });
+        setupMap();
+        animate();
     </script>
 </body>
 </html>

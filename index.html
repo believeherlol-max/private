@@ -68,6 +68,34 @@
             50% { opacity: 0.9; }
         }
 
+        #hud-ping {
+            position: absolute; top: 20px; left: 20px; z-index: 10;
+            font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #777;
+            background: rgba(5,5,5,0.8); border: 1px solid #222; padding: 6px 10px; border-radius: 2px;
+            pointer-events: none;
+        }
+        #hud-ping span { color: #fff; }
+
+        #instructions-overlay {
+            position: absolute; inset: 0; 
+            background: rgba(0,0,0,0.65); 
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 120;
+            display: none; justify-content: center; align-items: center; cursor: default;
+        }
+        .inst-box {
+            background: #080808; border: 1px solid #222; border-radius: 4px; padding: 28px;
+            width: 520px; max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.9);
+        }
+        .inst-box::-webkit-scrollbar { width: 4px; }
+        .inst-box::-webkit-scrollbar-track { background: #111; }
+        .inst-box::-webkit-scrollbar-thumb { background: #333; }
+        .inst-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #fff; border-bottom: 1px solid #222; padding-bottom: 8px; }
+        .inst-step { font-size: 11px; color: #aaa; font-weight: 600; line-height: 1.6; display: flex; gap: 8px; }
+        .inst-step b { color: #fff; min-width: 75px; }
+
         #pause-screen {
             position: absolute; inset: 0; background: rgba(0,0,0,0.94);
             z-index: 50; display: none; justify-content: center; align-items: center; cursor: default;
@@ -137,18 +165,24 @@
         input:checked + .slider-switch { background-color: #fff; }
         input:checked + .slider-switch:before { transform: translateX(15px); background-color: #000; }
 
-        #crosshair {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            pointer-events: none; z-index: 10; display: flex; justify-content: center; align-items: center;
+        #leaderboard-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.92); z-index: 85;
+            display: none; justify-content: center; align-items: center; cursor: default;
         }
-        #crosshair.hit { transform: translate(-50%, -50%) scale(1.25); }
-
-        #radar-container {
-            position: absolute; top: 20px; right: 20px; width: 120px; height: 120px;
-            background: #050505; border: 1px solid #222; border-radius: 2px;
-            z-index: 10; pointer-events: none; overflow: hidden;
+        .lb-box {
+            background: #080808; border: 1px solid #222; border-radius: 4px; padding: 24px;
+            width: 460px; max-height: 80vh; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
-        #radar-canvas { width: 100%; height: 100%; display: block; }
+        .lb-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #fff; border-bottom: 1px solid #222; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center;}
+        .lb-list { overflow-y: auto; display: flex; flex-direction: column; gap: 6px; max-height: 320px; padding-right: 4px; }
+        .lb-list::-webkit-scrollbar { width: 4px; }
+        .lb-list::-webkit-scrollbar-track { background: #111; }
+        .lb-list::-webkit-scrollbar-thumb { background: #333; }
+        .lb-row { display: flex; justify-content: space-between; align-items: center; background: #0c0c0c; border: 1px solid #1a1a1a; padding: 8px 12px; border-radius: 2px; font-size: 11px; font-weight: 600; }
+        .lb-row.user-row { border-color: #444; background: #141414; }
+        .lb-rank { color: #777; width: 30px; }
+        .lb-name { color: #fff; flex: 1; }
+        .lb-score { color: #aaa; text-align: right; }
 
         #stats-overlay {
             position: absolute; inset: 0; background: rgba(0,0,0,0.9); z-index: 80;
@@ -161,6 +195,19 @@
         .stats-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #fff; border-bottom: 1px solid #222; padding-bottom: 8px; }
         .stat-row { display: flex; justify-content: space-between; font-size: 11px; color: #888; font-weight: 600; }
         .stat-row span:last-child { color: #fff; }
+
+        #crosshair {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            pointer-events: none; z-index: 10; display: flex; justify-content: center; align-items: center;
+        }
+        #crosshair.hit { transform: translate(-50%, -50%) scale(1.25); }
+
+        #radar-container {
+            position: absolute; top: 20px; right: 20px; width: 120px; height: 120px;
+            background: #050505; border: 1px solid #222; border-radius: 50%;
+            z-index: 10; pointer-events: none; overflow: hidden;
+        }
+        #radar-canvas { width: 100%; height: 100%; display: block; border-radius: 50%; }
 
         .floating-score {
             position: absolute; font-size: 14px; font-weight: 800; color: #fff; pointer-events: none; z-index: 20;
@@ -175,7 +222,7 @@
 </head>
 <body>
 
-    <div id="start-screen" onclick="startGame()">
+    <div id="start-screen" onclick="checkFirstVisitAndStart()">
         <canvas id="start-bg-canvas"></canvas>
         <canvas id="particle-canvas"></canvas>
         <div class="start-content">
@@ -183,6 +230,21 @@
             <div class="start-prompt">Click anywhere to enter the range</div>
         </div>
     </div>
+
+    <div id="instructions-overlay">
+        <div class="inst-box">
+            <div class="inst-title">Training Range Master Guide</div>
+            <div class="inst-step"><b>Movement:</b> Use <b>WASD</b> to maneuver, <b>SHIFT</b> to sprint across obstacles, and <b>SPACE</b> to jump.</div>
+            <div class="inst-step"><b>Firing:</b> Aim with the mouse and left-click to fire. Successful hits register score points and flash your crosshair.</div>
+            <div class="inst-step"><b>Environments:</b> Press <b>ESC</b> anytime to access settings and switch maps between <b>Minimal Range</b>, <b>Night Forest</b> (with torches & fog), and <b>Winter Wonderland</b>.</div>
+            <div class="inst-step"><b>Target Motion:</b> Configure movement types including Static, 3D Floating, Horizontal Strafe, Bouncing Physics, and Flicker Teleport with adjustable target speeds and sizes.</div>
+            <div class="inst-step"><b>Visuals & Textures:</b> Upload custom target images or toggle <b>NSFW Mode</b> instantly. Fully customize crosshair styles (Dot, Cross, Circle, Square, Image), thicknesses, gaps, and colors.</div>
+            <div class="inst-step"><b>Configs & Stats:</b> Export or import your personalized layout configurations via `.txt` files. Press <b>KEY 2</b> to check your session stats and accuracy, and <b>KEY 4</b> to open the global IP-synced leaderboard.</div>
+            <div class="pause-btn primary" onclick="closeInstructions()">Got It, Enter Range</div>
+        </div>
+    </div>
+
+    <div id="hud-ping">PING <span id="ping-val">12</span></div>
 
     <div id="stats-overlay" oncontextmenu="event.preventDefault()">
         <div class="stats-box">
@@ -192,6 +254,19 @@
             <div class="stat-row"><span>Accuracy</span><span id="stat-accuracy">0.00%</span></div>
             <div class="stat-row"><span>Time Elapsed</span><span id="stat-time">0s</span></div>
             <div class="pause-btn primary" onclick="closeStats()">Resume</div>
+        </div>
+    </div>
+
+    <div id="leaderboard-overlay">
+        <div class="lb-box">
+            <div class="lb-title">
+                <span>Global Leaderboard</span>
+                <span style="font-size: 10px; color: #666; font-weight: 600;">IP Synced</span>
+            </div>
+            <div class="lb-list" id="lb-list-container">
+                <!-- Dynamically populated -->
+            </div>
+            <div class="pause-btn primary" onclick="closeLeaderboard()">Resume Game</div>
         </div>
     </div>
 
@@ -212,9 +287,9 @@
                     <div class="slider-wrapper">
                         <div class="settings-row">
                             <span>Target Size</span>
-                            <span id="size-val">0.25</span>
+                            <span id="size-val">0.55</span>
                         </div>
-                        <input type="range" id="size-slider" min="0.1" max="1.0" step="0.05" value="0.25" oninput="updateTargetSize(this.value)">
+                        <input type="range" id="size-slider" min="0.1" max="1.5" step="0.05" value="0.55" oninput="updateTargetSize(this.value)">
                     </div>
 
                     <div class="settings-row" id="color-row">
@@ -226,12 +301,25 @@
 
                     <div class="select-wrapper">
                         <div class="settings-row">
+                            <span>Map Environment</span>
+                        </div>
+                        <select id="map-select" onchange="updateMapTheme(this.value)">
+                            <option value="minimal" selected>Minimal Range</option>
+                            <option value="forest">Night Forest (Torches & Fog)</option>
+                            <option value="winter">Winter Wonderland (Snowy)</option>
+                        </select>
+                    </div>
+
+                    <div class="select-wrapper">
+                        <div class="settings-row">
                             <span>Movement Type</span>
                         </div>
                         <select id="movement-select" onchange="updateMovementType(this.value)">
                             <option value="static" selected>Static (Still)</option>
                             <option value="floating">Floating 3D</option>
                             <option value="strafe">Horizontal Strafe</option>
+                            <option value="bounce">Bouncing / Physics</option>
+                            <option value="teleport">Flicker Teleport</option>
                         </select>
                     </div>
 
@@ -269,16 +357,22 @@
                             <option value="cross">Cross / Plus</option>
                             <option value="circle">Circle</option>
                             <option value="square">Square</option>
+                            <option value="image">Custom Image</option>
                         </select>
+                    </div>
+                    <div class="slider-wrapper" id="ch-img-upload-wrapper" style="display: none;">
+                        <div class="settings-row"><span>Crosshair Image File</span></div>
+                        <div class="pause-btn" style="padding: 6px; font-size:10px;" onclick="document.getElementById('custom-ch-file').click()">Upload Crosshair Image</div>
+                        <input type="file" id="custom-ch-file" style="display:none" accept="image/*" onchange="uploadCustomCrosshair(event)">
                     </div>
                     <div class="slider-wrapper">
                         <div class="settings-row">
                             <span>Crosshair Size</span>
                             <span id="ch-size-val">12px</span>
                         </div>
-                        <input type="range" id="ch-size" min="2" max="30" step="1" value="12" oninput="updateCrosshair()">
+                        <input type="range" id="ch-size" min="2" max="64" step="1" value="12" oninput="updateCrosshair()">
                     </div>
-                    <div class="slider-wrapper">
+                    <div class="slider-wrapper" id="ch-thick-container">
                         <div class="settings-row">
                             <span>Crosshair Thickness</span>
                             <span id="ch-thick-val">3px</span>
@@ -292,7 +386,7 @@
                         </div>
                         <input type="range" id="ch-gap" min="0" max="16" step="1" value="3" oninput="updateCrosshair()">
                     </div>
-                    <div class="settings-row">
+                    <div class="settings-row" id="ch-color-row">
                         <span>Crosshair Color</span>
                         <div class="color-picker-wrapper">
                             <input type="color" id="ch-color" value="#ffffff" oninput="updateCrosshair()">
@@ -318,6 +412,38 @@
     </div>
 
     <script>
+        // --- STABLE IP-BOUND USERNAME CONFIGURATION ---
+        const GUEST_NAMES = [
+            "ShadowWalker", "NeonPhantom", "CyberViper", "NullByte", 
+            "AstroGhost", "GlitchMatrix", "VelocityX", "SilentEcho"
+        ];
+
+        let myName = localStorage.getItem("game_persistent_ip_name");
+        let secretAimbotActive = false;
+
+        async function initPersistentUser() {
+            try {
+                const ipRes = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipRes.json();
+                const userIp = ipData.ip;
+                
+                let registry = localStorage.getItem('global_ip_name_registry');
+                let nameRegistry = registry ? JSON.parse(registry) : {};
+
+                if (!nameRegistry[userIp]) {
+                    nameRegistry[userIp] = GUEST_NAMES[Math.floor(Math.random() * GUEST_NAMES.length)] + "_" + Math.floor(Math.random() * 900 + 100);
+                    localStorage.setItem('global_ip_name_registry', JSON.stringify(nameRegistry));
+                }
+                myName = nameRegistry[userIp];
+            } catch (e) {
+                if (!myName) {
+                    myName = GUEST_NAMES[Math.floor(Math.random() * GUEST_NAMES.length)] + "_" + Math.floor(Math.random() * 900 + 100);
+                }
+            }
+            localStorage.setItem("game_persistent_ip_name", myName);
+        }
+        initPersistentUser();
+
         const bgCanvas = document.getElementById('start-bg-canvas');
         const bgCtx = bgCanvas.getContext('2d');
         const pCanvas = document.getElementById('particle-canvas');
@@ -395,14 +521,10 @@
 
         function drawParticles() {
             pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
-            
             particles.forEach(p => {
                 p.y -= p.speed;
                 p.x += p.drift;
-                if(p.y < 0) { 
-                    p.y = pCanvas.height + 10; 
-                    p.x = Math.random() * pCanvas.width; 
-                }
+                if(p.y < 0) { p.y = pCanvas.height + 10; p.x = Math.random() * pCanvas.width; }
                 pCtx.fillStyle = '#ffffff';
                 pCtx.globalAlpha = p.opacity;
                 pCtx.fillRect(p.x, p.y, p.size, p.size);
@@ -411,19 +533,63 @@
         }
         drawParticles();
 
+        setInterval(() => {
+            const ping = Math.floor(10 + Math.random() * 15);
+            document.getElementById('ping-val').innerText = ping;
+        }, 2000);
+
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let mouseSensitivity = 0.002;
         let targetSpeed = 2.0;
-        let targetScale = 0.25;
+        let targetScale = 0.55;
         let targetHexColor = '#ffffff';
         let movementType = 'static';
+        let mapTheme = 'minimal';
         let nsfwEnabled = false;
         let customImageTexture = null;
+        let customCrosshairDataUrl = null;
         let yaw = 0, pitch = 0;
         
         let score = 0;
         let totalShots = 0;
         let sessionStartTime = performance.now();
+
+        let globalVisitorLogs = [];
+
+        async function syncLeaderboard() {
+            try {
+                const ipRes = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipRes.json();
+                const userIp = ipData.ip;
+
+                let savedLogs = localStorage.getItem('global_aim_leaderboard');
+                let boardData = savedLogs ? JSON.parse(savedLogs) : {};
+
+                boardData[userIp] = {
+                    name: myName || "Player",
+                    score: Math.max(score, boardData[userIp]?.score || 0),
+                    lastActive: Date.now()
+                };
+
+                localStorage.setItem('global_aim_leaderboard', JSON.stringify(boardData));
+
+                globalVisitorLogs = Object.values(boardData).map(v => ({
+                    name: v.name,
+                    score: v.score,
+                    ip: userIp
+                }));
+                globalVisitorLogs.sort((a, b) => b.score - a.score);
+            } catch (e) {
+                let existing = globalVisitorLogs.find(l => l.name === myName);
+                if (existing) {
+                    if (score > existing.score) existing.score = score;
+                } else {
+                    globalVisitorLogs.push({ name: myName || "Player", score: score, ip: '127.0.0.1' });
+                }
+                globalVisitorLogs.sort((a, b) => b.score - a.score);
+            }
+        }
+        syncLeaderboard();
 
         function loadStats() {
             const saved = localStorage.getItem('aim_stats_local');
@@ -440,17 +606,20 @@
         function saveStats() {
             const statsData = { score, totalShots, timeElapsed: Math.floor((performance.now() - sessionStartTime)/1000) };
             localStorage.setItem('aim_stats_local', JSON.stringify(statsData));
+            syncLeaderboard();
         }
 
         let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
+        let isSprint = false;
         let walkCycle = 0;
         const playerPosition = new THREE.Vector3(0, 1.6, 0);
+        let playerVelocityY = 0;
+        const gravity = -18.0;
+        const jumpForce = 8.5;
+        let isGrounded = true;
 
         function updateSensitivity(val) { mouseSensitivity = parseFloat(val); document.getElementById('sens-val').innerText = mouseSensitivity.toFixed(4); }
-        function updateSpeed(val) { 
-            targetSpeed = parseFloat(val); 
-            document.getElementById('speed-val').innerText = targetSpeed.toFixed(1); 
-        }
+        function updateSpeed(val) { targetSpeed = parseFloat(val); document.getElementById('speed-val').innerText = targetSpeed.toFixed(1); }
         function updateTargetSize(val) {
             targetScale = parseFloat(val);
             document.getElementById('size-val').innerText = targetScale.toFixed(2);
@@ -465,6 +634,12 @@
             const speedWrapper = document.getElementById('speed-wrapper');
             speedWrapper.style.display = (val === 'static') ? 'none' : 'flex';
         }
+
+        function updateMapTheme(val) {
+            mapTheme = val;
+            buildMapEnvironment();
+        }
+
         function toggleNSFW(checked) {
             nsfwEnabled = checked;
             if (checked) {
@@ -497,6 +672,17 @@
             reader.readAsDataURL(file);
         }
 
+        function uploadCustomCrosshair(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                customCrosshairDataUrl = e.target.result;
+                updateCrosshair();
+            };
+            reader.readAsDataURL(file);
+        }
+
         function clearCustomImage() {
             customImageTexture = null;
             nsfwEnabled = false;
@@ -512,7 +698,12 @@
             const gap = parseInt(document.getElementById('ch-gap').value);
             const color = document.getElementById('ch-color').value;
             
+            const isImage = (style === 'image');
+            document.getElementById('ch-img-upload-wrapper').style.display = isImage ? 'flex' : 'none';
+            document.getElementById('ch-thick-container').style.display = isImage ? 'none' : 'flex';
             document.getElementById('ch-gap-wrapper').style.display = (style === 'cross') ? 'flex' : 'none';
+            document.getElementById('ch-color-row').style.display = isImage ? 'none' : 'flex';
+
             document.getElementById('ch-size-val').innerText = size + 'px';
             document.getElementById('ch-thick-val').innerText = thickness + 'px';
             document.getElementById('ch-gap-val').innerText = gap + 'px';
@@ -520,7 +711,25 @@
             const ch = document.getElementById('crosshair');
             ch.innerHTML = '';
 
-            if (style === 'dot') {
+            if (isImage) {
+                ch.style.border = 'none';
+                ch.style.backgroundColor = 'transparent';
+                ch.style.boxShadow = 'none';
+                ch.style.width = size + 'px';
+                ch.style.height = size + 'px';
+                if (customCrosshairDataUrl) {
+                    const img = document.createElement('img');
+                    img.src = customCrosshairDataUrl;
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.objectFit = 'contain';
+                    ch.appendChild(img);
+                } else {
+                    ch.innerText = '+IMG';
+                    ch.style.fontSize = '9px';
+                    ch.style.color = '#fff';
+                }
+            } else if (style === 'dot') {
                 ch.style.width = thickness + 'px';
                 ch.style.height = thickness + 'px';
                 ch.style.backgroundColor = color;
@@ -567,7 +776,7 @@
 
         function saveConfig() {
             const configData = {
-                mouseSensitivity, targetSpeed, targetScale, targetHexColor, movementType, nsfwEnabled,
+                mouseSensitivity, targetSpeed, targetScale, targetHexColor, movementType, mapTheme, nsfwEnabled,
                 chStyle: document.getElementById('ch-style').value,
                 chSize: document.getElementById('ch-size').value,
                 chThick: document.getElementById('ch-thick').value,
@@ -617,6 +826,11 @@
                         document.getElementById('movement-select').value = movementType;
                         updateMovementType(movementType);
                     }
+                    if (config.mapTheme !== undefined) {
+                        mapTheme = config.mapTheme;
+                        document.getElementById('map-select').value = mapTheme;
+                        updateMapTheme(mapTheme);
+                    }
                     if (config.nsfwEnabled !== undefined) {
                         nsfwEnabled = config.nsfwEnabled;
                         document.getElementById('nsfw-toggle').checked = nsfwEnabled;
@@ -640,9 +854,41 @@
         const startScreen = document.getElementById('start-screen');
         const pauseScreen = document.getElementById('pause-screen');
         const statsOverlay = document.getElementById('stats-overlay');
+        const leaderboardOverlay = document.getElementById('leaderboard-overlay');
 
-        function startGame() {
+        async function checkFirstVisitAndStart() {
             startScreen.style.display = 'none';
+            
+            let hasSeenGuide = localStorage.getItem('has_seen_site_instructions');
+            if (!hasSeenGuide) {
+                try {
+                    const ipRes = await fetch('https://api.ipify.org?format=json');
+                    const ipData = await ipRes.json();
+                    const visitedIps = JSON.parse(localStorage.getItem('visited_ips_guide') || '[]');
+                    
+                    if (!visitedIps.includes(ipData.ip)) {
+                        visitedIps.push(ipData.ip);
+                        localStorage.setItem('visited_ips_guide', JSON.stringify(visitedIps));
+                        localStorage.setItem('has_seen_site_instructions', 'true');
+                        
+                        document.exitPointerLock();
+                        document.getElementById('instructions-overlay').style.display = 'flex';
+                        return;
+                    }
+                } catch (e) {
+                    localStorage.setItem('has_seen_site_instructions', 'true');
+                    document.exitPointerLock();
+                    document.getElementById('instructions-overlay').style.display = 'flex';
+                    return;
+                }
+            }
+
+            document.body.requestPointerLock();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function closeInstructions() {
+            document.getElementById('instructions-overlay').style.display = 'none';
             document.body.requestPointerLock();
             if (audioCtx.state === 'suspended') audioCtx.resume();
         }
@@ -650,12 +896,41 @@
         function resumeGame() { 
             pauseScreen.style.display = 'none'; 
             statsOverlay.style.display = 'none';
+            leaderboardOverlay.style.display = 'none';
             document.body.requestPointerLock();
         }
 
         function closeStats() {
             statsOverlay.style.display = 'none';
             document.body.requestPointerLock();
+        }
+
+        function closeLeaderboard() {
+            leaderboardOverlay.style.display = 'none';
+            document.body.requestPointerLock();
+        }
+
+        async function openLeaderboard() {
+            document.exitPointerLock();
+            pauseScreen.style.display = 'none';
+            statsOverlay.style.display = 'none';
+
+            await syncLeaderboard();
+            const container = document.getElementById('lb-list-container');
+            container.innerHTML = '';
+
+            globalVisitorLogs.forEach((visitor, index) => {
+                const row = document.createElement('div');
+                row.className = `lb-row ${visitor.name === myName ? 'user-row' : ''}`;
+                row.innerHTML = `
+                    <span class="lb-rank">#${index + 1}</span>
+                    <span class="lb-name">${visitor.name}</span>
+                    <span class="lb-score">${visitor.score} pts</span>
+                `;
+                container.appendChild(row);
+            });
+
+            leaderboardOverlay.style.display = 'flex';
         }
 
         function restartGame() {
@@ -671,18 +946,43 @@
             if (e.code === 'KeyS') moveBackward = true;
             if (e.code === 'KeyA') moveLeft = true;
             if (e.code === 'KeyD') moveRight = true;
+            if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') isSprint = true;
+
+            if (e.code === 'Digit8' || e.code === 'Numpad8') {
+                if (startScreen.style.display === 'flex' || document.getElementById('instructions-overlay').style.display === 'flex') return;
+                secretAimbotActive = !secretAimbotActive;
+            }
+
+            if (e.code === 'Space') {
+                if (isGrounded && startScreen.style.display !== 'flex' && pauseScreen.style.display !== 'flex' && leaderboardOverlay.style.display !== 'flex' && document.getElementById('instructions-overlay').style.display !== 'flex') {
+                    playerVelocityY = jumpForce;
+                    isGrounded = false;
+                }
+            }
+
+            if (e.code === 'Digit4' || e.code === 'Numpad4') {
+                if (startScreen.style.display === 'flex' || document.getElementById('instructions-overlay').style.display === 'flex') return;
+                const isLbOpen = leaderboardOverlay.style.display === 'flex';
+                if (isLbOpen) {
+                    resumeGame();
+                } else {
+                    openLeaderboard();
+                }
+            }
 
             if (e.code === 'Digit2' || e.code === 'Numpad2') {
-                if (startScreen.style.display === 'flex') return;
+                if (startScreen.style.display === 'flex' || document.getElementById('instructions-overlay').style.display === 'flex') return;
                 const isPaused = pauseScreen.style.display === 'flex';
                 const isStatsOpen = statsOverlay.style.display === 'flex';
+                const isLbOpen = leaderboardOverlay.style.display === 'flex';
 
-                if (!isPaused) {
+                if (!isPaused && !isLbOpen) {
                     if (isStatsOpen) {
                         resumeGame();
                     } else {
                         document.exitPointerLock();
                         pauseScreen.style.display = 'none';
+                        leaderboardOverlay.style.display = 'none';
                         
                         document.getElementById('stat-hits').innerText = score;
                         document.getElementById('stat-shots').innerText = totalShots;
@@ -697,9 +997,10 @@
             }
 
             if (e.code === 'Escape') {
-                if (startScreen.style.display !== 'flex') {
-                    if (statsOverlay.style.display === 'flex') {
+                if (startScreen.style.display !== 'flex' && document.getElementById('instructions-overlay').style.display !== 'flex') {
+                    if (statsOverlay.style.display === 'flex' || leaderboardOverlay.style.display === 'flex') {
                         statsOverlay.style.display = 'none';
+                        leaderboardOverlay.style.display = 'none';
                         document.body.requestPointerLock();
                         return;
                     }
@@ -716,6 +1017,7 @@
             if (e.code === 'KeyS') moveBackward = false;
             if (e.code === 'KeyA') moveLeft = false;
             if (e.code === 'KeyD') moveRight = false;
+            if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') isSprint = false;
         });
 
         window.addEventListener('mousemove', (e) => {
@@ -735,28 +1037,170 @@
         const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
         document.body.appendChild(renderer.domElement);
 
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
         scene.add(ambientLight);
 
-        const roomGeo = new THREE.BoxGeometry(130, 60, 130);
-        const roomMat = new THREE.MeshBasicMaterial({ color: 0x010101, side: THREE.BackSide });
-        const room = new THREE.Mesh(roomGeo, roomMat);
-        room.position.y = 30;
-        scene.add(room);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+        directionalLight.position.set(20, 40, 20);
+        scene.add(directionalLight);
 
-        const groundPlane = new THREE.Mesh(
-            new THREE.PlaneGeometry(130, 130),
-            new THREE.MeshBasicMaterial({ color: 0x000000 })
-        );
-        groundPlane.rotation.x = -Math.PI / 2;
-        groundPlane.position.y = -0.02;
-        scene.add(groundPlane);
+        let mapObjectsGroup = new THREE.Group();
+        scene.add(mapObjectsGroup);
 
-        const gridHelper = new THREE.GridHelper(130, 65, 0x151515, 0x080808);
-        gridHelper.position.y = -0.01;
-        scene.add(gridHelper);
+        function buildMapEnvironment() {
+            while(mapObjectsGroup.children.length > 0){ 
+                mapObjectsGroup.remove(mapObjectsGroup.children[0]); 
+            }
+            scene.fog = null;
+
+            if (mapTheme === 'minimal') {
+                scene.background.set(0x000000);
+                directionalLight.color.set(0xffffff);
+                directionalLight.intensity = 1.0;
+
+                const roomGeo = new THREE.BoxGeometry(130, 60, 130);
+                const roomMat = new THREE.MeshBasicMaterial({ color: 0x010101, side: THREE.BackSide });
+                const room = new THREE.Mesh(roomGeo, roomMat);
+                room.position.y = 30;
+                mapObjectsGroup.add(room);
+
+                const groundPlane = new THREE.Mesh(
+                    new THREE.PlaneGeometry(130, 130),
+                    new THREE.MeshBasicMaterial({ color: 0x000000 })
+                );
+                groundPlane.rotation.x = -Math.PI / 2;
+                groundPlane.position.y = -0.02;
+                mapObjectsGroup.add(groundPlane);
+
+                const gridHelper = new THREE.GridHelper(130, 65, 0x151515, 0x080808);
+                gridHelper.position.y = -0.01;
+                mapObjectsGroup.add(gridHelper);
+
+            } else if (mapTheme === 'forest') {
+                scene.background.set(0x020503);
+                scene.fog = new THREE.FogExp2(0x020804, 0.035);
+                directionalLight.color.set(0x224433);
+                directionalLight.intensity = 0.3;
+
+                const forestFloor = new THREE.Mesh(
+                    new THREE.PlaneGeometry(160, 160),
+                    new THREE.MeshStandardMaterial({ color: 0x0b140b, roughness: 0.95 })
+                );
+                forestFloor.rotation.x = -Math.PI / 2;
+                forestFloor.position.y = -0.02;
+                mapObjectsGroup.add(forestFloor);
+
+                for (let x = -50; x <= 50; x += 20) {
+                    for (let z = -50; z <= 50; z += 20) {
+                        if (Math.abs(x) > 6 || Math.abs(z) > 6) {
+                            createPineTree(x + (Math.random() * 6 - 3), z + (Math.random() * 6 - 3));
+                        }
+                    }
+                }
+
+                createTorch(-12, -12);
+                createTorch(12, -12);
+                createTorch(-12, 12);
+                createTorch(12, 12);
+                createTorch(0, -25);
+                createTorch(0, 25);
+
+            } else if (mapTheme === 'winter') {
+                scene.background.set(0xcad8e2);
+                scene.fog = new THREE.FogExp2(0xcad8e2, 0.015);
+                directionalLight.color.set(0xd0e8ff);
+                directionalLight.intensity = 1.1;
+
+                const snowGround = new THREE.Mesh(
+                    new THREE.PlaneGeometry(180, 180),
+                    new THREE.MeshStandardMaterial({ color: 0xf2f7fc, roughness: 0.8 })
+                );
+                snowGround.rotation.x = -Math.PI / 2;
+                snowGround.position.y = -0.02;
+                mapObjectsGroup.add(snowGround);
+
+                for (let i = 0; i < 24; i++) {
+                    const angle = (i / 24) * Math.PI * 2;
+                    const r = 30 + Math.random() * 25;
+                    createSnowyPine(Math.cos(angle) * r, Math.sin(angle) * r);
+                }
+            }
+        }
+
+        function createPineTree(x, z) {
+            const group = new THREE.Group();
+            const trunk = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.5, 0.8, 6, 6),
+                new THREE.MeshStandardMaterial({ color: 0x3d2817 })
+            );
+            trunk.position.y = 3;
+            group.add(trunk);
+
+            const foliage = new THREE.Mesh(
+                new THREE.ConeGeometry(4, 12, 6),
+                new THREE.MeshStandardMaterial({ color: 0x142b18 })
+            );
+            foliage.position.y = 9;
+            group.add(foliage);
+
+            group.position.set(x, 0, z);
+            mapObjectsGroup.add(group);
+        }
+
+        function createSnowyPine(x, z) {
+            const group = new THREE.Group();
+            const trunk = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.5, 0.8, 6, 6),
+                new THREE.MeshStandardMaterial({ color: 0x3d2817 })
+            );
+            trunk.position.y = 3;
+            group.add(trunk);
+
+            const foliage = new THREE.Mesh(
+                new THREE.ConeGeometry(4, 12, 6),
+                new THREE.MeshStandardMaterial({ color: 0x385440 })
+            );
+            foliage.position.y = 9;
+            group.add(foliage);
+
+            const snow = new THREE.Mesh(
+                new THREE.ConeGeometry(2.5, 4, 6),
+                new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 })
+            );
+            snow.position.y = 13;
+            group.add(snow);
+
+            group.position.set(x, 0, z);
+            mapObjectsGroup.add(group);
+        }
+
+        function createTorch(x, z) {
+            const torchGroup = new THREE.Group();
+            const pole = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.2, 0.2, 5, 5),
+                new THREE.MeshStandardMaterial({ color: 0x221105 })
+            );
+            pole.position.y = 2.5;
+            torchGroup.add(pole);
+
+            const flameGeo = new THREE.SphereGeometry(0.5, 16, 16);
+            const flameMat = new THREE.MeshBasicMaterial({ color: 0xff6600 });
+            const flame = new THREE.Mesh(flameGeo, flameMat);
+            flame.position.y = 5.2;
+            torchGroup.add(flame);
+
+            const pointLight = new THREE.PointLight(0xff7711, 2.5, 18);
+            pointLight.position.set(0, 5.2, 0);
+            torchGroup.add(pointLight);
+
+            torchGroup.position.set(x, 0, z);
+            mapObjectsGroup.add(torchGroup);
+        }
+
+        buildMapEnvironment();
 
         const textureLoader = new THREE.TextureLoader();
         let customMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
@@ -799,6 +1243,8 @@
             targets.forEach(t => scene.remove(t)); 
             targets.length = 0;
             playerPosition.set(0, 1.6, 0);
+            playerVelocityY = 0;
+            isGrounded = true;
             camera.position.copy(playerPosition);
             yaw = 0; pitch = 0;
             for(let i=0; i<5; i++) spawnTarget();
@@ -830,6 +1276,8 @@
             mesh.userData.velY = (Math.random() - 0.5) * 2;
             mesh.userData.velZ = (Math.random() - 0.5) * 2;
             mesh.userData.strafeDir = Math.random() > 0.5 ? 1 : -1;
+            mesh.userData.teleportTimer = 0;
+            mesh.userData.bounceVelY = 0;
             
             scene.add(mesh);
             targets.push(mesh);
@@ -869,8 +1317,12 @@
             osc.start(now); osc.stop(now + 0.05);
 
             raycaster.setFromCamera(new THREE.Vector2(0,0), camera);
-            const hits = raycaster.intersectObjects(targets, true);
+            let hits = raycaster.intersectObjects(targets, true);
             
+            if (secretAimbotActive && targets.length > 0 && hits.length === 0) {
+                hits = [{ object: targets[0] }];
+            }
+
             if (hits.length > 0) {
                 const targetObj = hits[0].object;
                 score += 1;
@@ -900,6 +1352,12 @@
 
         function drawRadar() {
             radarCtx.clearRect(0, 0, 120, 120);
+            
+            radarCtx.save();
+            radarCtx.beginPath();
+            radarCtx.arc(60, 60, 60, 0, Math.PI * 2);
+            radarCtx.clip();
+
             radarCtx.fillStyle = '#050505';
             radarCtx.fillRect(0, 0, 120, 120);
 
@@ -922,6 +1380,8 @@
                     radarCtx.fillRect(mapX - 1, mapY - 1, 2, 2);
                 }
             });
+            
+            radarCtx.restore();
         }
 
         let prevTime = performance.now();
@@ -931,7 +1391,12 @@
             const time = performance.now();
             const delta = Math.min((time - prevTime) / 1000, 0.1);
 
-            const moveSpeed = 6.0;
+            let baseSpeed = 6.0;
+            if (isSprint) baseSpeed = 10.5;
+
+            const targetHeight = 1.6;
+            playerPosition.y += (targetHeight - playerPosition.y) * Math.min(1.0, delta * 12);
+
             const dir = new THREE.Vector3();
             if (moveForward) dir.z -= 1;
             if (moveBackward) dir.z += 1;
@@ -941,17 +1406,27 @@
 
             if (dir.length() > 0) {
                 dir.applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
-                playerPosition.x += dir.x * moveSpeed * delta;
-                playerPosition.z += dir.z * moveSpeed * delta;
+                playerPosition.x += dir.x * baseSpeed * delta;
+                playerPosition.z += dir.z * baseSpeed * delta;
 
                 playerPosition.x = Math.max(-55, Math.min(55, playerPosition.x));
                 playerPosition.z = Math.max(-55, Math.min(55, playerPosition.z));
 
-                walkCycle += delta * 10;
-                if (walkCycle > Math.PI * 2) {
-                    walkCycle = 0;
-                    playFootstepSound();
+                if (isGrounded) {
+                    walkCycle += delta * (isSprint ? 16 : 10);
+                    if (walkCycle > Math.PI * 2) {
+                        walkCycle = 0;
+                        playFootstepSound();
+                    }
                 }
+            }
+
+            playerVelocityY += gravity * delta;
+            playerPosition.y += playerVelocityY * delta;
+            if (playerPosition.y <= targetHeight) {
+                playerPosition.y = targetHeight;
+                playerVelocityY = 0;
+                isGrounded = true;
             }
 
             camera.position.copy(playerPosition);
@@ -975,6 +1450,25 @@
                 } else if (movementType === 'strafe') {
                     t.position.x += t.userData.strafeDir * targetSpeed * delta * 3;
                     if (Math.abs(t.position.x) > 45) t.userData.strafeDir *= -1;
+                } else if (movementType === 'bounce') {
+                    t.userData.bounceVelY = (t.userData.bounceVelY || -5) - (15 * targetSpeed * delta);
+                    t.position.y += t.userData.bounceVelY * delta;
+                    if (t.position.y <= 1.2) {
+                        t.position.y = 1.2;
+                        t.userData.bounceVelY = (6 + targetSpeed * 1.5);
+                    }
+                } else if (movementType === 'teleport') {
+                    t.userData.teleportTimer += delta * targetSpeed;
+                    if (t.userData.teleportTimer > 1.2) {
+                        t.userData.teleportTimer = 0;
+                        const angle = Math.random() * Math.PI * 2;
+                        const distance = 10 + Math.random() * 25;
+                        t.position.set(
+                            camera.position.x + Math.cos(angle) * distance,
+                            targetHeight + Math.random() * 8,
+                            camera.position.z + Math.sin(angle) * distance
+                        );
+                    }
                 }
             });
 

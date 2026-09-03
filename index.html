@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Private Forever - Aim Trainer</title>
+    <title>private forever - Aim Trainer</title>
     <link rel="icon" type="image/png" href="./favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;650&display=swap" rel="stylesheet">
     <style>
@@ -75,26 +75,6 @@
             pointer-events: none;
         }
         #hud-ping span { color: #fff; }
-
-        #instructions-overlay {
-            position: absolute; inset: 0; 
-            background: rgba(0,0,0,0.65); 
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            z-index: 120;
-            display: none; justify-content: center; align-items: center; cursor: default;
-        }
-        .inst-box {
-            background: #080808; border: 1px solid #222; border-radius: 4px; padding: 28px;
-            width: 520px; max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.9);
-        }
-        .inst-box::-webkit-scrollbar { width: 4px; }
-        .inst-box::-webkit-scrollbar-track { background: #111; }
-        .inst-box::-webkit-scrollbar-thumb { background: #333; }
-        .inst-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #fff; border-bottom: 1px solid #222; padding-bottom: 8px; }
-        .inst-step { font-size: 11px; color: #aaa; font-weight: 600; line-height: 1.6; display: flex; gap: 8px; }
-        .inst-step b { color: #fff; min-width: 75px; }
 
         #pause-screen {
             position: absolute; inset: 0; background: rgba(0,0,0,0.94);
@@ -184,18 +164,6 @@
         .lb-name { color: #fff; flex: 1; }
         .lb-score { color: #aaa; text-align: right; }
 
-        #stats-overlay {
-            position: absolute; inset: 0; background: rgba(0,0,0,0.9); z-index: 80;
-            display: none; justify-content: center; align-items: center; cursor: default;
-        }
-        .stats-box {
-            background: #080808; border: 1px solid #222; border-radius: 4px; padding: 24px;
-            width: 360px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-        }
-        .stats-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #fff; border-bottom: 1px solid #222; padding-bottom: 8px; }
-        .stat-row { display: flex; justify-content: space-between; font-size: 11px; color: #888; font-weight: 600; }
-        .stat-row span:last-child { color: #fff; }
-
         #crosshair {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             pointer-events: none; z-index: 10; display: flex; justify-content: center; align-items: center;
@@ -231,31 +199,7 @@
         </div>
     </div>
 
-    <div id="instructions-overlay">
-        <div class="inst-box">
-            <div class="inst-title">Training Range Master Guide</div>
-            <div class="inst-step"><b>Movement:</b> Use <b>WASD</b> to maneuver, <b>SHIFT</b> to sprint across obstacles, and <b>SPACE</b> to jump.</div>
-            <div class="inst-step"><b>Firing:</b> Aim with the mouse and left-click to fire. Successful hits register score points and flash your crosshair.</div>
-            <div class="inst-step"><b>Environments:</b> Press <b>ESC</b> anytime to access settings and switch maps between <b>Minimal Range</b>, <b>Night Forest</b> (with torches & fog), and <b>Winter Wonderland</b>.</div>
-            <div class="inst-step"><b>Target Motion:</b> Configure movement types including Static, 3D Floating, Horizontal Strafe, Bouncing Physics, and Flicker Teleport with adjustable target speeds and sizes.</div>
-            <div class="inst-step"><b>Visuals & Textures:</b> Upload custom target images or toggle <b>NSFW Mode</b> instantly. Fully customize crosshair styles (Dot, Cross, Circle, Square, Image), thicknesses, gaps, and colors.</div>
-            <div class="inst-step"><b>Configs & Stats:</b> Export or import your personalized layout configurations via `.txt` files. Press <b>KEY 2</b> to check your session stats and accuracy, and <b>KEY 4</b> to open the global IP-synced leaderboard.</div>
-            <div class="pause-btn primary" onclick="closeInstructions()">Got It, Enter Range</div>
-        </div>
-    </div>
-
     <div id="hud-ping">PING <span id="ping-val">12</span></div>
-
-    <div id="stats-overlay" oncontextmenu="event.preventDefault()">
-        <div class="stats-box">
-            <div class="stats-title">Session Statistics</div>
-            <div class="stat-row"><span>Total Hits Scored</span><span id="stat-hits">0</span></div>
-            <div class="stat-row"><span>Total Shots Fired</span><span id="stat-shots">0</span></div>
-            <div class="stat-row"><span>Accuracy</span><span id="stat-accuracy">0.00%</span></div>
-            <div class="stat-row"><span>Time Elapsed</span><span id="stat-time">0s</span></div>
-            <div class="pause-btn primary" onclick="closeStats()">Resume</div>
-        </div>
-    </div>
 
     <div id="leaderboard-overlay">
         <div class="lb-box">
@@ -853,55 +797,17 @@
 
         const startScreen = document.getElementById('start-screen');
         const pauseScreen = document.getElementById('pause-screen');
-        const statsOverlay = document.getElementById('stats-overlay');
         const leaderboardOverlay = document.getElementById('leaderboard-overlay');
 
-        async function checkFirstVisitAndStart() {
+        function checkFirstVisitAndStart() {
             startScreen.style.display = 'none';
-            
-            let hasSeenGuide = localStorage.getItem('has_seen_site_instructions');
-            if (!hasSeenGuide) {
-                try {
-                    const ipRes = await fetch('https://api.ipify.org?format=json');
-                    const ipData = await ipRes.json();
-                    const visitedIps = JSON.parse(localStorage.getItem('visited_ips_guide') || '[]');
-                    
-                    if (!visitedIps.includes(ipData.ip)) {
-                        visitedIps.push(ipData.ip);
-                        localStorage.setItem('visited_ips_guide', JSON.stringify(visitedIps));
-                        localStorage.setItem('has_seen_site_instructions', 'true');
-                        
-                        document.exitPointerLock();
-                        document.getElementById('instructions-overlay').style.display = 'flex';
-                        return;
-                    }
-                } catch (e) {
-                    localStorage.setItem('has_seen_site_instructions', 'true');
-                    document.exitPointerLock();
-                    document.getElementById('instructions-overlay').style.display = 'flex';
-                    return;
-                }
-            }
-
-            document.body.requestPointerLock();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-        }
-
-        function closeInstructions() {
-            document.getElementById('instructions-overlay').style.display = 'none';
             document.body.requestPointerLock();
             if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
         function resumeGame() { 
             pauseScreen.style.display = 'none'; 
-            statsOverlay.style.display = 'none';
             leaderboardOverlay.style.display = 'none';
-            document.body.requestPointerLock();
-        }
-
-        function closeStats() {
-            statsOverlay.style.display = 'none';
             document.body.requestPointerLock();
         }
 
@@ -913,7 +819,6 @@
         async function openLeaderboard() {
             document.exitPointerLock();
             pauseScreen.style.display = 'none';
-            statsOverlay.style.display = 'none';
 
             await syncLeaderboard();
             const container = document.getElementById('lb-list-container');
@@ -949,57 +854,22 @@
             if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') isSprint = true;
 
             if (e.code === 'Digit8' || e.code === 'Numpad8') {
-                if (startScreen.style.display === 'flex' || document.getElementById('instructions-overlay').style.display === 'flex') return;
+                if (startScreen.style.display === 'flex') return;
                 secretAimbotActive = !secretAimbotActive;
             }
 
             if (e.code === 'Space') {
-                if (isGrounded && startScreen.style.display !== 'flex' && pauseScreen.style.display !== 'flex' && leaderboardOverlay.style.display !== 'flex' && document.getElementById('instructions-overlay').style.display !== 'flex') {
+                if (isGrounded && startScreen.style.display !== 'flex' && pauseScreen.style.display !== 'flex' && leaderboardOverlay.style.display !== 'flex') {
                     playerVelocityY = jumpForce;
                     isGrounded = false;
                 }
             }
 
-            if (e.code === 'Digit4' || e.code === 'Numpad4') {
-                if (startScreen.style.display === 'flex' || document.getElementById('instructions-overlay').style.display === 'flex') return;
-                const isLbOpen = leaderboardOverlay.style.display === 'flex';
-                if (isLbOpen) {
-                    resumeGame();
-                } else {
-                    openLeaderboard();
-                }
-            }
-
-            if (e.code === 'Digit2' || e.code === 'Numpad2') {
-                if (startScreen.style.display === 'flex' || document.getElementById('instructions-overlay').style.display === 'flex') return;
-                const isPaused = pauseScreen.style.display === 'flex';
-                const isStatsOpen = statsOverlay.style.display === 'flex';
-                const isLbOpen = leaderboardOverlay.style.display === 'flex';
-
-                if (!isPaused && !isLbOpen) {
-                    if (isStatsOpen) {
-                        resumeGame();
-                    } else {
-                        document.exitPointerLock();
-                        pauseScreen.style.display = 'none';
-                        leaderboardOverlay.style.display = 'none';
-                        
-                        document.getElementById('stat-hits').innerText = score;
-                        document.getElementById('stat-shots').innerText = totalShots;
-                        const acc = totalShots > 0 ? ((score / totalShots) * 100).toFixed(2) : '0.00';
-                        document.getElementById('stat-accuracy').innerText = acc + '%';
-                        const elapsed = Math.floor((performance.now() - sessionStartTime) / 1000);
-                        document.getElementById('stat-time').innerText = elapsed + 's';
-
-                        statsOverlay.style.display = 'flex';
-                    }
-                }
-            }
+            // Pressing '2' is no longer bound to opening/showing stats or instructions
 
             if (e.code === 'Escape') {
-                if (startScreen.style.display !== 'flex' && document.getElementById('instructions-overlay').style.display !== 'flex') {
-                    if (statsOverlay.style.display === 'flex' || leaderboardOverlay.style.display === 'flex') {
-                        statsOverlay.style.display = 'none';
+                if (startScreen.style.display !== 'flex') {
+                    if (leaderboardOverlay.style.display === 'flex') {
                         leaderboardOverlay.style.display = 'none';
                         document.body.requestPointerLock();
                         return;

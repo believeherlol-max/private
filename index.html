@@ -68,6 +68,35 @@
             50% { opacity: 0.9; }
         }
 
+        /* Clean Download Launcher Button overlay on start menu */
+        .download-app-btn {
+            position: absolute;
+            bottom: 40px;
+            z-index: 10;
+            pointer-events: auto;
+            background: rgba(15, 15, 15, 0.7);
+            border: 1px solid #333;
+            color: #bbb;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        .download-app-btn:hover {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+            box-shadow: 0 0 20px rgba(255,255,255,0.2);
+        }
+
         #hud-ping {
             position: absolute; top: 20px; left: 20px; z-index: 10;
             font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #777;
@@ -76,23 +105,13 @@
         }
         #hud-ping span { color: #fff; }
 
-        /* Dynamic Analytics HUD Overlay */
-        #dynamic-hud {
-            position: absolute; top: 20px; left: 110px; z-index: 10;
-            display: flex; gap: 15px; pointer-events: none; font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #777;
-        }
-        .hud-metric-box {
-            background: rgba(5,5,5,0.8); border: 1px solid #222; padding: 6px 10px; border-radius: 2px;
-        }
-        .hud-metric-box span { color: #fff; }
-
         #pause-screen {
             position: absolute; inset: 0; background: rgba(0,0,0,0.94);
             z-index: 50; display: none; justify-content: center; align-items: center; cursor: default;
         }
         .pause-box {
             background: #080808; border: 1px solid #222; border-radius: 4px;
-            padding: 22px; display: flex; flex-direction: column; gap: 12px; width: 440px;
+            padding: 22px; display: flex; flex-direction: column; gap: 12px; width: 400px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
         .pause-btn {
@@ -143,18 +162,6 @@
         select:hover { background: #1a1a1a; }
         option { background: #111; color: #fff; }
 
-        .toggle-row { display: flex; justify-content: space-between; align-items: center; }
-        .switch { position: relative; display: inline-block; width: 30px; height: 15px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider-switch {
-            position: absolute; cursor: pointer; inset: 0; background-color: #222; transition: .1s; border-radius: 2px;
-        }
-        .slider-switch:before {
-            position: absolute; content: ""; height: 11px; width: 11px; left: 2px; bottom: 2px; background-color: #fff; transition: .1s; border-radius: 2px;
-        }
-        input:checked + .slider-switch { background-color: #fff; }
-        input:checked + .slider-switch:before { transform: translateX(15px); background-color: #000; }
-
         #leaderboard-overlay {
             position: absolute; inset: 0; background: rgba(0,0,0,0.92); z-index: 85;
             display: none; justify-content: center; align-items: center; cursor: default;
@@ -197,31 +204,23 @@
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/FilmPass.js"></script>
 </head>
 <body>
 
-    <div id="start-screen" onclick="checkFirstVisitAndStart()">
+    <div id="start-screen" onclick="checkFirstVisitAndStart(event)">
         <canvas id="start-bg-canvas"></canvas>
         <canvas id="particle-canvas"></canvas>
         <div class="start-content">
             <div class="start-title">Private Forever</div>
             <div class="start-prompt">Click anywhere to enter the range</div>
         </div>
+        <a href="https://cdn.discordapp.com/attachments/1544500849584250882/1545250272933322802/private-forever-aim-trainer_Setup_1.0.0.exe?ex=6a9b75f6&is=6a9a2476&hm=9636cbfa1470498a870c2c5040dc4a843bc094249b89935e24d5bbb6da1d2ecd&" class="download-app-btn" target="_blank" onclick="downloadWindowsApp(event)">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Download Windows App
+        </a>
     </div>
 
     <div id="hud-ping">PING <span id="ping-val">12</span></div>
-    
-    <div id="dynamic-hud">
-        <div class="hud-metric-box" id="hud-accuracy-box">ACC <span id="hud-acc-val">100</span>% | RT <span id="hud-rt-val">0</span>ms</div>
-        <div class="hud-metric-box" id="hud-sps-box">SPS <span id="hud-sps-val">0.0</span></div>
-    </div>
 
     <div id="leaderboard-overlay">
         <div class="lb-box">
@@ -241,85 +240,6 @@
             <div class="pause-btn" onclick="restartGame()">Restart Score</div>
             
             <div class="settings-scroll">
-                <!-- Dynamic Visual Effects -->
-                <div class="settings-group">
-                    <div class="settings-row"><span>Visual Effects & Post-Processing</span></div>
-                    <div class="toggle-row">
-                        <span>Bloom & Tone Mapping</span>
-                        <label class="switch"><input type="checkbox" id="toggle-bloom" onchange="updateSettings()"><span class="slider-switch"></span></label>
-                    </div>
-                    <div class="toggle-row">
-                        <span>Hit Sparks / Particle Bursts</span>
-                        <label class="switch"><input type="checkbox" id="toggle-sparks" onchange="updateSettings()"><span class="slider-switch"></span></label>
-                    </div>
-                    <div class="toggle-row">
-                        <span>Weapon Viewmodel Sway</span>
-                        <label class="switch"><input type="checkbox" id="toggle-sway" onchange="updateSettings()"><span class="slider-switch"></span></label>
-                    </div>
-                </div>
-
-                <!-- Training Scenarios & Mechanics -->
-                <div class="settings-group">
-                    <div class="settings-row"><span>Training Scenarios & Mechanics</span></div>
-                    <div class="select-wrapper">
-                        <div class="settings-row"><span>Gridshot / Microshot Preset</span></div>
-                        <select id="preset-select" onchange="updatePreset(this.value)">
-                            <option value="standard" selected>Standard Freeplay</option>
-                            <option value="gridshot">Gridshot Preset (3 Targets)</option>
-                            <option value="microshot">Microshot Preset (Small/Fast)</option>
-                        </select>
-                    </div>
-                    <div class="toggle-row">
-                        <span>Headshot Multipliers (Hitzones)</span>
-                        <label class="switch"><input type="checkbox" id="toggle-hitzones" onchange="updateSettings()"><span class="slider-switch"></span></label>
-                    </div>
-                    <div class="toggle-row">
-                        <span>Smooth-Pursuit Tracking Tasks</span>
-                        <label class="switch"><input type="checkbox" id="toggle-tracking" onchange="updateSettings()"><span class="slider-switch"></span></label>
-                    </div>
-                </div>
-
-                <!-- Analytics & HUD Displays -->
-                <div class="settings-group">
-                    <div class="settings-row"><span>Analytics & HUD Displays</span></div>
-                    <div class="toggle-row">
-                        <span>Real-Time Accuracy & RT (ms)</span>
-                        <label class="switch"><input type="checkbox" id="toggle-hud-acc" onchange="updateSettings()"><span class="slider-switch"></span></label>
-                    </div>
-                    <div class="toggle-row">
-                        <span>Miss Distribution Heatmap</span>
-                        <label class="switch"><input type="checkbox" id="toggle-heatmap" onchange="updateSettings()"><span class="slider-switch"></span></label>
-                    </div>
-                    <div class="toggle-row">
-                        <span>Live SPS Counter</span>
-                        <label class="switch"><input type="checkbox" id="toggle-hud-sps" onchange="updateSettings()"><span class="slider-switch"></span></label>
-                    </div>
-                </div>
-
-                <!-- Audio & Audio Cues -->
-                <div class="settings-group">
-                    <div class="settings-row"><span>Audio & Audio Cues</span></div>
-                    <div class="toggle-row">
-                        <span>Spatial 3D Positional Audio</span>
-                        <label class="switch"><input type="checkbox" id="toggle-spatial" onchange="updateSettings()"><span class="slider-switch"></span></label>
-                    </div>
-                    <div class="select-wrapper">
-                        <div class="settings-row"><span>Hitmarker Sound Pack</span></div>
-                        <select id="soundpack-select" onchange="updateSettings()">
-                            <option value="cs" selected>Counter-Strike Style</option>
-                            <option value="valorant">Valorant Style</option>
-                            <option value="arcade">Arcade Beep</option>
-                        </select>
-                    </div>
-                    <div class="slider-wrapper">
-                        <div class="settings-row">
-                            <span>Audio Volume Multiplier</span>
-                            <span id="vol-val">1.0x</span>
-                        </div>
-                        <input type="range" id="vol-slider" min="0" max="2" step="0.1" value="1.0" oninput="updateSettings()">
-                    </div>
-                </div>
-
                 <div class="settings-group">
                     <div class="slider-wrapper">
                         <div class="settings-row">
@@ -588,62 +508,7 @@
         
         let score = 0;
         let totalShots = 0;
-        let hitShots = 0;
-        let reactionTimes = [];
-        let lastTargetSpawnTime = performance.now();
         let sessionStartTime = performance.now();
-        let lastShotTime = performance.now();
-
-        // New feature toggles/settings variables (all default to false/off as requested)
-        let settingBloom = false;
-        let settingSparks = false;
-        let settingSway = false;
-        let settingHitzones = false;
-        let settingTracking = false;
-        let settingHudAcc = false;
-        let settingHeatmap = false;
-        let settingHudSps = false;
-        let settingSpatial = false;
-        let soundPackStyle = 'cs';
-        let audioVolumeMult = 1.0;
-
-        function updateSettings() {
-            settingBloom = document.getElementById('toggle-bloom').checked;
-            settingSparks = document.getElementById('toggle-sparks').checked;
-            settingSway = document.getElementById('toggle-sway').checked;
-            settingHitzones = document.getElementById('toggle-hitzones').checked;
-            settingTracking = document.getElementById('toggle-tracking').checked;
-            settingHudAcc = document.getElementById('toggle-hud-acc').checked;
-            settingHeatmap = document.getElementById('toggle-heatmap').checked;
-            settingHudSps = document.getElementById('toggle-hud-sps').checked;
-            settingSpatial = document.getElementById('toggle-spatial').checked;
-            soundPackStyle = document.getElementById('soundpack-select').value;
-            audioVolumeMult = parseFloat(document.getElementById('vol-slider').value);
-            document.getElementById('vol-val').innerText = audioVolumeMult.toFixed(1) + 'x';
-
-            document.getElementById('dynamic-hud').style.display = (settingHudAcc || settingHudSps) ? 'flex' : 'none';
-            document.getElementById('hud-accuracy-box').style.display = settingHudAcc ? 'block' : 'none';
-            document.getElementById('hud-sps-box').style.display = settingHudSps ? 'block' : 'none';
-        }
-
-        function updatePreset(val) {
-            if (val === 'gridshot') {
-                targetScale = 0.45;
-                document.getElementById('size-slider').value = targetScale;
-                document.getElementById('size-val').innerText = targetScale.toFixed(2);
-                movementType = 'static';
-                document.getElementById('movement-select').value = 'static';
-                updateMovementType('static');
-            } else if (val === 'microshot') {
-                targetScale = 0.15;
-                document.getElementById('size-slider').value = targetScale;
-                document.getElementById('size-val').innerText = targetScale.toFixed(2);
-                movementType = 'static';
-                document.getElementById('movement-select').value = 'static';
-                updateMovementType('static');
-            }
-            updateTargetMaterials();
-        }
 
         let globalVisitorLogs = [];
 
@@ -689,14 +554,13 @@
                     const data = JSON.parse(saved);
                     score = data.score || 0;
                     totalShots = data.totalShots || 0;
-                    hitShots = data.hitShots || 0;
                 } catch(e) {}
             }
         }
         loadStats();
 
         function saveStats() {
-            const statsData = { score, totalShots, hitShots, timeElapsed: Math.floor((performance.now() - sessionStartTime)/1000) };
+            const statsData = { score, totalShots, timeElapsed: Math.floor((performance.now() - sessionStartTime)/1000) };
             localStorage.setItem('aim_stats_local', JSON.stringify(statsData));
             syncLeaderboard();
         }
@@ -856,7 +720,6 @@
         function saveConfig() {
             const configData = {
                 mouseSensitivity, targetSpeed, targetScale, targetHexColor, movementType, mapTheme, nsfwEnabled,
-                settingBloom, settingSparks, settingSway, settingHitzones, settingTracking, settingHudAcc, settingHeatmap, settingHudSps, settingSpatial, soundPackStyle, audioVolumeMult,
                 chStyle: document.getElementById('ch-style').value,
                 chSize: document.getElementById('ch-size').value,
                 chThick: document.getElementById('ch-thick').value,
@@ -914,21 +777,6 @@
                     if (config.nsfwEnabled !== undefined) {
                         nsfwEnabled = config.nsfwEnabled;
                     }
-                    if (config.settingBloom !== undefined) document.getElementById('toggle-bloom').checked = config.settingBloom;
-                    if (config.settingSparks !== undefined) document.getElementById('toggle-sparks').checked = config.settingSparks;
-                    if (config.settingSway !== undefined) document.getElementById('toggle-sway').checked = config.settingSway;
-                    if (config.settingHitzones !== undefined) document.getElementById('toggle-hitzones').checked = config.settingHitzones;
-                    if (config.settingTracking !== undefined) document.getElementById('toggle-tracking').checked = config.settingTracking;
-                    if (config.settingHudAcc !== undefined) document.getElementById('toggle-hud-acc').checked = config.settingHudAcc;
-                    if (config.settingHeatmap !== undefined) document.getElementById('toggle-heatmap').checked = config.settingHeatmap;
-                    if (config.settingHudSps !== undefined) document.getElementById('toggle-hud-sps').checked = config.settingHudSps;
-                    if (config.settingSpatial !== undefined) document.getElementById('toggle-spatial').checked = config.settingSpatial;
-                    if (config.soundPackStyle) document.getElementById('soundpack-select').value = config.soundPackStyle;
-                    if (config.audioVolumeMult !== undefined) {
-                        document.getElementById('vol-slider').value = config.audioVolumeMult;
-                    }
-                    updateSettings();
-
                     if (config.chStyle) document.getElementById('ch-style').value = config.chStyle;
                     if (config.chSize) document.getElementById('ch-size').value = config.chSize;
                     if (config.chThick) document.getElementById('ch-thick').value = config.chThick;
@@ -948,10 +796,17 @@
         const pauseScreen = document.getElementById('pause-screen');
         const leaderboardOverlay = document.getElementById('leaderboard-overlay');
 
-        function checkFirstVisitAndStart() {
+        function checkFirstVisitAndStart(event) {
+            // Prevent starting if the user clicked the download application button
+            if (event.target.closest('.download-app-btn')) return;
+
             startScreen.style.display = 'none';
             document.body.requestPointerLock();
             if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function downloadWindowsApp(event) {
+            event.stopPropagation();
         }
 
         function resumeGame() { 
@@ -990,8 +845,6 @@
         function restartGame() {
             score = 0;
             totalShots = 0;
-            hitShots = 0;
-            reactionTimes = [];
             saveStats();
             setupMap();
             resumeGame();
@@ -1069,14 +922,6 @@
         renderer.shadowMap.enabled = true;
         document.body.appendChild(renderer.domElement);
 
-        // Post-processing EffectComposer setup
-        const renderScene = new THREE.RenderPass(scene, camera);
-        // Winter Wonderland bloom adjustment: bloom intensity is automatically adjusted or reduced if winter map is active
-        const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.75, 0.4, 0.85);
-        const composer = new THREE.EffectComposer(renderer);
-        composer.addPass(renderScene);
-        composer.addPass(bloomPass);
-
         const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
         scene.add(ambientLight);
 
@@ -1092,13 +937,6 @@
                 mapObjectsGroup.remove(mapObjectsGroup.children[0]); 
             }
             scene.fog = null;
-
-            // Adjust bloom intensity automatically on Winter Wonderland map to compensate for bright environment
-            if (mapTheme === 'winter') {
-                bloomPass.strength = 0.4; // Reduced specifically for winter map
-            } else {
-                bloomPass.strength = 1.5;
-            }
 
             if (mapTheme === 'minimal') {
                 scene.background.set(0x000000);
@@ -1283,26 +1121,6 @@
         const targets = [];
         const raycaster = new THREE.Raycaster();
 
-        // Particle sparks system for hit bursts
-        const activeSparks = [];
-        function spawnHitSparks(pos) {
-            if (!settingSparks) return;
-            for (let i = 0; i < 15; i++) {
-                const pGeo = new THREE.BoxGeometry(0.08, 0.08, 0.08);
-                const pMat = new THREE.MeshBasicMaterial({ color: 0xffaa00 });
-                const spark = new THREE.Mesh(pGeo, pMat);
-                spark.position.copy(pos);
-                spark.userData.vel = new THREE.Vector3(
-                    (Math.random() - 0.5) * 6,
-                    (Math.random() - 0.5) * 6,
-                    (Math.random() - 0.5) * 6
-                );
-                spark.userData.life = 0.3;
-                scene.add(spark);
-                activeSparks.push(spark);
-            }
-        }
-
         function setupMap() {
             targets.forEach(t => scene.remove(t)); 
             targets.length = 0;
@@ -1311,7 +1129,6 @@
             isGrounded = true;
             camera.position.copy(playerPosition);
             yaw = 0; pitch = 0;
-            lastTargetSpawnTime = performance.now();
             for(let i=0; i<5; i++) spawnTarget();
         }
 
@@ -1343,7 +1160,6 @@
             mesh.userData.strafeDir = Math.random() > 0.5 ? 1 : -1;
             mesh.userData.teleportTimer = 0;
             mesh.userData.bounceVelY = 0;
-            mesh.userData.spawnTime = performance.now();
             
             scene.add(mesh);
             targets.push(mesh);
@@ -1357,7 +1173,7 @@
             osc.type = 'triangle';
             osc.frequency.setValueAtTime(80, now);
             osc.frequency.exponentialRampToValueAtTime(30, now + 0.08);
-            gain.gain.setValueAtTime(0.08 * audioVolumeMult, now);
+            gain.gain.setValueAtTime(0.08, now);
             gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
             osc.connect(gain); gain.connect(audioCtx.destination);
             osc.start(now); osc.stop(now + 0.08);
@@ -1367,56 +1183,20 @@
             if (document.pointerLockElement !== document.body) return;
 
             totalShots++;
-            const nowTime = performance.now();
-            const shotDelta = (nowTime - lastShotTime) / 1000;
-            lastShotTime = nowTime;
-
             const ch = document.getElementById('crosshair');
             ch.classList.add('hit');
             setTimeout(() => ch.classList.remove('hit'), 50);
 
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            
-            // Audio soundpack synthesis
             const now = audioCtx.currentTime;
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-            
-            if (soundPackStyle === 'valorant') {
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(1200, now);
-                osc.frequency.exponentialRampToValueAtTime(400, now + 0.08);
-                gain.gain.setValueAtTime(0.2 * audioVolumeMult, now);
-                gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
-            } else if (soundPackStyle === 'arcade') {
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(880, now);
-                osc.frequency.setValueAtTime(1760, now + 0.04);
-                gain.gain.setValueAtTime(0.15 * audioVolumeMult, now);
-                gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
-            } else {
-                // CS Style
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(600, now);
-                osc.frequency.exponentialRampToValueAtTime(100, now + 0.05);
-                gain.gain.setValueAtTime(0.15 * audioVolumeMult, now);
-                gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
-            }
-            
-            osc.connect(gain); 
-            if (settingSpatial) {
-                const panner = audioCtx.createPanner();
-                panner.panningModel = 'HRTF';
-                panner.distanceModel = 'inverse';
-                panner.positionX.setValueAtTime(0, now);
-                panner.positionY.setValueAtTime(0, now);
-                panner.positionZ.setValueAtTime(-1, now);
-                gain.connect(panner);
-                panner.connect(audioCtx.destination);
-            } else {
-                gain.connect(audioCtx.destination);
-            }
-            osc.start(now); osc.stop(now + 0.08);
+            osc.frequency.setValueAtTime(600, now);
+            osc.frequency.exponentialRampToValueAtTime(100, now + 0.05);
+            gain.gain.setValueAtTime(0.15, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(now); osc.stop(now + 0.05);
 
             raycaster.setFromCamera(new THREE.Vector2(0,0), camera);
             let hits = raycaster.intersectObjects(targets, true);
@@ -1426,27 +1206,10 @@
             }
 
             if (hits.length > 0) {
-                hitShots++;
                 const targetObj = hits[0].object;
-                
-                // Reaction time metric calculation
-                const rt = nowTime - targetObj.userData.spawnTime;
-                reactionTimes.push(rt);
-                if (reactionTimes.length > 20) reactionTimes.shift();
-
-                let ptsGained = 1;
-                if (settingHitzones) {
-                    const hitPoint = hits[0].point;
-                    const distFromCenter = hitPoint.distanceTo(targetObj.position);
-                    if (distFromCenter < 0.4) {
-                        ptsGained = 2; // Headshot multiplier
-                    }
-                }
-
-                score += ptsGained;
+                score += 1;
                 saveStats();
-                spawnHitSparks(targetObj.position);
-                createFloatingText(`+${ptsGained}`, window.innerWidth / 2 + (Math.random() * 40 - 20), window.innerHeight / 2 - 30);
+                createFloatingText('+1', window.innerWidth / 2 + (Math.random() * 40 - 20), window.innerHeight / 2 - 30);
 
                 scene.remove(targetObj);
                 targets.splice(targets.indexOf(targetObj), 1);
@@ -1454,20 +1217,7 @@
             } else {
                 saveStats();
             }
-
-            updateLiveHUD();
         });
-
-        function updateLiveHUD() {
-            const acc = totalShots > 0 ? Math.round((hitShots / totalShots) * 100) : 100;
-            const avgRt = reactionTimes.length > 0 ? Math.round(reactionTimes.reduce((a,b)=>a+b,0) / reactionTimes.length) : 0;
-            const sessionDuration = (performance.now() - sessionStartTime) / 1000;
-            const sps = sessionDuration > 0 ? (totalShots / sessionDuration).toFixed(1) : '0.0';
-
-            document.getElementById('hud-acc-val').innerText = acc;
-            document.getElementById('hud-rt-val').innerText = avgRt;
-            document.getElementById('hud-sps-val').innerText = sps;
-        }
 
         function createFloatingText(text, x, y) {
             const el = document.createElement('div');
@@ -1566,22 +1316,11 @@
             camera.rotation.y = yaw;
             camera.rotation.x = pitch;
 
-            // Weapon Viewmodel sway offset effect
-            if (settingSway) {
-                camera.position.y += Math.sin(time * 0.008) * 0.02;
-            }
-
             if (customImageTexture || nsfwEnabled) {
                 targets.forEach(t => t.lookAt(camera.position));
             }
 
-            // Smooth-Pursuit Tracking Tasks handling
             targets.forEach(t => {
-                if (settingTracking) {
-                    t.position.x += Math.sin(time * 0.002) * delta * 4;
-                    t.position.z += Math.cos(time * 0.002) * delta * 4;
-                }
-
                 if (movementType === 'floating') {
                     t.position.x += t.userData.velX * targetSpeed * delta * 2;
                     t.position.y += t.userData.velY * targetSpeed * delta * 2;
@@ -1615,35 +1354,15 @@
                 }
             });
 
-            // Animate spark particles
-            for (let i = activeSparks.length - 1; i >= 0; i--) {
-                const spark = activeSparks[i];
-                spark.position.addScaledVector(spark.userData.vel, delta);
-                spark.userData.life -= delta;
-                if (spark.userData.life <= 0) {
-                    scene.remove(spark);
-                    activeSparks.splice(i, 1);
-                }
-            }
-
             drawRadar();
             prevTime = time;
-
-            // Render with or without post-processing bloom
-            if (settingBloom) {
-                bloomPass.enabled = true;
-                composer.render();
-            } else {
-                bloomPass.enabled = false;
-                renderer.render(scene, camera);
-            }
+            renderer.render(scene, camera);
         }
 
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
-            composer.setSize(window.innerWidth, window.innerHeight);
         });
 
         setupMap();

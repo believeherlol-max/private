@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Verifying...</title>
+    <style>
+        body { background-color: #0f0f13; color: #e0e0e6; font-family: sans-serif; text-align: center; padding-top: 20vh; }
+    </style>
+</head>
+<body>
+    <h2>Verification in progress...</h2>
+    <p id="status">Please wait while we authenticate your session.</p>
+
+    <script>
+        // Grab the 'code' parameter from the URL when Discord redirects back
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+
+        if (code) {
+            document.getElementById('status').innerText = "Authentication code received! Processing...";
+            
+            // Here you can send the code to your backend database or bot webhook, 
+            // or display it so your bot can pick it up.
+            console.log("Auth Code:", code);
+            
+            // Optional: redirect user to a success page after a moment
+            setTimeout(() => {
+                document.getElementById('status').innerText = "Verification complete! You can close this window.";
+            }, 2000);
+        } else {
+            document.getElementById('status').innerText = "No authorization code found.";
+        }
+    </script>
+</body>
+</html>

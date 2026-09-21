@@ -2,38 +2,269 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Verification Complete</title>
+    <title>Private Forever</title>
+    <link rel="icon" href="/favicon.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        body { 
-            background-color: #0f0f13; 
-            color: #e0e0e6; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            text-align: center; 
-            padding-top: 25vh; 
+        :root {
+            --bg-color: #000000;
+            --text-primary: #FFFFFF;
+            --text-secondary: #71717A;
+            --success-color: #10B981;
+            --font-stack: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
         }
-        h2 { color: #5865F2; margin-bottom: 10px; }
-        p { color: #b9bbbe; }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-stack);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* --- Falling Snow Canvas --- */
+        #snow-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* --- Clean Floating Content (No Boxes) --- */
+        .content-container {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            max-width: 420px;
+        }
+
+        /* --- Icon & Loader Area --- */
+        .icon-container {
+            margin-bottom: 26px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .success-checkmark {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background-color: rgba(16, 185, 129, 0.1);
+            border: 1.5px solid var(--success-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.25);
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .success-checkmark svg {
+            width: 26px;
+            height: 26px;
+            stroke: var(--success-color);
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+
+        .loader {
+            width: 26px;
+            height: 26px;
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            border-top: 2px solid var(--text-primary);
+            border-radius: 50%;
+            animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+
+        /* --- Typography with Smooth Transitions --- */
+        #status-title {
+            font-size: 21px;
+            font-weight: 500;
+            letter-spacing: -0.4px;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            transition: color 0.4s ease, opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        #status-message {
+            font-size: 14px;
+            font-weight: 300;
+            color: var(--text-secondary);
+            letter-spacing: -0.1px;
+            line-height: 1.5;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        /* --- Animations --- */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .hidden { display: none !important; }
+        
+        .fade-out {
+            opacity: 0;
+            transform: translateY(4px);
+        }
     </style>
 </head>
 <body>
-    <h2 id="title">Verifying your account...</h2>
-    <p id="status">Please wait while we complete your authentication.</p>
+
+    <canvas id="snow-canvas"></canvas>
+
+    <div class="content-container">
+        <!-- Dynamic Icon / Spinner Slot -->
+        <div class="icon-container">
+            <div id="icon-slot"></div>
+        </div>
+
+        <!-- Status Details (No Box, No Title Header) -->
+        <div id="status-title">Awaiting Authorization</div>
+        <div id="status-message">Complete verification via Discord.</div>
+        <div style="display: flex; justify-content: center; margin-top: 18px;">
+            <div id="spinner" class="loader hidden"></div>
+        </div>
+    </div>
 
     <script>
-        // Grab the 'code' parameter from the root URL
+        // --- High-Performance Parallax Particle Snow ---
+        const canvas = document.getElementById('snow-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const particles = [];
+        const particleCount = 55;
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: Math.random() * 1.2 + 0.3, // Ultra-fine, crisp size
+                speedY: Math.random() * 0.3 + 0.1,  // Slow, atmospheric drift
+                speedX: (Math.random() - 0.5) * 0.12,
+                opacity: Math.random() * 0.65 + 0.25 // Bright, clean white
+            });
+        }
+
+        function drawSnow() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#FFFFFF';
+
+            particles.forEach(p => {
+                ctx.globalAlpha = p.opacity;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                p.y += p.speedY;
+                p.x += p.speedX;
+
+                if (p.y > canvas.height) {
+                    p.y = -5;
+                    p.x = Math.random() * canvas.width;
+                }
+                if (p.x > canvas.width) p.x = 0;
+                else if (p.x < 0) p.x = canvas.width;
+            });
+
+            requestAnimationFrame(drawSnow);
+        }
+        drawSnow();
+
+        // --- Smooth Transition Verification Flow ---
+        function setStatus(title, message, isLoading = false, isSuccess = false) {
+            const titleEl = document.getElementById('status-title');
+            const messageEl = document.getElementById('status-message');
+            const spinner = document.getElementById('spinner');
+            const iconSlot = document.getElementById('icon-slot');
+
+            // Smooth cross-fade transition
+            titleEl.classList.add('fade-out');
+            messageEl.classList.add('fade-out');
+
+            setTimeout(() => {
+                titleEl.innerText = title;
+                messageEl.innerText = message;
+                
+                titleEl.classList.remove('fade-out');
+                messageEl.classList.remove('fade-out');
+            }, 150);
+
+            if (isLoading) {
+                spinner.classList.remove('hidden');
+            } else {
+                spinner.classList.add('hidden');
+            }
+
+            if (isSuccess) {
+                titleEl.style.color = "var(--success-color)";
+                iconSlot.innerHTML = `
+                    <div class="success-checkmark">
+                        <svg viewBox="0 0 24 24">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                `;
+            }
+        }
+
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get('code');
 
         if (code) {
-            document.getElementById('title').innerText = "Verification Successful!";
-            document.getElementById('status').innerText = "You have successfully authorized the application. You can now close this tab.";
-            
-            // Optional: You can send this code to a backend or webhook if needed, 
-            // but for now, it's safely captured right in the URL on your clean domain!
-            console.log("Auth Code Captured:", code);
-        } else {
-            document.getElementById('title').innerText = "Private Forever";
-            document.getElementById('status').innerText = "Secure verification portal is active.";
+            setStatus("Authenticating", "Validating credentials with Discord...", true, false);
+
+            fetch('https://privateforever.com/api/exchange', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: code })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    setStatus("Verified", `Welcome back, ${data.username}. You may close this window.`, false, true);
+                } else {
+                    setStatus("Authentication Failed", data.error || "Token exchange rejected.");
+                }
+            })
+            .catch(error => {
+                setStatus("Connection Error", "Unable to reach backend gateway.");
+                console.error('Error:', error);
+            });
         }
     </script>
 </body>

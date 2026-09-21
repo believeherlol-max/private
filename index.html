@@ -2,209 +2,38 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verification</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        clean: {
-                            bg: '#ffffff',
-                            card: '#fafafa',
-                            border: '#e5e5e5',
-                            input: '#f4f4f5',
-                            text: '#18181b',
-                            muted: '#71717a',
-                            dark: '#09090b'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- FontAwesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Verification Complete</title>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #ffffff; color: #18181b; }
-
-        .clean-card {
-            background: #ffffff;
-            border: 1px solid #e5e5e5;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+        body { 
+            background-color: #0f0f13; 
+            color: #e0e0e6; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            text-align: center; 
+            padding-top: 25vh; 
         }
-
-        .transition-smooth {
-            transition: all 0.2s ease-in-out;
-        }
+        h2 { color: #5865F2; margin-bottom: 10px; }
+        p { color: #b9bbbe; }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
-
-    <!-- Main Container Card -->
-    <div class="w-full max-w-md clean-card rounded-2xl overflow-hidden">
-        
-        <!-- Header -->
-        <div class="pt-8 pb-6 px-8 text-center border-b border-clean-border">
-            <div class="w-14 h-14 rounded-xl mx-auto flex items-center justify-center overflow-hidden mb-4 shadow-sm border border-clean-border bg-black">
-                <img src="https://images-ext-1.discordapp.net/external/f6avW-1ssHL0t5Oudm--xyy1Zy9qI6LTBwUQVDsYh-4/%3Fsize%3D1024/https/cdn.discordapp.com/icons/1550333377154912266/7bc37fe1df430bb0b09f06f5dcf75039.webp?format=webp" 
-                     alt="Logo" class="w-full h-full object-cover">
-            </div>
-            <h1 class="text-lg font-bold tracking-tight text-clean-dark">Verification</h1>
-        </div>
-
-        <!-- Form View -->
-        <div id="form-view" class="p-8 space-y-5">
-            <form id="verify-form" onsubmit="handleFormSubmit(event)" class="space-y-5">
-                
-                <!-- Discord Tag Input -->
-                <div class="space-y-2">
-                    <label class="block text-[10px] font-bold uppercase tracking-widest text-clean-muted">Discord Tag</label>
-                    <div class="relative">
-                        <input type="text" name="discord_id" id="discord-id" required placeholder="@username" 
-                               class="w-full bg-clean-input border border-clean-border focus:border-black rounded-xl px-4 py-3 text-sm text-clean-dark placeholder-clean-muted/50 focus:outline-none transition-smooth">
-                        <span class="absolute inset-y-0 right-0 pr-4 flex items-center text-clean-muted pointer-events-none">
-                            <i class="fa-regular fa-user text-xs"></i>
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Date of Birth Input -->
-                <div class="space-y-2">
-                    <label class="block text-[10px] font-bold uppercase tracking-widest text-clean-muted">Date of Birth</label>
-                    <div class="relative">
-                        <input type="date" name="dob" id="dob" required 
-                               class="w-full bg-clean-input border border-clean-border focus:border-black rounded-xl px-4 py-3 text-sm text-clean-dark placeholder-clean-muted/50 focus:outline-none transition-smooth">
-                    </div>
-                </div>
-
-                <!-- Vanity Text Section (/hospital) -->
-                <div class="space-y-2">
-                    <label class="block text-[10px] font-bold uppercase tracking-widest text-clean-muted">Required Vanity</label>
-                    <div class="bg-clean-input border border-clean-border rounded-xl px-4 py-3 flex items-center justify-between transition-smooth hover:border-clean-muted/40">
-                        <span class="font-mono text-clean-dark font-semibold text-xs tracking-wider" id="vanity-text">/hospital</span>
-                        <button type="button" onclick="copyVanity()" class="text-[11px] bg-white hover:bg-clean-dark hover:text-white text-clean-dark px-3 py-1.5 rounded-lg transition-smooth font-medium border border-clean-border flex items-center space-x-1.5 shadow-sm">
-                            <i class="fa-solid fa-copy text-[10px]"></i>
-                            <span>Copy</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Photo Upload Box -->
-                <div class="space-y-2">
-                    <label class="block text-[10px] font-bold uppercase tracking-widest text-clean-muted">Verification Photo</label>
-                    <div class="border border-dashed border-clean-border hover:border-black rounded-xl p-5 text-center cursor-pointer transition-smooth relative bg-clean-input group" onclick="document.getElementById('photo-input').click()">
-                        <input type="file" name="attachment" id="photo-input" accept="image/*" required class="hidden" onchange="previewImage(event)">
-                        
-                        <div id="upload-placeholder" class="space-y-2 py-2">
-                            <div class="w-10 h-10 rounded-full bg-white border border-clean-border flex items-center justify-center mx-auto text-clean-muted group-hover:text-clean-dark transition-smooth shadow-sm">
-                                <i class="fa-solid fa-camera text-sm"></i>
-                            </div>
-                            <div class="text-xs font-medium text-clean-dark">Click to upload photo</div>
-                        </div>
-
-                        <div id="upload-preview" class="hidden space-y-2">
-                            <img id="preview-img" class="max-h-28 mx-auto rounded-lg shadow-sm object-contain border border-clean-border" alt="Preview">
-                            <p class="text-[11px] text-clean-dark font-medium truncate" id="file-name">Attached</p>
-                            <span class="text-[10px] text-clean-muted underline">Change photo</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Submit Button -->
-                <div class="pt-2">
-                    <button type="submit" id="submit-btn" class="w-full bg-clean-dark hover:bg-neutral-800 text-white py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-smooth shadow-md flex items-center justify-center space-x-2 active:scale-[0.98]">
-                        <span>SUBMIT</span>
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Success View (Hidden initially) -->
-        <div id="success-view" class="p-10 text-center space-y-5 hidden">
-            <div class="w-12 h-12 rounded-full bg-clean-input border border-clean-border flex items-center justify-center mx-auto text-clean-dark text-sm shadow-sm">
-                <i class="fa-solid fa-check"></i>
-            </div>
-            <div class="space-y-2">
-                <h2 class="text-base font-bold text-clean-dark">Verification Complete</h2>
-                <p class="text-xs text-clean-muted">Your ticket has been submitted successfully.</p>
-            </div>
-            <div class="pt-2">
-                <a href="https://discord.gg/hospital" target="_blank" class="block w-full bg-clean-dark hover:bg-neutral-800 text-white py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-smooth shadow-md text-center">
-                    Back to Discord
-                </a>
-            </div>
-        </div>
-
-    </div>
+<body>
+    <h2 id="title">Verifying your account...</h2>
+    <p id="status">Please wait while we complete your authentication.</p>
 
     <script>
-        function previewImage(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('preview-img').src = e.target.result;
-                    document.getElementById('file-name').innerText = file.name;
-                    document.getElementById('upload-placeholder').classList.add('hidden');
-                    document.getElementById('upload-preview').classList.remove('hidden');
-                }
-                reader.readAsDataURL(file);
-            }
-        }
+        // Grab the 'code' parameter from the root URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
 
-        function copyVanity() {
-            const text = document.getElementById('vanity-text').innerText;
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
+        if (code) {
+            document.getElementById('title').innerText = "Verification Successful!";
+            document.getElementById('status').innerText = "You have successfully authorized the application. You can now close this tab.";
             
-            const btn = event.currentTarget;
-            const originalHTML = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-check text-[10px]"></i><span>Copied</span>';
-            setTimeout(() => {
-                btn.innerHTML = originalHTML;
-            }, 2000);
-        }
-
-        async function handleFormSubmit(e) {
-            e.preventDefault();
-            const form = e.target;
-            const submitBtn = document.getElementById('submit-btn');
-            
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span>SENDING...</span>';
-
-            const formData = new FormData(form);
-
-            try {
-                // Connected directly to your live Render backend URL
-                const response = await fetch('https://hospital-verification-backend.onrender.com/submit', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (response.ok) {
-                    document.getElementById('form-view').classList.add('hidden');
-                    document.getElementById('success-view').classList.remove('hidden');
-                } else {
-                    alert('Submission failed. Please check your backend.');
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<span>SUBMIT</span>';
-                }
-            } catch (err) {
-                console.error(err);
-                alert('Network error. Make sure your Python backend is running.');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<span>SUBMIT</span>';
-            }
+            // Optional: You can send this code to a backend or webhook if needed, 
+            // but for now, it's safely captured right in the URL on your clean domain!
+            console.log("Auth Code Captured:", code);
+        } else {
+            document.getElementById('title').innerText = "Private Forever";
+            document.getElementById('status').innerText = "Secure verification portal is active.";
         }
     </script>
 </body>

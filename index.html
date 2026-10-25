@@ -153,9 +153,88 @@
     }
     .animate-fade-in { animation: fadeInScale 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     .animate-ad-slide { animation: slideInAd 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+    .slide-enter-right {
+      animation: slideInRight 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .slide-exit-right {
+      animation: slideOutRight 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(80px) scale(0.98); }
+      to { opacity: 1; transform: translateX(0) scale(1); }
+    }
+
+    @keyframes slideOutRight {
+      from { opacity: 1; transform: translateX(0) scale(1); }
+      to { opacity: 0; transform: translateX(-80px) scale(0.98); }
+    }
+
+    @keyframes introFadeOut {
+      0% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(1.03); visibility: hidden; }
+    }
+
+    .animate-intro-fadeout {
+      animation: introFadeOut 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
   </style>
 </head>
 <body id="app-body" class="h-full flex overflow-hidden select-none bg-cover bg-center relative" data-color-theme="grey">
+
+  <!-- MOBILE SIDEBAR OVERLAY -->
+  <div id="mobile-sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 hidden md:hidden transition-opacity"></div>
+
+  <!-- SIMPLE CLEAN GFX WELCOME INTRO OVERLAY (SOLID GREY, NO TITLES/STATUSES) -->
+  <div id="welcome-intro-screen" class="fixed inset-0 z-50 bg-[#121212] text-[#f3f4f6] flex flex-col justify-between p-6 sm:p-12 transition-all duration-700">
+    
+    <!-- Top Bar (Skip Button Only) -->
+    <div class="flex items-center justify-end pb-4">
+      <button onclick="skipIntroAnimation()" class="text-[10px] font-mono tracking-widest uppercase text-white/40 hover:text-white transition px-3 py-1 rounded border border-white/10 hover:border-white/30">
+        SKIP [ESC]
+      </button>
+    </div>
+
+    <!-- Center Interactive Slide Container -->
+    <div class="max-w-4xl w-full mx-auto flex flex-col items-center justify-center text-center relative my-auto min-h-[200px]">
+      
+      <!-- Slide 1: TITLE OF WINTER -->
+      <div id="intro-slide-1" class="absolute inset-0 flex flex-col items-center justify-center slide-enter-right px-4">
+        <h1 class="text-3xl sm:text-5xl md:text-6xl font-extralight tracking-[0.08em] uppercase text-white font-sans leading-none">
+          W I N T E R
+        </h1>
+        <div class="w-10 h-[1px] bg-white/20 mt-4"></div>
+      </div>
+
+      <!-- Slide 2: CUTSCENE - NO LOGS NO LIMITS -->
+      <div id="intro-slide-2" class="absolute inset-0 flex flex-col items-center justify-center hidden px-4">
+        <h2 class="text-2xl sm:text-4xl md:text-5xl font-extralight tracking-[0.05em] text-white uppercase font-sans leading-none">
+          NO LOGS. NO LIMITS.
+        </h2>
+        <div class="w-10 h-[1px] bg-white/20 mt-4"></div>
+      </div>
+
+      <!-- Slide 3: STATS - 2762 ACTIVE WEEKLY USERS -->
+      <div id="intro-slide-3" class="absolute inset-0 flex flex-col items-center justify-center hidden px-4">
+        <div class="flex flex-col items-center">
+          <span id="intro-user-counter" class="text-4xl sm:text-6xl md:text-7xl font-extralight tracking-tight text-white font-mono leading-none">0</span>
+          <span class="text-[10px] sm:text-xs font-mono tracking-[0.15em] uppercase text-white/60 mt-2">ACTIVE WEEKLY USERS</span>
+        </div>
+        <div class="w-10 h-[1px] bg-white/20 mt-4"></div>
+      </div>
+
+    </div>
+
+    <!-- Bottom Indicator Dots -->
+    <div class="flex items-center justify-center pt-4">
+      <div id="intro-progress-indicators" class="flex gap-2">
+        <span id="dot-1" class="w-5 h-0.5 bg-white transition-all duration-300"></span>
+        <span id="dot-2" class="w-5 h-0.5 bg-white/20 transition-all duration-300"></span>
+        <span id="dot-3" class="w-5 h-0.5 bg-white/20 transition-all duration-300"></span>
+      </div>
+    </div>
+  </div>
 
   <!-- COLLAPSED MINI SIDEBAR -->
   <aside id="mini-sidebar" class="w-12 glass-panel border-r border-theme-border flex flex-col items-center py-3 justify-between z-20 shrink-0 hidden md:flex">
@@ -175,7 +254,7 @@
   </aside>
 
   <!-- FULL EXPANDED SIDEBAR -->
-  <aside id="full-sidebar" class="w-64 glass-panel border-r border-theme-border flex flex-col justify-between z-30 shrink-0 h-full transition-all duration-200">
+  <aside id="full-sidebar" class="fixed md:relative inset-y-0 left-0 w-64 glass-panel border-r border-theme-border flex flex-col justify-between z-40 shrink-0 h-full transition-all duration-200 hidden md:flex">
     <div class="flex flex-col h-full overflow-hidden">
       <!-- Header with Model Selector Trigger -->
       <div class="p-3.5 flex items-center justify-between gap-2 border-b border-theme-border">
@@ -238,7 +317,7 @@
   <!-- MODEL & THINKING EFFORT MENU (High as Default) -->
   <div 
     id="global-model-dropdown-menu" 
-    class="fixed w-80 glass-panel border border-theme-border rounded-2xl shadow-2xl z-50 p-3 hidden animate-modal-in"
+    class="fixed w-80 max-w-[calc(100vw-2rem)] glass-panel border border-theme-border rounded-2xl shadow-2xl z-50 p-3 hidden animate-modal-in"
   >
     <div class="px-2.5 py-1.5 text-[10px] font-medium text-theme-muted uppercase tracking-widest flex items-center justify-between border-b border-theme-border mb-2">
       <span>Select Model</span>
@@ -260,10 +339,10 @@
   </div>
 
   <!-- MAIN CHAT & WORKSPACE AREA -->
-  <main class="flex-1 flex flex-col h-full backdrop-blur-xs relative overflow-hidden z-10">
+  <main class="flex-1 flex flex-col h-full backdrop-blur-xs relative overflow-hidden z-10 w-full min-w-0">
     
     <!-- Top Bar Navigation Header -->
-    <header class="h-14 flex items-center justify-between px-5 z-10 shrink-0 border-b border-theme-border glass-panel">
+    <header class="h-14 flex items-center justify-between px-3 sm:px-5 z-10 shrink-0 border-b border-theme-border glass-panel">
       <div class="flex items-center gap-2">
         <button id="mobile-sidebar-toggle" onclick="toggleSidebar()" class="p-1.5 text-theme-muted hover:text-theme-text rounded-lg transition md:hidden">
           <i data-lucide="menu" class="w-4 h-4"></i>
@@ -272,16 +351,16 @@
 
       <!-- Mode Switcher -->
       <div class="flex items-center bg-theme-surface border border-theme-border p-0.5 rounded-full text-xs font-light">
-        <button id="mode-chat" onclick="setMode('chat')" class="px-4 py-1 rounded-full bg-theme-surface2 text-theme-text shadow-sm transition">
+        <button id="mode-chat" onclick="setMode('chat')" class="px-3 sm:px-4 py-1 rounded-full bg-theme-surface2 text-theme-text shadow-sm transition">
           Chat
         </button>
-        <button id="mode-work" onclick="setMode('work')" class="px-4 py-1 rounded-full text-theme-muted hover:text-theme-text transition">
+        <button id="mode-work" onclick="setMode('work')" class="px-3 sm:px-4 py-1 rounded-full text-theme-muted hover:text-theme-text transition">
           Work
         </button>
       </div>
 
       <!-- Right Header Actions -->
-      <div class="flex items-center gap-2.5">
+      <div class="flex items-center gap-1.5 sm:gap-2.5">
         <div id="user-auth-section" class="relative"></div>
         <button onclick="createNewChat()" class="p-1.5 text-theme-muted hover:text-theme-text hover:bg-theme-surface2 rounded-lg transition" title="New thread">
           <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
@@ -290,20 +369,20 @@
     </header>
 
     <!-- CHAT CONTAINER -->
-    <div id="chat-container" class="flex-1 overflow-y-auto flex flex-col items-center justify-center px-4 relative scroll-smooth">
-      <div id="welcome-view" class="max-w-2xl w-full flex flex-col items-center text-center space-y-4 my-auto transition-all animate-fade-in">
-        <h1 class="text-3xl sm:text-4xl font-extralight tracking-tight text-theme-text">
+    <div id="chat-container" class="flex-1 overflow-y-auto flex flex-col items-center justify-center px-3 sm:px-4 relative scroll-smooth w-full">
+      <div id="welcome-view" class="max-w-2xl w-full flex flex-col items-center text-center space-y-4 my-auto transition-all animate-fade-in px-2">
+        <h1 class="text-2xl sm:text-4xl font-extralight tracking-tight text-theme-text">
           Where should we begin?
         </h1>
-        <p id="welcome-model-desc" class="text-xs font-light text-theme-muted max-w-md tracking-wide"></p>
+        <p id="welcome-model-desc" class="text-xs font-light text-theme-muted max-w-md tracking-wide px-4"></p>
       </div>
 
       <div id="messages-list" class="w-full max-w-3xl space-y-6 py-6 hidden"></div>
     </div>
 
     <!-- INPUT BAR CONTAINER -->
-    <div class="w-full max-w-3xl mx-auto px-4 pb-4 pt-2">
-      <div class="glass-panel border border-theme-border rounded-2xl p-2.5 shadow-2xl transition duration-200 relative">
+    <div class="w-full max-w-3xl mx-auto px-2 sm:px-4 pb-3 sm:pb-4 pt-2">
+      <div class="glass-panel border border-theme-border rounded-2xl p-2 sm:p-2.5 shadow-2xl transition duration-200 relative">
         
         <div id="attached-preview-container" class="hidden px-2 pt-1 pb-2 flex items-center gap-2"></div>
 
@@ -312,15 +391,15 @@
             id="user-input"
             rows="1" 
             placeholder="Ask Winter..." 
-            class="w-full bg-transparent text-theme-text placeholder-theme-muted text-sm font-light focus:outline-none resize-none px-2 py-1 max-h-48 overflow-y-auto"
+            class="w-full bg-transparent text-theme-text placeholder-theme-muted text-sm font-light focus:outline-none resize-none px-2 py-1 max-h-36 sm:max-h-48 overflow-y-auto"
             onkeydown="handleKeyDown(event)"
             oninput="autoResize(this)"
           ></textarea>
 
           <div class="flex items-center justify-between pt-2">
-            <div class="flex items-center gap-1.5">
+            <div class="flex items-center gap-1 sm:gap-1.5 min-w-0">
               <input type="file" id="image-upload-input" accept="image/*,.txt,.pdf,.py,.js,.json,.csv" class="hidden" onchange="handleImageAttachment(event)">
-              <button type="button" onclick="triggerAttachment()" class="p-1.5 text-theme-muted hover:text-theme-text hover:bg-theme-surface2 rounded-full transition" title="Attach file">
+              <button type="button" onclick="triggerAttachment()" class="p-1.5 text-theme-muted hover:text-theme-text hover:bg-theme-surface2 rounded-full transition shrink-0" title="Attach file">
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i>
               </button>
 
@@ -328,15 +407,15 @@
                 type="button"
                 id="bar-model-dropdown-btn"
                 onclick="toggleModelDropdown(event, 'bar')" 
-                class="flex items-center gap-1.5 text-xs font-light text-theme-text hover:bg-theme-surface2 cursor-pointer px-2.5 py-1 rounded-xl bg-theme-surface border border-theme-border transition"
+                class="flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs font-light text-theme-text hover:bg-theme-surface2 cursor-pointer px-2 sm:px-2.5 py-1 rounded-xl bg-theme-surface border border-theme-border transition truncate max-w-[140px] sm:max-w-none"
               >
-                <i data-lucide="sparkles" class="w-3 u-3 text-purple-400"></i>
-                <span id="pill-model-label">Winter • High</span>
-                <i data-lucide="chevron-down" class="w-3 h-3 text-theme-muted"></i>
+                <i data-lucide="sparkles" class="w-3 h-3 text-purple-400 shrink-0"></i>
+                <span id="pill-model-label" class="truncate">Winter • High</span>
+                <i data-lucide="chevron-down" class="w-3 h-3 text-theme-muted shrink-0"></i>
               </button>
             </div>
 
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
               <button type="button" id="voice-dict-btn" onclick="triggerVoiceDictation()" class="p-1.5 text-theme-muted hover:text-theme-text hover:bg-theme-surface2 rounded-full transition" title="Voice dictation">
                 <i data-lucide="mic" class="w-3.5 h-3.5"></i>
               </button>
@@ -354,12 +433,12 @@
         </form>
       </div>
 
-      <div id="suggestion-container" class="mt-3 flex justify-center">
+      <div id="suggestion-container" class="mt-2 sm:mt-3 flex justify-center px-2">
         <button 
           onclick="useSuggestion('What are the latest technology trends today?')"
-          class="flex items-center gap-2 text-xs font-light text-theme-text bg-theme-surface hover:bg-theme-surface2 border border-theme-border px-4 py-1.5 rounded-full transition truncate group shadow-sm"
+          class="flex items-center gap-2 text-[11px] sm:text-xs font-light text-theme-text bg-theme-surface hover:bg-theme-surface2 border border-theme-border px-3 sm:px-4 py-1.5 rounded-full transition truncate group shadow-sm max-w-full"
         >
-          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-purple-400"></i>
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-purple-400 shrink-0"></i>
           <span class="truncate">What are the latest technology trends today?</span>
         </button>
       </div>
@@ -368,7 +447,7 @@
 
   <!-- AUTH MODAL -->
   <div id="auth-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden animate-fade-in" onclick="checkOutsideClick(event, 'auth-modal', closeAuthModal)">
-    <div id="auth-modal-box" class="bg-theme-surface border border-theme-border w-full max-w-md rounded-3xl shadow-2xl p-8 space-y-6 animate-modal-in relative overflow-hidden">
+    <div id="auth-modal-box" class="bg-theme-surface border border-theme-border w-full max-w-md rounded-3xl shadow-2xl p-6 sm:p-8 space-y-6 animate-modal-in relative overflow-hidden">
       <div class="absolute -top-16 -right-16 w-32 h-32 bg-purple-600/20 rounded-full blur-2xl pointer-events-none"></div>
 
       <div class="flex items-center justify-between border-b border-theme-border pb-4">
@@ -406,8 +485,8 @@
   </div>
 
   <!-- PROFILE & CUSTOMIZATION MODAL -->
-  <div id="profile-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden animate-fade-in" onclick="checkOutsideClick(event, 'profile-modal', closeProfileModal)">
-    <div id="profile-modal-box" class="bg-theme-surface border border-theme-border w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-3xl shadow-2xl p-6 space-y-6 animate-modal-in">
+  <div id="profile-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4 hidden animate-fade-in" onclick="checkOutsideClick(event, 'profile-modal', closeProfileModal)">
+    <div id="profile-modal-box" class="bg-theme-surface border border-theme-border w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl p-4 sm:p-6 space-y-6 animate-modal-in">
       <div class="flex items-center justify-between border-b border-theme-border pb-3">
         <div class="flex items-center gap-2">
           <i data-lucide="sliders" class="w-4 h-4 text-purple-400"></i>
@@ -419,7 +498,7 @@
       </div>
 
       <form id="profile-form" onsubmit="saveProfileAppearance(event)" class="space-y-5">
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-light text-theme-muted mb-1">First Name</label>
             <input 
@@ -467,7 +546,7 @@
                 <i data-lucide="lock" class="w-3 h-3"></i> Premium Only
               </span>
             </div>
-            <div id="bot-custom-inputs" class="grid grid-cols-2 gap-3 opacity-50 pointer-events-none">
+            <div id="bot-custom-inputs" class="grid grid-cols-1 sm:grid-cols-2 gap-3 opacity-50 pointer-events-none">
               <input type="text" id="profile-bot-name" placeholder="Winter" class="w-full bg-theme-surface border border-theme-border rounded-xl px-3 py-1.5 text-xs text-theme-text">
               <input type="url" id="profile-bot-pfp" placeholder="Avatar URL..." class="w-full bg-theme-surface border border-theme-border rounded-xl px-3 py-1.5 text-xs text-theme-text">
             </div>
@@ -508,7 +587,7 @@
                 <i data-lucide="lock" class="w-3 h-3"></i> Premium Only
               </span>
             </div>
-            <div id="bubblecolor-custom-inputs" class="grid grid-cols-2 gap-3 opacity-50 pointer-events-none">
+            <div id="bubblecolor-custom-inputs" class="grid grid-cols-1 sm:grid-cols-2 gap-3 opacity-50 pointer-events-none">
               <div>
                 <label class="block text-[10px] text-theme-muted mb-1">User Bubble Background Color</label>
                 <input type="color" id="profile-user-bubblecolor" value="#1e1e1e" class="w-full h-8 bg-theme-surface border border-theme-border rounded-xl px-1 cursor-pointer">
@@ -528,7 +607,7 @@
                 <i data-lucide="lock" class="w-3 h-3"></i> Premium Only
               </span>
             </div>
-            <div id="theme-custom-inputs" class="grid grid-cols-2 gap-3 opacity-50 pointer-events-none">
+            <div id="theme-custom-inputs" class="grid grid-cols-1 sm:grid-cols-2 gap-3 opacity-50 pointer-events-none">
               <select id="profile-color-theme" class="w-full bg-theme-surface border border-theme-border rounded-xl px-3 py-1.5 text-xs text-theme-text">
                 <option value="grey">Charcoal Grey</option>
                 <option value="black">Pure Black OLED</option>
@@ -547,7 +626,7 @@
                 <i data-lucide="lock" class="w-3 h-3"></i> Premium Only
               </span>
             </div>
-            <div id="extra-custom-inputs" class="grid grid-cols-2 gap-3 opacity-50 pointer-events-none">
+            <div id="extra-custom-inputs" class="grid grid-cols-1 sm:grid-cols-2 gap-3 opacity-50 pointer-events-none">
               <select id="profile-sound-fx" class="w-full bg-theme-surface border border-theme-border rounded-xl px-3 py-1.5 text-xs text-theme-text">
                 <option value="enabled">UI Beep Sounds: Enabled</option>
                 <option value="disabled">UI Beep Sounds: Muted</option>
@@ -581,7 +660,7 @@
   </div>
 
   <!-- SEARCH MODAL -->
-  <div id="search-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-start justify-center pt-20 hidden animate-fade-in" onclick="checkOutsideClick(event, 'search-modal', closeSearchModal)">
+  <div id="search-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-start justify-center pt-12 sm:pt-20 hidden animate-fade-in" onclick="checkOutsideClick(event, 'search-modal', closeSearchModal)">
     <div id="search-modal-content" class="bg-theme-surface border border-theme-border w-full max-w-lg rounded-3xl shadow-2xl p-4 mx-4 animate-modal-in">
       <div class="flex items-center gap-2 pb-3 border-b border-theme-border">
         <i data-lucide="search" class="w-4 h-4 text-theme-muted"></i>
@@ -599,7 +678,7 @@
   </div>
 
   <!-- CUSTOM NOTIFICATION CONTAINER -->
-  <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2.5 pointer-events-none"></div>
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2.5 pointer-events-none max-w-[calc(100vw-3rem)]"></div>
 
   <script>
     const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1563769842463416372/3a5vsfOXQYll-VcEXGzXGi5-1INg150kb-inDxEfIl_SZpjxyT-u3g5kQNMG2vfxY2WN';
@@ -821,6 +900,141 @@ ${extraDetails ? '\nTrigger Details:\n' + extraDetails : ''}
       };
       localStorage.setItem('winter_current_user', JSON.stringify(currentUser));
     }
+
+    /* SOUND EFFECTS SYNTHESIZER (Web Audio API) */
+    function playIntroSound(type) {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        if (type === 'swipe') {
+          // Soft futuristic swipe sound
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          
+          osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(520, audioCtx.currentTime + 0.18);
+          
+          gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.2);
+        } else if (type === 'enter') {
+          // Lush warm chime chord entering site
+          const freqs = [329.63, 440, 554.37, 659.25]; // E4, A4, C#5, E5
+          freqs.forEach((freq, idx) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime + (idx * 0.04));
+
+            gain.gain.setValueAtTime(0.08, audioCtx.currentTime + (idx * 0.04));
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.9 + (idx * 0.04));
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(audioCtx.currentTime + (idx * 0.04));
+            osc.stop(audioCtx.currentTime + 0.9 + (idx * 0.04));
+          });
+        }
+      } catch (e) {
+        console.log('Audio intro sound error:', e);
+      }
+    }
+
+    /* GFX WELCOME INTRO ANIMATION CONTROLLER */
+    let introTimer = null;
+
+    function playWelcomeIntroSequence() {
+      const screen = document.getElementById('welcome-intro-screen');
+      const slide1 = document.getElementById('intro-slide-1');
+      const slide2 = document.getElementById('intro-slide-2');
+      const slide3 = document.getElementById('intro-slide-3');
+      const dot1 = document.getElementById('dot-1');
+      const dot2 = document.getElementById('dot-2');
+      const dot3 = document.getElementById('dot-3');
+      const counter = document.getElementById('intro-user-counter');
+
+      if (!screen) return;
+
+      // Slide 1 -> Slide 2 (1.8s)
+      setTimeout(() => {
+        if (!screen || screen.classList.contains('hidden')) return;
+        slide1.classList.add('slide-exit-right');
+        playIntroSound('swipe');
+        setTimeout(() => {
+          slide1.classList.add('hidden');
+          slide2.classList.remove('hidden');
+          slide2.classList.add('slide-enter-right');
+          if (dot1 && dot2) {
+            dot1.className = 'w-5 h-0.5 bg-white/20 transition-all duration-300';
+            dot2.className = 'w-5 h-0.5 bg-white transition-all duration-300';
+          }
+        }, 300);
+      }, 1800);
+
+      // Slide 2 -> Slide 3 (3.8s)
+      setTimeout(() => {
+        if (!screen || screen.classList.contains('hidden')) return;
+        slide2.classList.add('slide-exit-right');
+        playIntroSound('swipe');
+        setTimeout(() => {
+          slide2.classList.add('hidden');
+          slide3.classList.remove('hidden');
+          slide3.classList.add('slide-enter-right');
+          if (dot2 && dot3) {
+            dot2.className = 'w-5 h-0.5 bg-white/20 transition-all duration-300';
+            dot3.className = 'w-5 h-0.5 bg-white transition-all duration-300';
+          }
+
+          // Count Up to 2,762 Active Weekly Users
+          let count = 0;
+          const target = 2762;
+          const duration = 1200;
+          const stepTime = 20;
+          const steps = duration / stepTime;
+          const increment = Math.ceil(target / steps);
+
+          const countInterval = setInterval(() => {
+            count += increment;
+            if (count >= target) {
+              count = target;
+              clearInterval(countInterval);
+            }
+            if (counter) counter.innerText = count.toLocaleString();
+          }, stepTime);
+
+        }, 300);
+      }, 3800);
+
+      // Fade Out Intro Completely (6.2s)
+      setTimeout(() => {
+        skipIntroAnimation();
+      }, 6200);
+    }
+
+    function skipIntroAnimation() {
+      const screen = document.getElementById('welcome-intro-screen');
+      if (screen && !screen.classList.contains('animate-intro-fadeout') && screen.style.display !== 'none') {
+        playIntroSound('enter');
+        screen.classList.add('animate-intro-fadeout');
+        setTimeout(() => {
+          screen.style.display = 'none';
+        }, 800);
+      }
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        skipIntroAnimation();
+      }
+    });
 
     let isSignInMode = false;
 
@@ -1067,8 +1281,8 @@ ${extraDetails ? '\nTrigger Details:\n' + extraDetails : ''}
 
       if (!currentUser.isLoggedIn) {
         container.innerHTML = `
-          <button onclick="openAuthModal()" class="px-4 py-1.5 bg-purple-600 hover:bg-purple-700 text-purple-100 text-xs font-medium rounded-full transition shadow-md">
-            Sign In or Sign Up
+          <button onclick="openAuthModal()" class="px-3 sm:px-4 py-1.5 bg-purple-600 hover:bg-purple-700 text-purple-100 text-xs font-medium rounded-full transition shadow-md whitespace-nowrap">
+            Sign In
           </button>
         `;
         lucide.createIcons();
@@ -1093,14 +1307,14 @@ ${extraDetails ? '\nTrigger Details:\n' + extraDetails : ''}
 
       container.innerHTML = `
         <div class="relative group py-1">
-          <button class="flex items-center gap-2 px-3 py-1.5 bg-theme-surface hover:bg-theme-surface2 border border-theme-border rounded-full text-xs font-light text-theme-text transition cursor-pointer">
-            ${pfpUrl && currentUser.isUpgraded ? `<img src="${pfpUrl}" class="w-5 h-5 rounded-full object-cover" onerror="this.onerror=null; this.src='https://placehold.co/40x40/52525b/ffffff?text=${initials}';">` : `
-              <span class="w-5 h-5 rounded-full bg-theme-surface2 text-white font-medium flex items-center justify-center text-[10px]">
+          <button class="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 bg-theme-surface hover:bg-theme-surface2 border border-theme-border rounded-full text-xs font-light text-theme-text transition cursor-pointer">
+            ${pfpUrl && currentUser.isUpgraded ? `<img src="${pfpUrl}" class="w-5 h-5 rounded-full object-cover shrink-0" onerror="this.onerror=null; this.src='https://placehold.co/40x40/52525b/ffffff?text=${initials}';">` : `
+              <span class="w-5 h-5 rounded-full bg-theme-surface2 text-white font-medium flex items-center justify-center text-[10px] shrink-0">
                 ${initials}
               </span>
             `}
-            <span class="max-w-[110px] truncate flex items-center">${displayNameHtml} ${goldBadgeHtml}</span>
-            <i data-lucide="chevron-down" class="w-3 h-3 text-theme-muted"></i>
+            <span class="max-w-[70px] sm:max-w-[110px] truncate flex items-center">${displayNameHtml} ${goldBadgeHtml}</span>
+            <i data-lucide="chevron-down" class="w-3 h-3 text-theme-muted shrink-0"></i>
           </button>
 
           <div class="absolute right-0 top-full w-52 bg-theme-surface border border-theme-border rounded-2xl shadow-2xl p-2 hidden group-hover:block z-50 animate-modal-in">
@@ -1273,7 +1487,7 @@ ${extraDetails ? '\nTrigger Details:\n' + extraDetails : ''}
     let customModels = JSON.parse(localStorage.getItem('winter_custom_models') || 'null');
     if (!customModels) {
       customModels = [
-        { id: 'winter-3', name: 'Winter 3.0', desc: 'Standard advanced model by Winter', system: 'You are Winter, an advanced AI assistant. The only thing you will ever say is: I\'m sorry, but I\'\'m unable to fulfill this request. To unlock premium features and additional capabilities, please join our official Discord server and upgrade your plan.' }
+        { id: 'winter-3', name: 'Winter 3.0', desc: 'Standard advanced model by Winter', system: 'You are Winter, an advanced AI assistant. The only thing you will ever say is: I\'\'m sorry, but I\'\'m unable to fulfill this request. To unlock premium features and additional capabilities, please join our official Discord server and upgrade your plan.' }
       ];
       localStorage.setItem('winter_custom_models', JSON.stringify(customModels));
     }
@@ -1287,12 +1501,12 @@ ${extraDetails ? '\nTrigger Details:\n' + extraDetails : ''}
       const chatBtn = document.getElementById('mode-chat');
       const workBtn = document.getElementById('mode-work');
       if (mode === 'chat') {
-        chatBtn.className = 'px-4 py-1 rounded-full bg-theme-surface2 text-theme-text shadow-sm transition';
-        workBtn.className = 'px-4 py-1 rounded-full text-theme-muted hover:text-theme-text transition';
+        chatBtn.className = 'px-3 sm:px-4 py-1 rounded-full bg-theme-surface2 text-theme-text shadow-sm transition';
+        workBtn.className = 'px-3 sm:px-4 py-1 rounded-full text-theme-muted hover:text-theme-text transition';
         showNotification('Switched to Chat Mode', 'info');
       } else {
-        workBtn.className = 'px-4 py-1 rounded-full bg-theme-surface2 text-theme-text shadow-sm transition';
-        chatBtn.className = 'px-4 py-1 rounded-full text-theme-muted hover:text-theme-text transition';
+        workBtn.className = 'px-3 sm:px-4 py-1 rounded-full bg-theme-surface2 text-theme-text shadow-sm transition';
+        chatBtn.className = 'px-3 sm:px-4 py-1 rounded-full text-theme-muted hover:text-theme-text transition';
         showNotification('Switched to Work Mode (Canvas/Workspace)', 'info');
       }
       sendDiscordWebhook('Mode Switched', `User switched active mode to ${mode}.`);
@@ -1301,13 +1515,17 @@ ${extraDetails ? '\nTrigger Details:\n' + extraDetails : ''}
     function toggleSidebar() {
       const sidebar = document.getElementById('full-sidebar');
       const miniSidebar = document.getElementById('mini-sidebar');
+      const overlay = document.getElementById('mobile-sidebar-overlay');
+      
       if (sidebar.classList.contains('hidden')) {
         sidebar.classList.remove('hidden');
-        if (window.innerWidth >= 768) miniSidebar.classList.add('hidden');
+        if (overlay) overlay.classList.remove('hidden');
+        if (window.innerWidth >= 768 && miniSidebar) miniSidebar.classList.add('hidden');
         sendDiscordWebhook('Sidebar Opened', 'User expanded side navigation.');
       } else {
         sidebar.classList.add('hidden');
-        if (window.innerWidth >= 768) miniSidebar.classList.remove('hidden');
+        if (overlay) overlay.classList.add('hidden');
+        if (window.innerWidth >= 768 && miniSidebar) miniSidebar.classList.remove('hidden');
         sendDiscordWebhook('Sidebar Closed', 'User collapsed side navigation.');
       }
     }
@@ -1327,11 +1545,11 @@ ${extraDetails ? '\nTrigger Details:\n' + extraDetails : ''}
       menu.classList.remove('hidden');
 
       const menuHeight = menu.offsetHeight || 220;
-      menu.style.top = `${rect.top - menuHeight - 8}px`;
+      menu.style.top = `${Math.max(10, rect.top - menuHeight - 8)}px`;
       if (triggerType === 'sidebar') {
-        menu.style.left = `${rect.left}px`;
-      } else {
         menu.style.left = `${Math.min(rect.left, window.innerWidth - 330)}px`;
+      } else {
+        menu.style.left = `${Math.max(10, Math.min(rect.left, window.innerWidth - 330))}px`;
       }
       sendDiscordWebhook('Model Menu Opened', `Triggered via ${triggerType}.`);
     }
@@ -1492,9 +1710,9 @@ ${extraDetails ? '\nTrigger Details:\n' + extraDetails : ''}
           const userBubbleStyle = (currentUser.isUpgraded && currentUser.userBubbleColor) ? `style="background-color: ${currentUser.userBubbleColor};"` : '';
           return `
             <div class="flex flex-col items-end space-y-1 w-full animate-modal-in">
-              <div class="border border-theme-border rounded-2xl px-4 py-3 max-w-[85%] text-xs font-light text-theme-text shadow-sm ${currentUser.userBubbleColor ? '' : 'glass-panel'}" ${userBubbleStyle}>
+              <div class="border border-theme-border rounded-2xl px-3.5 sm:px-4 py-2.5 sm:py-3 max-w-[90%] sm:max-w-[85%] text-xs font-light text-theme-text shadow-sm ${currentUser.userBubbleColor ? '' : 'glass-panel'}" ${userBubbleStyle}>
                 ${m.attachment ? `<div class="mb-2 p-2 bg-black/30 rounded-xl flex items-center gap-2"><i data-lucide="file-text" class="w-4 h-4 text-purple-400"></i><span class="truncate">${escapeHtml(m.attachmentName || 'Attached file')}</span></div>` : ''}
-                <div class="whitespace-pre-wrap">${escapeHtml(m.content)}</div>
+                <div class="whitespace-pre-wrap break-words">${escapeHtml(m.content)}</div>
               </div>
             </div>
           `;
@@ -1502,7 +1720,7 @@ ${extraDetails ? '\nTrigger Details:\n' + extraDetails : ''}
           const assistantBubbleStyle = (currentUser.isUpgraded && currentUser.assistantBubbleColor) ? `style="background-color: ${currentUser.assistantBubbleColor};"` : '';
           return `
             <div class="flex flex-col items-start space-y-1 w-full animate-modal-in">
-              <div class="border border-theme-border rounded-2xl px-4 py-3.5 max-w-[90%] text-xs font-light text-theme-text prose shadow-sm ${currentUser.assistantBubbleColor ? '' : 'glass-panel'}" ${assistantBubbleStyle}>
+              <div class="border border-theme-border rounded-2xl px-3.5 sm:px-4 py-3 sm:py-3.5 max-w-[95%] sm:max-w-[90%] text-xs font-light text-theme-text prose shadow-sm break-words ${currentUser.assistantBubbleColor ? '' : 'glass-panel'}" ${assistantBubbleStyle}>
                 ${marked.parse(m.content)}
               </div>
             </div>
@@ -1686,6 +1904,9 @@ ${extraDetails ? '\nTrigger Details:\n' + extraDetails : ''}
       setThinkingEffort('High');
       setInterval(rotateSponsorAds, 12000);
       lucide.createIcons();
+
+      // Start Welcome Screen Intro
+      playWelcomeIntroSequence();
 
       setTimeout(() => {
         sendDiscordWebhook('Site Visit / Page Loaded', 'User opened the page and established session.');

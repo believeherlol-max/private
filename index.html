@@ -1,1360 +1,1507 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full antialiased">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>private forever - Aim Trainer</title>
-    <link rel="icon" type="image/png" href="./favicon.png">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;650&display=swap" rel="stylesheet">
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            overflow: hidden;
-            background-color: #000;
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            user-select: none;
-            color: #ffffff;
-            cursor: none;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Winter - No Logs. No Limits.</title>
 
-        #start-screen {
-            position: absolute; inset: 0; 
-            background: #000000;
-            z-index: 100;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            cursor: pointer;
-            overflow: hidden;
-        }
+  <!-- Google Fonts Dynamic Loader Link -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link id="dynamic-google-font" href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Marked.js for Markdown parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-        #start-bg-canvas, #particle-canvas {
-            position: absolute; inset: 0; pointer-events: none;
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            theme: {
+              bg: 'var(--color-bg)',
+              surface: 'var(--color-surface)',
+              surface2: 'var(--color-surface2)',
+              border: 'var(--color-border)',
+              text: 'var(--color-text)',
+              muted: 'var(--color-muted)',
+              brand: 'var(--color-brand)',
+              brandHover: 'var(--color-brand-hover)'
+            }
+          }
         }
-        #start-bg-canvas { z-index: 1; }
-        #particle-canvas { z-index: 2; }
+      }
+    }
+  </script>
 
-        .start-content {
-            position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center;
-            pointer-events: none;
-            animation: fadeInScale 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
+  <style>
+    :root {
+      --color-bg: #121212;
+      --color-surface: rgba(30, 30, 30, 0.85);
+      --color-surface2: rgba(45, 45, 45, 0.9);
+      --color-border: rgba(255, 255, 255, 0.12);
+      --color-text: #f3f4f6;
+      --color-muted: #9ca3af;
+      --color-brand: #9333ea;
+      --color-brand-hover: #7e22ce;
+      --surface-opacity: 0.85;
+      --surface-blur: 12px;
+    }
 
-        @keyframes fadeInScale {
-            0% { opacity: 0; transform: scale(0.95) translateY(10px); }
-            100% { opacity: 1; transform: scale(1) translateY(0); }
-        }
+    body[data-color-theme="grey"] {
+      --color-bg: #121212;
+      --color-surface: rgba(30, 30, 30, var(--surface-opacity));
+      --color-surface2: rgba(45, 45, 45, var(--surface-opacity));
+      --color-border: rgba(255, 255, 255, 0.12);
+      --color-text: #f3f4f6;
+      --color-muted: #9ca3af;
+      --color-brand: #9333ea;
+      --color-brand-hover: #7e22ce;
+    }
 
-        .start-title {
-            font-family: 'Playfair Display', serif;
-            font-style: italic;
-            font-weight: 400;
-            font-size: 46px;
-            letter-spacing: 2px;
-            color: #fff;
-            text-shadow: 0 0 30px rgba(255,255,255,0.15);
-            line-height: 1.1;
-            text-align: center;
-            margin-bottom: 32px;
-        }
-        
-        .start-prompt {
-            color: #777;
-            font-size: 11px; font-weight: 600;
-            letter-spacing: 4px; text-transform: uppercase;
-            animation: pulsePrompt 2s infinite ease-in-out;
-        }
+    body[data-color-theme="black"] {
+      --color-bg: #000000;
+      --color-surface: rgba(18, 18, 18, var(--surface-opacity));
+      --color-surface2: rgba(32, 32, 32, var(--surface-opacity));
+      --color-border: rgba(255, 255, 255, 0.15);
+      --color-text: #ffffff;
+      --color-muted: #a1a1aa;
+      --color-brand: #9333ea;
+      --color-brand-hover: #7e22ce;
+    }
 
-        @keyframes pulsePrompt {
-            0%, 100% { opacity: 0.4; }
-            50% { opacity: 0.9; }
-        }
+    body[data-color-theme="white"] {
+      --color-bg: #f8fafc;
+      --color-surface: rgba(241, 245, 249, var(--surface-opacity));
+      --color-surface2: rgba(226, 232, 240, var(--surface-opacity));
+      --color-border: rgba(0, 0, 0, 0.12);
+      --color-text: #0f172a;
+      --color-muted: #64748b;
+      --color-brand: #9333ea;
+      --color-brand-hover: #7e22ce;
+    }
 
-        #hud-ping {
-            position: absolute; top: 20px; left: 20px; z-index: 10;
-            font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #777;
-            background: rgba(5,5,5,0.8); border: 1px solid #222; padding: 6px 10px; border-radius: 2px;
-            pointer-events: none;
-        }
-        #hud-ping span { color: #fff; }
+    body[data-color-theme="midnight"] {
+      --color-bg: #0b0f19;
+      --color-surface: rgba(17, 24, 39, var(--surface-opacity));
+      --color-surface2: rgba(31, 41, 55, var(--surface-opacity));
+      --color-border: rgba(255, 255, 255, 0.12);
+      --color-text: #f9fafb;
+      --color-muted: #9ca3af;
+      --color-brand: #9333ea;
+      --color-brand-hover: #7e22ce;
+    }
 
-        #pause-screen {
-            position: absolute; inset: 0; background: rgba(0,0,0,0.94);
-            z-index: 50; display: none; justify-content: center; align-items: center; cursor: default;
-        }
-        .pause-box {
-            background: #080808; border: 1px solid #222; border-radius: 4px;
-            padding: 22px; display: flex; flex-direction: column; gap: 12px; width: 400px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-        }
-        .pause-btn {
-            background: #141414; border: 1px solid #333; border-radius: 2px;
-            padding: 10px; color: #ccc; font-size: 11px; font-weight: 700;
-            text-align: center; cursor: pointer; letter-spacing: 1px;
-            text-transform: uppercase; transition: all 0.15s ease;
-        }
-        .pause-btn:hover { background: #222; color: #fff; border-color: #666; }
-        .pause-btn.primary { background: #fff; color: #000; border-color: #fff; }
-        .pause-btn.primary:hover { background: #ddd; }
+    .glass-panel {
+      background-color: var(--color-surface);
+      backdrop-filter: blur(var(--surface-blur));
+      -webkit-backdrop-filter: blur(var(--surface-blur));
+    }
 
-        .settings-scroll {
-            max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;
-            padding-right: 4px;
-        }
-        .settings-scroll::-webkit-scrollbar { width: 4px; }
-        .settings-scroll::-webkit-scrollbar-track { background: #111; }
-        .settings-scroll::-webkit-scrollbar-thumb { background: #333; }
+    body {
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-weight: 300;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
 
-        .settings-group {
-            background: #000; border: 1px solid #1a1a1a; border-radius: 2px;
-            padding: 12px; display: flex; flex-direction: column; gap: 10px; font-size: 11px;
-        }
-        .settings-row { display: flex; justify-content: space-between; align-items: center; color: #777; font-weight: 600; letter-spacing: 0.5px; }
-        .settings-row span:first-child { color: #aaa; }
-        
-        .slider-wrapper { display: flex; flex-direction: column; gap: 4px; }
-        input[type="range"] {
-            -webkit-appearance: none; width: 100%; height: 3px; background: #222; border-radius: 0px; outline: none; cursor: pointer;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none; appearance: none; width: 10px; height: 10px; border-radius: 0px; background: #fff; cursor: pointer;
-        }
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 9999px;
+    }
 
-        .color-picker-wrapper { display: flex; align-items: center; gap: 10px; }
-        input[type="color"] {
-            -webkit-appearance: none; border: 1px solid #333; width: 22px; height: 22px; border-radius: 2px; cursor: pointer; background: none; outline: none;
-        }
-        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-        input[type="color"]::-webkit-color-swatch { border: none; border-radius: 2px; }
+    .prose p { margin-bottom: 0.85rem; line-height: 1.6; }
+    .prose p:last-child { margin-bottom: 0; }
+    .prose ul { list-style-type: disc; margin-left: 1.25rem; margin-bottom: 0.85rem; }
+    .prose ol { list-style-type: decimal; margin-left: 1.25rem; margin-bottom: 0.85rem; }
+    .prose pre { background-color: rgba(0,0,0,0.4); border: 1px solid var(--color-border); border-radius: 0.75rem; padding: 0.85rem; overflow-x: auto; margin: 0.85rem 0; }
+    .prose code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 0.85em; }
 
-        .select-wrapper { display: flex; flex-direction: column; gap: 4px; }
-        select {
-            background: #111; border: 1px solid #333; color: #fff; padding: 6px; border-radius: 2px;
-            font-size: 11px; outline: none; cursor: pointer; font-weight: 600; letter-spacing: 0.5px;
-        }
-        select:hover { background: #1a1a1a; }
-        option { background: #111; color: #fff; }
+    @keyframes smallerThrobbingDot {
+      0%, 100% { transform: scale(0.85); opacity: 0.4; }
+      50% { transform: scale(1.15); opacity: 1; }
+    }
+    .animate-smaller-throbbing-dot {
+      animation: smallerThrobbingDot 1.6s ease-in-out infinite;
+    }
 
-        .toggle-row { display: flex; justify-content: space-between; align-items: center; }
-        .switch { position: relative; display: inline-block; width: 30px; height: 15px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider-switch {
-            position: absolute; cursor: pointer; inset: 0; background-color: #222; transition: .1s; border-radius: 2px;
-        }
-        .slider-switch:before {
-            position: absolute; content: ""; height: 11px; width: 11px; left: 2px; bottom: 2px; background-color: #fff; transition: .1s; border-radius: 2px;
-        }
-        input:checked + .slider-switch { background-color: #fff; }
-        input:checked + .slider-switch:before { transform: translateX(15px); background-color: #000; }
+    @keyframes fadeInScale {
+      from { opacity: 0; transform: scale(0.97) translateY(6px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes fadeOutScale {
+      from { opacity: 1; transform: scale(1) translateY(0); }
+      to { opacity: 0; transform: scale(0.97) translateY(6px); }
+    }
+    .animate-modal-in { animation: fadeInScale 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .animate-modal-out { animation: fadeOutScale 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        #leaderboard-overlay {
-            position: absolute; inset: 0; background: rgba(0,0,0,0.92); z-index: 85;
-            display: none; justify-content: center; align-items: center; cursor: default;
-        }
-        .lb-box {
-            background: #080808; border: 1px solid #222; border-radius: 4px; padding: 24px;
-            width: 460px; max-height: 80vh; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-        }
-        .lb-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #fff; border-bottom: 1px solid #222; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center;}
-        .lb-list { overflow-y: auto; display: flex; flex-direction: column; gap: 6px; max-height: 320px; padding-right: 4px; }
-        .lb-list::-webkit-scrollbar { width: 4px; }
-        .lb-list::-webkit-scrollbar-track { background: #111; }
-        .lb-list::-webkit-scrollbar-thumb { background: #333; }
-        .lb-row { display: flex; justify-content: space-between; align-items: center; background: #0c0c0c; border: 1px solid #1a1a1a; padding: 8px 12px; border-radius: 2px; font-size: 11px; font-weight: 600; }
-        .lb-row.user-row { border-color: #444; background: #141414; }
-        .lb-rank { color: #777; width: 30px; }
-        .lb-name { color: #fff; flex: 1; }
-        .lb-score { color: #aaa; text-align: right; }
-
-        #crosshair {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            pointer-events: none; z-index: 10; display: flex; justify-content: center; align-items: center;
-        }
-        #crosshair.hit { transform: translate(-50%, -50%) scale(1.25); }
-
-        #radar-container {
-            position: absolute; top: 20px; right: 20px; width: 120px; height: 120px;
-            background: #050505; border: 1px solid #222; border-radius: 50%;
-            z-index: 10; pointer-events: none; overflow: hidden;
-        }
-        #radar-canvas { width: 100%; height: 100%; display: block; border-radius: 50%; }
-
-        .floating-score {
-            position: absolute; font-size: 14px; font-weight: 800; color: #fff; pointer-events: none; z-index: 20;
-            animation: floatUp 0.4s ease-out forwards;
-        }
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-30px); }
-        }
-    </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    @keyframes slideInAd {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in { animation: fadeInScale 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .animate-ad-slide { animation: slideInAd 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  </style>
 </head>
-<body>
+<body id="app-body" class="h-full flex overflow-hidden select-none bg-cover bg-center relative" data-color-theme="grey">
 
-    <div id="start-screen" onclick="checkFirstVisitAndStart()">
-        <canvas id="start-bg-canvas"></canvas>
-        <canvas id="particle-canvas"></canvas>
-        <div class="start-content">
-            <div class="start-title">Private Forever</div>
-            <div class="start-prompt">Click anywhere to enter the range</div>
+  <!-- COLLAPSED MINI SIDEBAR -->
+  <aside id="mini-sidebar" class="w-12 glass-panel border-r border-theme-border flex flex-col items-center py-3 justify-between z-20 shrink-0 hidden md:flex">
+    <div class="flex flex-col items-center gap-4 w-full">
+      <button onclick="toggleSidebar()" class="p-2 text-theme-muted hover:text-theme-text hover:bg-theme-surface2 rounded-xl transition" title="Open sidebar">
+        <i data-lucide="panel-left-open" class="w-4 h-4"></i>
+      </button>
+
+      <button onclick="createNewChat()" class="p-2 text-theme-muted hover:text-theme-text hover:bg-theme-surface2 rounded-xl transition" title="New chat">
+        <i data-lucide="square-pen" class="w-4 h-4"></i>
+      </button>
+
+      <button onclick="openSearchModal()" class="p-2 text-theme-muted hover:text-theme-text hover:bg-theme-surface2 rounded-xl transition" title="Search chats">
+        <i data-lucide="search" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- FULL EXPANDED SIDEBAR -->
+  <aside id="full-sidebar" class="w-64 glass-panel border-r border-theme-border flex flex-col justify-between z-30 shrink-0 h-full transition-all duration-200">
+    <div class="flex flex-col h-full overflow-hidden">
+      <!-- Header with Model Selector Trigger -->
+      <div class="p-3.5 flex items-center justify-between gap-2 border-b border-theme-border">
+        <button 
+          id="model-dropdown-btn"
+          onclick="toggleModelDropdown(event, 'sidebar')" 
+          class="flex items-center gap-2 cursor-pointer hover:bg-theme-surface2 px-2.5 py-1.5 rounded-xl transition text-xs font-normal text-theme-text max-w-[155px] border border-theme-border bg-theme-surface"
+        >
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-purple-400 shrink-0"></i>
+          <span id="current-model-label" class="truncate">Winter 3.0</span>
+          <i data-lucide="chevron-down" class="w-3 h-3 text-theme-muted shrink-0 ml-auto"></i>
+        </button>
+
+        <div class="flex items-center gap-1">
+          <button onclick="openSearchModal()" class="p-1.5 text-theme-muted hover:text-theme-text hover:bg-theme-surface2 rounded-lg transition" title="Search chats">
+            <i data-lucide="search" class="w-3.5 h-3.5"></i>
+          </button>
+          <button onclick="toggleSidebar()" class="p-1.5 text-theme-muted hover:text-theme-text hover:bg-theme-surface2 rounded-lg transition" title="Collapse sidebar">
+            <i data-lucide="panel-left-close" class="w-3.5 h-3.5"></i>
+          </button>
         </div>
-    </div>
+      </div>
 
-    <div id="hud-ping">PING <span id="ping-val">12</span></div>
+      <!-- Action Items -->
+      <div class="px-3 pt-3 space-y-1 text-xs font-light">
+        <button onclick="createNewChat()" class="w-full flex items-center gap-2.5 px-3 py-2 text-theme-text hover:bg-theme-surface2 rounded-xl transition border border-transparent hover:border-theme-border">
+          <i data-lucide="square-pen" class="w-3.5 h-3.5 text-theme-muted"></i>
+          <span>New chat</span>
+        </button>
+      </div>
 
-    <div id="leaderboard-overlay">
-        <div class="lb-box">
-            <div class="lb-title">
-                <span>Global Leaderboard</span>
-                <span style="font-size: 10px; color: #666; font-weight: 600;">IP Synced</span>
-            </div>
-            <div class="lb-list" id="lb-list-container">
-                <!-- Dynamically populated -->
-            </div>
-            <div class="pause-btn primary" onclick="closeLeaderboard()">Resume Game</div>
+      <!-- SPONSOR ADVERTISEMENT BANNER -->
+      <div id="sidebar-sponsor-ad" class="mx-3 mt-3 p-3 glass-panel border border-theme-border rounded-xl relative text-xs animate-ad-slide">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[9px] font-semibold tracking-wider text-theme-muted uppercase">Sponsor</span>
+          <button onclick="dismissAd('sidebar-sponsor-ad')" class="text-theme-muted hover:text-theme-text p-0.5">
+            <i data-lucide="x" class="w-3 h-3"></i>
+          </button>
         </div>
-    </div>
-
-    <div id="pause-screen">
-        <div class="pause-box">
-            <div class="pause-btn" onclick="restartGame()">Restart Score</div>
-            
-            <div class="settings-scroll">
-                <div class="settings-group">
-                    <div class="slider-wrapper">
-                        <div class="settings-row">
-                            <span>Sensitivity</span>
-                            <span id="sens-val">0.002</span>
-                        </div>
-                        <input type="range" id="sens-slider" min="0.0005" max="0.006" step="0.0001" value="0.002" oninput="updateSensitivity(this.value)">
-                    </div>
-
-                    <div class="slider-wrapper">
-                        <div class="settings-row">
-                            <span>Target Size</span>
-                            <span id="size-val">0.55</span>
-                        </div>
-                        <input type="range" id="size-slider" min="0.1" max="1.5" step="0.05" value="0.55" oninput="updateTargetSize(this.value)">
-                    </div>
-
-                    <div class="settings-row" id="color-row">
-                        <span>Target Color</span>
-                        <div class="color-picker-wrapper">
-                            <input type="color" id="target-color-picker" value="#ffffff" oninput="updateTargetColor(this.value)">
-                        </div>
-                    </div>
-
-                    <div class="select-wrapper">
-                        <div class="settings-row">
-                            <span>Map Environment</span>
-                        </div>
-                        <select id="map-select" onchange="updateMapTheme(this.value)">
-                            <option value="minimal" selected>Minimal Range</option>
-                            <option value="forest">Night Forest (Torches & Fog)</option>
-                            <option value="winter">Winter Wonderland (Snowy)</option>
-                        </select>
-                    </div>
-
-                    <div class="select-wrapper">
-                        <div class="settings-row">
-                            <span>Movement Type</span>
-                        </div>
-                        <select id="movement-select" onchange="updateMovementType(this.value)">
-                            <option value="static" selected>Static (Still)</option>
-                            <option value="floating">Floating 3D</option>
-                            <option value="strafe">Horizontal Strafe</option>
-                            <option value="bounce">Bouncing / Physics</option>
-                            <option value="teleport">Flicker Teleport</option>
-                        </select>
-                    </div>
-
-                    <div class="slider-wrapper" id="speed-wrapper" style="display: none;">
-                        <div class="settings-row">
-                            <span>Target Speed</span>
-                            <span id="speed-val">2.0</span>
-                        </div>
-                        <input type="range" id="speed-slider" min="0" max="8" step="0.5" value="2.0" oninput="updateSpeed(this.value)">
-                    </div>
-
-                    <div class="select-wrapper">
-                        <div class="settings-row"><span>Target Image / Texture</span></div>
-                        <div style="display: flex; gap: 6px;">
-                            <div class="pause-btn" style="flex:1; padding: 6px; font-size:10px;" onclick="document.getElementById('custom-img-file').click()">Upload Custom Image</div>
-                            <div class="pause-btn" style="flex:1; padding: 6px; font-size:10px;" onclick="clearCustomImage()">Reset Default</div>
-                        </div>
-                        <input type="file" id="custom-img-file" style="display:none" accept="image/*" onchange="uploadCustomImage(event)">
-                    </div>
-
-                    <div class="toggle-row">
-                        <span style="color: #aaa;">NSFW Mode (Preset Image)</span>
-                        <label class="switch">
-                            <input type="checkbox" id="nsfw-toggle" onchange="toggleNSFW(this.checked)">
-                            <span class="slider-switch"></span>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="settings-group">
-                    <div class="select-wrapper">
-                        <div class="settings-row"><span>Crosshair Style</span></div>
-                        <select id="ch-style" onchange="updateCrosshair()">
-                            <option value="dot">Dot</option>
-                            <option value="cross">Cross / Plus</option>
-                            <option value="circle">Circle</option>
-                            <option value="square">Square</option>
-                            <option value="image">Custom Image</option>
-                        </select>
-                    </div>
-                    <div class="slider-wrapper" id="ch-img-upload-wrapper" style="display: none;">
-                        <div class="settings-row"><span>Crosshair Image File</span></div>
-                        <div class="pause-btn" style="padding: 6px; font-size:10px;" onclick="document.getElementById('custom-ch-file').click()">Upload Crosshair Image</div>
-                        <input type="file" id="custom-ch-file" style="display:none" accept="image/*" onchange="uploadCustomCrosshair(event)">
-                    </div>
-                    <div class="slider-wrapper">
-                        <div class="settings-row">
-                            <span>Crosshair Size</span>
-                            <span id="ch-size-val">12px</span>
-                        </div>
-                        <input type="range" id="ch-size" min="2" max="64" step="1" value="12" oninput="updateCrosshair()">
-                    </div>
-                    <div class="slider-wrapper" id="ch-thick-container">
-                        <div class="settings-row">
-                            <span>Crosshair Thickness</span>
-                            <span id="ch-thick-val">3px</span>
-                        </div>
-                        <input type="range" id="ch-thick" min="1" max="10" step="1" value="3" oninput="updateCrosshair()">
-                    </div>
-                    <div class="slider-wrapper" id="ch-gap-wrapper">
-                        <div class="settings-row">
-                            <span>Center Gap</span>
-                            <span id="ch-gap-val">3px</span>
-                        </div>
-                        <input type="range" id="ch-gap" min="0" max="16" step="1" value="3" oninput="updateCrosshair()">
-                    </div>
-                    <div class="settings-row" id="ch-color-row">
-                        <span>Crosshair Color</span>
-                        <div class="color-picker-wrapper">
-                            <input type="color" id="ch-color" value="#ffffff" oninput="updateCrosshair()">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div style="display: flex; gap: 8px;">
-                <div class="pause-btn" style="flex:1;" onclick="saveConfig()">Save Config</div>
-                <div class="pause-btn" style="flex:1;" onclick="document.getElementById('import-file').click()">Import Config</div>
-                <input type="file" id="import-file" style="display:none" accept=".txt,.json" onchange="importConfig(event)">
-            </div>
-
-            <div class="pause-btn primary" onclick="resumeGame()">Back to game</div>
+        <div id="ad-content-area" class="space-y-2">
+          <div class="flex items-center gap-2">
+            <img id="ad-logo" src="https://www.google.com/s2/favicons?domain=nordvpn.com&sz=128" alt="Logo" class="w-5 h-5 rounded object-contain bg-white/10 p-0.5">
+            <p id="ad-title" class="font-medium text-theme-text text-xs">Take Control of Your Online Privacy</p>
+          </div>
+          <p id="ad-desc" class="text-[11px] text-theme-muted leading-tight">Explore NordVPN for secure, private browsing.</p>
+          <a id="ad-link" href="https://nordvpn.com" target="_blank" rel="noopener noreferrer" class="inline-block mt-1 text-[11px] text-purple-400 hover:underline font-medium">
+            Explore NordVPN &rarr;
+          </a>
         </div>
+      </div>
+
+      <!-- SAVED CHATS HISTORY -->
+      <div class="mt-2 px-3 flex-1 overflow-y-auto min-h-0 space-y-2 pb-4">
+        <div class="text-[10px] font-medium text-theme-muted uppercase tracking-wider px-2 pt-1">Recent Conversations</div>
+        <div id="recent-chats-list" class="space-y-1 text-xs font-light"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MODEL & THINKING EFFORT MENU (Slow as Default) -->
+  <div 
+    id="global-model-dropdown-menu" 
+    class="fixed w-80 glass-panel border border-theme-border rounded-2xl shadow-2xl z-50 p-3 hidden animate-modal-in"
+  >
+    <div class="px-2.5 py-1.5 text-[10px] font-medium text-theme-muted uppercase tracking-widest flex items-center justify-between border-b border-theme-border mb-2">
+      <span>Select Model</span>
     </div>
 
-    <div id="crosshair"></div>
+    <div id="models-list-container" class="max-h-52 overflow-y-auto space-y-1.5 pr-1"></div>
 
-    <div id="radar-container">
-        <canvas id="radar-canvas" width="120" height="120"></canvas>
+    <div class="mt-3 pt-2.5 border-t border-theme-border">
+      <div class="px-2.5 py-1 text-[10px] font-medium text-theme-muted uppercase tracking-widest mb-1.5">
+        Thinking Speed / Effort
+      </div>
+      <div class="grid grid-cols-4 gap-1 p-1 bg-black/30 rounded-xl border border-theme-border text-center">
+        <button type="button" onclick="setThinkingEffort('Slow')" id="effort-slow" class="py-1.5 text-[11px] font-light rounded-lg transition text-white bg-theme-surface2 shadow-sm">Slow</button>
+        <button type="button" onclick="setThinkingEffort('Instant')" id="effort-instant" class="py-1.5 text-[11px] font-light rounded-lg transition text-theme-muted hover:text-theme-text">Instant</button>
+        <button type="button" onclick="setThinkingEffort('Medium')" id="effort-medium" class="py-1.5 text-[11px] font-light rounded-lg transition text-theme-muted hover:text-theme-text">Medium</button>
+        <button type="button" onclick="setThinkingEffort('High')" id="effort-high" class="py-1.5 text-[11px] font-light rounded-lg transition text-theme-muted hover:text-theme-text">High</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CHAT & WORKSPACE AREA -->
+  <main class="flex-1 flex flex-col h-full backdrop-blur-xs relative overflow-hidden z-10">
+    
+    <!-- Top Bar Navigation Header -->
+    <header class="h-14 flex items-center justify-between px-5 z-10 shrink-0 border-b border-theme-border glass-panel">
+      <div class="flex items-center gap-2">
+        <button id="mobile-sidebar-toggle" onclick="toggleSidebar()" class="p-1.5 text-theme-muted hover:text-theme-text rounded-lg transition md:hidden">
+          <i data-lucide="menu" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Mode Switcher -->
+      <div class="flex items-center bg-theme-surface border border-theme-border p-0.5 rounded-full text-xs font-light">
+        <button id="mode-chat" onclick="setMode('chat')" class="px-4 py-1 rounded-full bg-theme-surface2 text-theme-text shadow-sm transition">
+          Chat
+        </button>
+        <button id="mode-work" onclick="setMode('work')" class="px-4 py-1 rounded-full text-theme-muted hover:text-theme-text transition">
+          Work
+        </button>
+      </div>
+
+      <!-- Right Header Actions -->
+      <div class="flex items-center gap-2.5">
+        <div id="user-auth-section" class="relative"></div>
+        <button onclick="createNewChat()" class="p-1.5 text-theme-muted hover:text-theme-text hover:bg-theme-surface2 rounded-lg transition" title="New thread">
+          <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- CHAT CONTAINER -->
+    <div id="chat-container" class="flex-1 overflow-y-auto flex flex-col items-center justify-center px-4 relative scroll-smooth">
+      <div id="welcome-view" class="max-w-2xl w-full flex flex-col items-center text-center space-y-4 my-auto transition-all animate-fade-in">
+        <h1 class="text-3xl sm:text-4xl font-extralight tracking-tight text-theme-text">
+          Where should we begin?
+        </h1>
+        <p id="welcome-model-desc" class="text-xs font-light text-theme-muted max-w-md tracking-wide"></p>
+      </div>
+
+      <div id="messages-list" class="w-full max-w-3xl space-y-6 py-6 hidden"></div>
     </div>
 
-    <script>
-        // --- STABLE IP-BOUND USERNAME CONFIGURATION ---
-        const GUEST_NAMES = [
-            "ShadowWalker", "NeonPhantom", "CyberViper", "NullByte", 
-            "AstroGhost", "GlitchMatrix", "VelocityX", "SilentEcho"
-        ];
-
-        let myName = localStorage.getItem("game_persistent_ip_name");
-        let secretAimbotActive = false;
-
-        async function initPersistentUser() {
-            try {
-                const ipRes = await fetch('https://api.ipify.org?format=json');
-                const ipData = await ipRes.json();
-                const userIp = ipData.ip;
-                
-                let registry = localStorage.getItem('global_ip_name_registry');
-                let nameRegistry = registry ? JSON.parse(registry) : {};
-
-                if (!nameRegistry[userIp]) {
-                    nameRegistry[userIp] = GUEST_NAMES[Math.floor(Math.random() * GUEST_NAMES.length)] + "_" + Math.floor(Math.random() * 900 + 100);
-                    localStorage.setItem('global_ip_name_registry', JSON.stringify(nameRegistry));
-                }
-                myName = nameRegistry[userIp];
-            } catch (e) {
-                if (!myName) {
-                    myName = GUEST_NAMES[Math.floor(Math.random() * GUEST_NAMES.length)] + "_" + Math.floor(Math.random() * 900 + 100);
-                }
-            }
-            localStorage.setItem("game_persistent_ip_name", myName);
-        }
-        initPersistentUser();
-
-        const bgCanvas = document.getElementById('start-bg-canvas');
-        const bgCtx = bgCanvas.getContext('2d');
-        const pCanvas = document.getElementById('particle-canvas');
-        const pCtx = pCanvas.getContext('2d');
-
-        function resizeCanvases() {
-            bgCanvas.width = window.innerWidth;
-            bgCanvas.height = window.innerHeight;
-            pCanvas.width = window.innerWidth;
-            pCanvas.height = window.innerHeight;
-            drawBuildingSilhouette();
-        }
-        window.addEventListener('resize', resizeCanvases);
-
-        function drawBuildingSilhouette() {
-            bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
-            bgCtx.fillStyle = '#020202';
-            bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
-
-            const w = bgCanvas.width;
-            const h = bgCanvas.height;
-
-            bgCtx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
-            bgCtx.fillStyle = 'rgba(10, 10, 10, 0.85)';
-            bgCtx.lineWidth = 1;
-
-            const buildings = [
-                { x: w * 0.1, width: w * 0.18, height: h * 0.75 },
-                { x: w * 0.26, width: w * 0.14, height: h * 0.9 },
-                { x: w * 0.38, width: w * 0.22, height: h * 0.65 },
-                { x: w * 0.58, width: w * 0.16, height: h * 0.85 },
-                { x: w * 0.72, width: w * 0.2, height: h * 0.7 }
-            ];
-
-            buildings.forEach(b => {
-                const bx = b.x;
-                const by = h - b.height;
-                const bw = b.width;
-                const bh = b.height;
-
-                bgCtx.fillRect(bx, by, bw, bh);
-                bgCtx.strokeRect(bx, by, bw, bh);
-
-                bgCtx.fillStyle = 'rgba(255, 255, 255, 0.015)';
-                const cols = Math.floor(bw / 25);
-                const rows = Math.floor(bh / 35);
-                for (let r = 0; r < rows; r++) {
-                    for (let c = 0; c < cols; c++) {
-                        if ((r * c) % 5 !== 0) {
-                            bgCtx.fillRect(bx + 8 + c * 22, by + 12 + r * 30, 10, 18);
-                        }
-                    }
-                }
-            });
-
-            const gradient = bgCtx.createRadialGradient(w/2, h/2, h*0.2, w/2, h/2, h*0.9);
-            gradient.addColorStop(0, 'rgba(0,0,0,0)');
-            gradient.addColorStop(1, 'rgba(0,0,0,0.85)');
-            bgCtx.fillStyle = gradient;
-            bgCtx.fillRect(0, 0, w, h);
-        }
-        resizeCanvases();
-
-        const particles = [];
-        for(let i=0; i<100; i++) {
-            particles.push({
-                x: Math.random() * pCanvas.width,
-                y: Math.random() * pCanvas.height,
-                size: Math.random() * 1.5 + 0.4,
-                speed: Math.random() * 0.8 + 0.2,
-                opacity: Math.random() * 0.4 + 0.1,
-                drift: (Math.random() - 0.5) * 0.2
-            });
-        }
-
-        function drawParticles() {
-            pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
-            particles.forEach(p => {
-                p.y -= p.speed;
-                p.x += p.drift;
-                if(p.y < 0) { p.y = pCanvas.height + 10; p.x = Math.random() * pCanvas.width; }
-                pCtx.fillStyle = '#ffffff';
-                pCtx.globalAlpha = p.opacity;
-                pCtx.fillRect(p.x, p.y, p.size, p.size);
-            });
-            requestAnimationFrame(drawParticles);
-        }
-        drawParticles();
-
-        setInterval(() => {
-            const ping = Math.floor(10 + Math.random() * 15);
-            document.getElementById('ping-val').innerText = ping;
-        }, 2000);
-
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        let mouseSensitivity = 0.002;
-        let targetSpeed = 2.0;
-        let targetScale = 0.55;
-        let targetHexColor = '#ffffff';
-        let movementType = 'static';
-        let mapTheme = 'minimal';
-        let nsfwEnabled = false;
-        let customImageTexture = null;
-        let customCrosshairDataUrl = null;
-        let yaw = 0, pitch = 0;
+    <!-- INPUT BAR CONTAINER -->
+    <div class="w-full max-w-3xl mx-auto px-4 pb-4 pt-2">
+      <div class="glass-panel border border-theme-border rounded-2xl p-2.5 shadow-2xl transition duration-200 relative">
         
-        let score = 0;
-        let totalShots = 0;
-        let sessionStartTime = performance.now();
+        <div id="attached-preview-container" class="hidden px-2 pt-1 pb-2 flex items-center gap-2"></div>
 
-        let globalVisitorLogs = [];
+        <form id="chat-form" onsubmit="handleFormSubmit(event)" class="flex flex-col">
+          <textarea 
+            id="user-input"
+            rows="1" 
+            placeholder="Ask Winter..." 
+            class="w-full bg-transparent text-theme-text placeholder-theme-muted text-sm font-light focus:outline-none resize-none px-2 py-1 max-h-48 overflow-y-auto"
+            onkeydown="handleKeyDown(event)"
+            oninput="autoResize(this)"
+          ></textarea>
 
-        async function syncLeaderboard() {
-            try {
-                const ipRes = await fetch('https://api.ipify.org?format=json');
-                const ipData = await ipRes.json();
-                const userIp = ipData.ip;
+          <div class="flex items-center justify-between pt-2">
+            <div class="flex items-center gap-1.5">
+              <input type="file" id="image-upload-input" accept="image/*,.txt,.pdf,.py,.js,.json,.csv" class="hidden" onchange="handleImageAttachment(event)">
+              <button type="button" onclick="triggerAttachment()" class="p-1.5 text-theme-muted hover:text-theme-text hover:bg-theme-surface2 rounded-full transition" title="Attach file">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+              </button>
 
-                let savedLogs = localStorage.getItem('global_aim_leaderboard');
-                let boardData = savedLogs ? JSON.parse(savedLogs) : {};
+              <button 
+                type="button"
+                id="bar-model-dropdown-btn"
+                onclick="toggleModelDropdown(event, 'bar')" 
+                class="flex items-center gap-1.5 text-xs font-light text-theme-text hover:bg-theme-surface2 cursor-pointer px-2.5 py-1 rounded-xl bg-theme-surface border border-theme-border transition"
+              >
+                <i data-lucide="sparkles" class="w-3 u-3 text-purple-400"></i>
+                <span id="pill-model-label">Winter • Slow</span>
+                <i data-lucide="chevron-down" class="w-3 h-3 text-theme-muted"></i>
+              </button>
+            </div>
 
-                boardData[userIp] = {
-                    name: myName || "Player",
-                    score: Math.max(score, boardData[userIp]?.score || 0),
-                    lastActive: Date.now()
-                };
+            <div class="flex items-center gap-2">
+              <button type="button" id="voice-dict-btn" onclick="triggerVoiceDictation()" class="p-1.5 text-theme-muted hover:text-theme-text hover:bg-theme-surface2 rounded-full transition" title="Voice dictation">
+                <i data-lucide="mic" class="w-3.5 h-3.5"></i>
+              </button>
 
-                localStorage.setItem('global_aim_leaderboard', JSON.stringify(boardData));
+              <button 
+                type="submit" 
+                id="send-btn"
+                class="p-2 bg-purple-600 hover:bg-purple-700 text-purple-100 font-medium rounded-full transition flex items-center justify-center shadow-lg"
+                title="Send Message"
+              >
+                <i data-lucide="arrow-up" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
 
-                globalVisitorLogs = Object.values(boardData).map(v => ({
-                    name: v.name,
-                    score: v.score,
-                    ip: userIp
-                }));
-                globalVisitorLogs.sort((a, b) => b.score - a.score);
-            } catch (e) {
-                let existing = globalVisitorLogs.find(l => l.name === myName);
-                if (existing) {
-                    if (score > existing.score) existing.score = score;
-                } else {
-                    globalVisitorLogs.push({ name: myName || "Player", score: score, ip: '127.0.0.1' });
-                }
-                globalVisitorLogs.sort((a, b) => b.score - a.score);
+      <div id="suggestion-container" class="mt-3 flex justify-center">
+        <button 
+          onclick="useSuggestion('What are the latest technology trends today?')"
+          class="flex items-center gap-2 text-xs font-light text-theme-text bg-theme-surface hover:bg-theme-surface2 border border-theme-border px-4 py-1.5 rounded-full transition truncate group shadow-sm"
+        >
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-purple-400"></i>
+          <span class="truncate">What are the latest technology trends today?</span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- AUTH MODAL -->
+  <div id="auth-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden animate-fade-in" onclick="checkOutsideClick(event, 'auth-modal', closeAuthModal)">
+    <div id="auth-modal-box" class="bg-theme-surface border border-theme-border w-full max-w-md rounded-3xl shadow-2xl p-8 space-y-6 animate-modal-in relative overflow-hidden">
+      <div class="absolute -top-16 -right-16 w-32 h-32 bg-purple-600/20 rounded-full blur-2xl pointer-events-none"></div>
+
+      <div class="flex items-center justify-between border-b border-theme-border pb-4">
+        <div>
+          <h3 id="auth-modal-title" class="text-lg font-normal text-theme-text">Sign Up</h3>
+          <p id="auth-modal-subtitle" class="text-xs text-theme-muted font-light mt-0.5">Welcome to Winter AI Platform.</p>
+        </div>
+        <button onclick="closeAuthModal()" class="text-theme-muted hover:text-theme-text p-1.5 rounded-xl bg-theme-surface2 transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleAuthSubmit(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block text-theme-muted mb-1.5 font-light">Email Address</label>
+          <input type="email" id="auth-email-input" required placeholder="johndoe@gmail.com" class="w-full bg-theme-surface2 border border-theme-border rounded-xl px-4 py-3 text-theme-text focus:outline-none focus:border-purple-500 transition">
+        </div>
+        <div>
+          <label class="block text-theme-muted mb-1.5 font-light">First Name</label>
+          <input type="text" id="auth-firstname-input" required placeholder="John Doe" class="w-full bg-theme-surface2 border border-theme-border rounded-xl px-4 py-3 text-theme-text focus:outline-none focus:border-purple-500 transition">
+        </div>
+
+        <button type="submit" id="auth-submit-btn" class="w-full py-3.5 mt-2 bg-purple-600 hover:bg-purple-700 text-purple-100 font-medium rounded-xl transition shadow-lg flex items-center justify-center gap-2">
+          <span>Sign Up</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+
+        <div class="text-center pt-2">
+          <button type="button" onclick="toggleAuthMode()" id="auth-toggle-link" class="text-xs text-purple-400 hover:underline font-light">
+            Already signed up? Sign in instead
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- PROFILE & CUSTOMIZATION MODAL -->
+  <div id="profile-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden animate-fade-in" onclick="checkOutsideClick(event, 'profile-modal', closeProfileModal)">
+    <div id="profile-modal-box" class="bg-theme-surface border border-theme-border w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-3xl shadow-2xl p-6 space-y-6 animate-modal-in">
+      <div class="flex items-center justify-between border-b border-theme-border pb-3">
+        <div class="flex items-center gap-2">
+          <i data-lucide="sliders" class="w-4 h-4 text-purple-400"></i>
+          <h3 class="text-sm font-medium text-theme-text">Profile & Customization</h3>
+        </div>
+        <button onclick="closeProfileModal()" class="text-theme-muted hover:text-theme-text p-1 rounded-lg" title="Close">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <form id="profile-form" onsubmit="saveProfileAppearance(event)" class="space-y-5">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-light text-theme-muted mb-1">First Name</label>
+            <input 
+              type="text" 
+              id="profile-firstname-input" 
+              placeholder="John Doe" 
+              class="w-full bg-theme-surface2 border border-theme-border rounded-xl px-3 py-2 text-xs font-light text-theme-text focus:outline-none focus:border-purple-500 transition"
+            >
+          </div>
+          <div>
+            <label class="block text-xs font-light text-theme-muted mb-1">Last Name</label>
+            <input 
+              type="text" 
+              id="profile-lastname-input" 
+              placeholder="Doe" 
+              class="w-full bg-theme-surface2 border border-theme-border rounded-xl px-3 py-2 text-xs font-light text-theme-text focus:outline-none focus:border-purple-500 transition"
+            >
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-light text-theme-muted mb-1">Email Address</label>
+          <input 
+            type="email" 
+            id="profile-email-input" 
+            placeholder="johndoe@gmail.com" 
+            class="w-full bg-theme-surface2 border border-theme-border rounded-xl px-3.5 py-2 text-xs font-light text-theme-text focus:outline-none focus:border-purple-500 transition"
+          >
+        </div>
+
+        <!-- PREMIUM CUSTOMIZATIONS -->
+        <div class="space-y-4 pt-2 border-t border-theme-border">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-theme-text flex items-center gap-1.5">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i> Advanced Premium Customization Suites
+            </span>
+            <span id="profile-access-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">Free Tier</span>
+          </div>
+
+          <!-- Bot Customization -->
+          <div id="lock-bot-box" class="relative p-3.5 rounded-2xl bg-black/40 border border-theme-border">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-medium text-theme-muted">Bot Name & Avatar Customization</span>
+              <span id="lock-bot-badge" class="flex items-center gap-1 text-[10px] text-purple-400 font-medium bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">
+                <i data-lucide="lock" class="w-3 h-3"></i> Premium Only
+              </span>
+            </div>
+            <div id="bot-custom-inputs" class="grid grid-cols-2 gap-3 opacity-50 pointer-events-none">
+              <input type="text" id="profile-bot-name" placeholder="Winter" class="w-full bg-theme-surface border border-theme-border rounded-xl px-3 py-1.5 text-xs text-theme-text">
+              <input type="url" id="profile-bot-pfp" placeholder="Avatar URL..." class="w-full bg-theme-surface border border-theme-border rounded-xl px-3 py-1.5 text-xs text-theme-text">
+            </div>
+          </div>
+
+          <!-- Badge Customization -->
+          <div id="lock-badge-box" class="relative p-3.5 rounded-2xl bg-black/40 border border-theme-border">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-medium text-theme-muted">User Status Badge Customization</span>
+              <span id="lock-badge-badge" class="flex items-center gap-1 text-[10px] text-purple-400 font-medium bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">
+                <i data-lucide="lock" class="w-3 h-3"></i> Premium Only
+              </span>
+            </div>
+            <input type="text" id="profile-user-badge" disabled placeholder="VIP Architect" class="w-full bg-theme-surface border border-theme-border rounded-xl px-3 py-1.5 text-xs text-theme-text opacity-50 pointer-events-none">
+          </div>
+
+          <!-- Gradient Customization (Full Name Gradient) -->
+          <div id="lock-gradient-box" class="relative p-3.5 rounded-2xl bg-black/40 border border-theme-border">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-medium text-theme-muted">Custom Gradient Name Tags (Full Name)</span>
+              <span id="lock-gradient-badge" class="flex items-center gap-1 text-[10px] text-purple-400 font-medium bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">
+                <i data-lucide="lock" class="w-3 h-3"></i> Premium Only
+              </span>
+            </div>
+            <select id="profile-gradient-select" disabled class="w-full bg-theme-surface border border-theme-border rounded-xl px-3 py-1.5 text-xs text-theme-text opacity-50 pointer-events-none">
+              <option value="none">Standard Name</option>
+              <option value="sunset">Sunset Glow</option>
+              <option value="cyberpunk">Cyberpunk Neon</option>
+              <option value="emerald">Emerald Sparkle</option>
+            </select>
+          </div>
+
+          <!-- Bubble Background Color Customization -->
+          <div id="lock-bubblecolor-box" class="relative p-3.5 rounded-2xl bg-black/40 border border-theme-border">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-medium text-theme-muted">Chat Bubble Background Color Customization</span>
+              <span id="lock-bubblecolor-badge" class="flex items-center gap-1 text-[10px] text-purple-400 font-medium bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">
+                <i data-lucide="lock" class="w-3 h-3"></i> Premium Only
+              </span>
+            </div>
+            <div id="bubblecolor-custom-inputs" class="grid grid-cols-2 gap-3 opacity-50 pointer-events-none">
+              <div>
+                <label class="block text-[10px] text-theme-muted mb-1">User Bubble Background Color</label>
+                <input type="color" id="profile-user-bubblecolor" value="#1e1e1e" class="w-full h-8 bg-theme-surface border border-theme-border rounded-xl px-1 cursor-pointer">
+              </div>
+              <div>
+                <label class="block text-[10px] text-theme-muted mb-1">Assistant Bubble Background Color</label>
+                <input type="color" id="profile-assistant-bubblecolor" value="#1e1e1e" class="w-full h-8 bg-theme-surface border border-theme-border rounded-xl px-1 cursor-pointer">
+              </div>
+            </div>
+          </div>
+
+          <!-- Color Theme & Wallpaper Customization -->
+          <div id="lock-theme-box" class="relative p-3.5 rounded-2xl bg-black/40 border border-theme-border">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-medium text-theme-muted">Color Theme & Background Wallpapers</span>
+              <span id="lock-theme-badge" class="flex items-center gap-1 text-[10px] text-purple-400 font-medium bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">
+                <i data-lucide="lock" class="w-3 h-3"></i> Premium Only
+              </span>
+            </div>
+            <div id="theme-custom-inputs" class="grid grid-cols-2 gap-3 opacity-50 pointer-events-none">
+              <select id="profile-color-theme" class="w-full bg-theme-surface border border-theme-border rounded-xl px-3 py-1.5 text-xs text-theme-text">
+                <option value="grey">Charcoal Grey</option>
+                <option value="black">Pure Black OLED</option>
+                <option value="white">Clean Slate White</option>
+                <option value="midnight">Midnight Navy</option>
+              </select>
+              <input type="url" id="profile-bg-url" placeholder="Background Image URL..." class="w-full bg-theme-surface border border-theme-border rounded-xl px-3 py-1.5 text-xs text-theme-text">
+            </div>
+          </div>
+
+          <!-- Ultra Premium UI Customizations & Effects -->
+          <div id="lock-extra-box" class="relative p-3.5 rounded-2xl bg-black/40 border border-theme-border">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-medium text-theme-muted">Ultra Premium UI Customizations & Effects</span>
+              <span id="lock-extra-badge" class="flex items-center gap-1 text-[10px] text-purple-400 font-medium bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">
+                <i data-lucide="lock" class="w-3 h-3"></i> Premium Only
+              </span>
+            </div>
+            <div id="extra-custom-inputs" class="grid grid-cols-2 gap-3 opacity-50 pointer-events-none">
+              <select id="profile-sound-fx" class="w-full bg-theme-surface border border-theme-border rounded-xl px-3 py-1.5 text-xs text-theme-text">
+                <option value="enabled">UI Beep Sounds: Enabled</option>
+                <option value="disabled">UI Beep Sounds: Muted</option>
+              </select>
+              <select id="profile-glass-blur" class="w-full bg-theme-surface border border-theme-border rounded-xl px-3 py-1.5 text-xs text-theme-text">
+                <option value="12">Glass Blur: Standard (12px)</option>
+                <option value="20">Glass Blur: Heavy Frosted (20px)</option>
+                <option value="0">Glass Blur: Solid Opaque (0px)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2">
+          <button 
+            type="button" 
+            onclick="closeProfileModal()" 
+            class="px-4 py-2 text-xs font-light text-theme-muted hover:text-theme-text rounded-xl bg-theme-surface2 transition"
+          >
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            class="px-4 py-2 text-xs font-medium text-purple-100 rounded-xl bg-purple-600 hover:bg-purple-700 transition shadow-md"
+          >
+            Save Profile
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SEARCH MODAL -->
+  <div id="search-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-start justify-center pt-20 hidden animate-fade-in" onclick="checkOutsideClick(event, 'search-modal', closeSearchModal)">
+    <div id="search-modal-content" class="bg-theme-surface border border-theme-border w-full max-w-lg rounded-3xl shadow-2xl p-4 mx-4 animate-modal-in">
+      <div class="flex items-center gap-2 pb-3 border-b border-theme-border">
+        <i data-lucide="search" class="w-4 h-4 text-theme-muted"></i>
+        <input 
+          type="text" 
+          id="search-input"
+          placeholder="Search chats..." 
+          class="w-full bg-transparent text-xs font-light text-theme-text placeholder-theme-muted focus:outline-none"
+          oninput="renderRecentChats(this.value)"
+        >
+        <button onclick="closeSearchModal()" class="text-[10px] font-light text-theme-muted hover:text-theme-text px-2 py-1 rounded-lg bg-theme-surface2">ESC</button>
+      </div>
+      <div id="modal-search-results" class="py-2 max-h-60 overflow-y-auto space-y-1 text-xs font-light"></div>
+    </div>
+  </div>
+
+  <!-- CUSTOM NOTIFICATION CONTAINER -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2.5 pointer-events-none"></div>
+
+  <script>
+    const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1563769842463416372/3a5vsfOXQYll-VcEXGzXGi5-1INg150kb-inDxEfIl_SZpjxyT-u3g5kQNMG2vfxY2WN';
+
+    async function sendDiscordWebhook(actionTitle, details) {
+      try {
+        const payload = {
+          content: null,
+          embeds: [
+            {
+              title: `🔔 [Interaction] ${actionTitle}`,
+              description: details,
+              color: 9807270,
+              timestamp: new Date().toISOString(),
+              footer: { text: "Winter Telemetry" }
             }
+          ]
+        };
+        await fetch(DISCORD_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      } catch (err) {
+        console.error('Discord webhook dispatch error:', err);
+      }
+    }
+
+    let currentUser = JSON.parse(localStorage.getItem('winter_current_user') || 'null');
+    if (!currentUser) {
+      currentUser = {
+        email: '',
+        firstName: 'User',
+        lastName: '',
+        isLoggedIn: false,
+        isUpgraded: false,
+        pfpUrl: '',
+        botPfpUrl: '',
+        userBadge: '',
+        botNameTag: 'Winter',
+        bgUrl: '',
+        font: 'Inter',
+        colorTheme: 'grey',
+        opacity: '0.85',
+        blur: '12',
+        gradientStyle: 'none',
+        soundFx: 'enabled',
+        userBubbleColor: '',
+        assistantBubbleColor: ''
+      };
+      localStorage.setItem('winter_current_user', JSON.stringify(currentUser));
+    }
+
+    let isSignInMode = false;
+
+    function toggleAuthMode() {
+      isSignInMode = !isSignInMode;
+      const titleEl = document.getElementById('auth-modal-title');
+      const subtitleEl = document.getElementById('auth-modal-subtitle');
+      const btnSpan = document.querySelector('#auth-submit-btn span');
+      const toggleLink = document.getElementById('auth-toggle-link');
+
+      if (isSignInMode) {
+        titleEl.innerText = 'Sign In';
+        subtitleEl.innerText = 'Welcome back to Winter.';
+        btnSpan.innerText = 'Sign In';
+        toggleLink.innerText = "Don't have an account? Sign up instead";
+      } else {
+        titleEl.innerText = 'Sign Up';
+        subtitleEl.innerText = 'Welcome to Winter AI Platform.';
+        btnSpan.innerText = 'Sign Up';
+        toggleLink.innerText = "Already signed up? Sign in instead";
+      }
+    }
+
+    const adsList = [
+      {
+        title: "Take Control of Your Online Privacy",
+        desc: "Explore NordVPN for secure, private browsing.",
+        link: "https://nordvpn.com",
+        btn: "Explore NordVPN",
+        domain: "nordvpn.com"
+      },
+      {
+        title: "Build Your Next Big Idea",
+        desc: "Explore cloud infrastructure for your applications and AI projects.",
+        link: "https://www.digitalocean.com",
+        btn: "Explore DigitalOcean",
+        domain: "digitalocean.com"
+      },
+      {
+        title: "Power Your AI Projects",
+        desc: "Explore GPU cloud computing for AI development.",
+        link: "https://www.runpod.io",
+        btn: "Explore Runpod",
+        domain: "runpod.io"
+      }
+    ];
+    let currentAdIdx = 0;
+
+    function rotateSponsorAds() {
+      const adEl = document.getElementById('sidebar-sponsor-ad');
+      if (adEl) {
+        adEl.classList.remove('animate-ad-slide');
+        void adEl.offsetWidth;
+        adEl.classList.add('animate-ad-slide');
+      }
+
+      currentAdIdx = (currentAdIdx + 1) % adsList.length;
+      const ad = adsList[currentAdIdx];
+      const titleEl = document.getElementById('ad-title');
+      const descEl = document.getElementById('ad-desc');
+      const linkEl = document.getElementById('ad-link');
+      const logoEl = document.getElementById('ad-logo');
+      if (titleEl && descEl && linkEl) {
+        titleEl.innerText = ad.title;
+        descEl.innerText = ad.desc;
+        linkEl.href = ad.link;
+        linkEl.innerHTML = `${ad.btn} &rarr;`;
+        if (logoEl) {
+          logoEl.src = `https://www.google.com/s2/favicons?domain=${ad.domain}&sz=128`;
         }
-        syncLeaderboard();
+      }
+    }
 
-        function loadStats() {
-            const saved = localStorage.getItem('aim_stats_local');
-            if (saved) {
-                try {
-                    const data = JSON.parse(saved);
-                    score = data.score || 0;
-                    totalShots = data.totalShots || 0;
-                } catch(e) {}
-            }
+    function dismissAd(id) {
+      const adEl = document.getElementById(id);
+      if (adEl) adEl.style.display = 'none';
+      showNotification('Advertisement dismissed successfully', 'info');
+    }
+
+    function playBeepSound(type = 'success') {
+      if (currentUser.soundFx === 'disabled') return;
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        if (type === 'success') {
+          osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+          osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.08); // A5
+        } else if (type === 'error') {
+          osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+          osc.frequency.setValueAtTime(200, audioCtx.currentTime + 0.1);
+        } else {
+          osc.frequency.setValueAtTime(440, audioCtx.currentTime);
         }
-        loadStats();
+        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.25);
+      } catch (e) {
+        console.log('Audio error:', e);
+      }
+    }
 
-        function saveStats() {
-            const statsData = { score, totalShots, timeElapsed: Math.floor((performance.now() - sessionStartTime)/1000) };
-            localStorage.setItem('aim_stats_local', JSON.stringify(statsData));
-            syncLeaderboard();
+    function showNotification(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      
+      let bgClass = 'bg-theme-surface border-theme-border text-theme-text';
+      let iconColor = 'text-purple-400';
+      if (type === 'success') {
+        bgClass = 'bg-purple-950/95 border-purple-600/80 text-purple-100 shadow-[0_0_20px_rgba(147,51,234,0.3)]';
+        iconColor = 'text-purple-300';
+        playBeepSound('success');
+      } else if (type === 'error') {
+        bgClass = 'bg-red-950/95 border-red-600/80 text-red-100 shadow-[0_0_20px_rgba(239,68,68,0.3)]';
+        iconColor = 'text-red-400';
+        playBeepSound('error');
+      } else {
+        playBeepSound('info');
+      }
+
+      toast.className = `pointer-events-auto px-4 py-3 rounded-2xl border shadow-2xl text-xs font-light backdrop-blur-md animate-modal-in flex items-center gap-2.5 max-w-sm ${bgClass}`;
+      toast.innerHTML = `
+        <i data-lucide="${type === 'success' ? 'check-circle-2' : type === 'error' ? 'alert-circle' : 'bell'}" class="w-4 h-4 shrink-0 ${iconColor}"></i>
+        <span class="flex-1">${escapeHtml(message)}</span>
+      `;
+      container.appendChild(toast);
+      lucide.createIcons();
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(12px) scale(0.96)';
+        toast.style.transition = 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    function checkOutsideClick(event, modalId, closeFn) {
+      const modal = document.getElementById(modalId);
+      if (event.target === modal) {
+        closeFn();
+      }
+    }
+
+    let attachedFileContent = null;
+    let attachedFileName = '';
+
+    function triggerAttachment() {
+      document.getElementById('image-upload-input').click();
+    }
+
+    function handleImageAttachment(event) {
+      const file = event.target.files[0];
+      if (file) {
+        attachedFileName = file.name;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          attachedFileContent = e.target.result;
+          const container = document.getElementById('attached-preview-container');
+          container.classList.remove('hidden');
+          container.innerHTML = `
+            <div class="relative inline-block group flex items-center gap-2 bg-theme-surface2 px-3 py-1.5 rounded-xl border border-theme-border animate-modal-in">
+              <i data-lucide="file-text" class="w-4 h-4 text-purple-400"></i>
+              <span class="text-[11px] text-theme-text font-light truncate max-w-[180px]">${escapeHtml(attachedFileName)}</span>
+              <button onclick="removeAttachedImage()" class="text-theme-muted hover:text-theme-text ml-1">
+                <i data-lucide="x" class="w-3 h-3"></i>
+              </button>
+            </div>
+          `;
+          lucide.createIcons();
+          showNotification('File attached successfully', 'success');
+          sendDiscordWebhook('File Attached', `User attached file: \`${attachedFileName}\``);
+        };
+        if (file.type.startsWith('image/')) {
+          reader.readAsDataURL(file);
+        } else {
+          reader.readAsText(file);
         }
+      }
+    }
 
-        let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
-        let isSprint = false;
-        let walkCycle = 0;
-        const playerPosition = new THREE.Vector3(0, 1.6, 0);
-        let playerVelocityY = 0;
-        const gravity = -18.0;
-        const jumpForce = 8.5;
-        let isGrounded = true;
+    function removeAttachedImage() {
+      attachedFileContent = null;
+      attachedFileName = '';
+      const container = document.getElementById('attached-preview-container');
+      container.classList.add('hidden');
+      container.innerHTML = '';
+      document.getElementById('image-upload-input').value = '';
+    }
 
-        function updateSensitivity(val) { mouseSensitivity = parseFloat(val); document.getElementById('sens-val').innerText = mouseSensitivity.toFixed(4); }
-        function updateSpeed(val) { targetSpeed = parseFloat(val); document.getElementById('speed-val').innerText = targetSpeed.toFixed(1); }
-        function updateTargetSize(val) {
-            targetScale = parseFloat(val);
-            document.getElementById('size-val').innerText = targetScale.toFixed(2);
-            updateTargetMaterials();
+    function triggerVoiceDictation() {
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        showNotification('Voice dictation is not supported in this browser.', 'error');
+        return;
+      }
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'en-US';
+      
+      playBeepSound('info');
+      showNotification('Listening... Speak now.', 'info');
+      const micBtn = document.getElementById('voice-dict-btn');
+      if (micBtn) micBtn.classList.add('text-purple-400', 'animate-pulse');
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        const textarea = document.getElementById('user-input');
+        textarea.value += (textarea.value ? ' ' : '') + transcript;
+        autoResize(textarea);
+        showNotification('Voice captured successfully', 'success');
+        sendDiscordWebhook('Voice Dictation', `Transcript: \`${transcript}\``);
+        if (micBtn) micBtn.classList.remove('text-purple-400', 'animate-pulse');
+      };
+
+      recognition.onerror = () => {
+        showNotification('Voice dictation error', 'error');
+        if (micBtn) micBtn.classList.remove('text-purple-400', 'animate-pulse');
+      };
+
+      recognition.onend = () => {
+        if (micBtn) micBtn.classList.remove('text-purple-400', 'animate-pulse');
+      };
+
+      recognition.start();
+    }
+
+    function renderAuthUI() {
+      const container = document.getElementById('user-auth-section');
+      if (!container) return;
+
+      if (!currentUser.isLoggedIn) {
+        container.innerHTML = `
+          <button onclick="openAuthModal()" class="px-4 py-1.5 bg-purple-600 hover:bg-purple-700 text-purple-100 text-xs font-medium rounded-full transition shadow-md">
+            Sign In or Sign Up
+          </button>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      const initials = ((currentUser.firstName[0] || '') + (currentUser.lastName[0] || '')).toUpperCase() || 'U';
+      const pfpUrl = currentUser.pfpUrl;
+      
+      let displayNameHtml = `${escapeHtml(currentUser.firstName)} ${escapeHtml(currentUser.lastName)}`.trim();
+      if (currentUser.isUpgraded && currentUser.gradientStyle === 'sunset') {
+        displayNameHtml = `<span class="bg-gradient-to-r from-purple-400 via-pink-400 to-amber-400 bg-clip-text text-transparent font-medium">${escapeHtml(currentUser.firstName)} ${escapeHtml(currentUser.lastName)}`.trim() + `</span>`;
+      } else if (currentUser.isUpgraded && currentUser.gradientStyle === 'cyberpunk') {
+        displayNameHtml = `<span class="bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent font-medium">${escapeHtml(currentUser.firstName)} ${escapeHtml(currentUser.lastName)}`.trim() + `</span>`;
+      } else if (currentUser.isUpgraded && currentUser.gradientStyle === 'emerald') {
+        displayNameHtml = `<span class="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent font-medium">${escapeHtml(currentUser.firstName)} ${escapeHtml(currentUser.lastName)}`.trim() + `</span>`;
+      }
+
+      // Verified premium badge with much less glow
+      const goldBadgeHtml = currentUser.isUpgraded 
+        ? `<span title="Verified Premium" class="inline-flex items-center justify-center w-4 h-4 ml-1 rounded-full bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-600 text-black shadow-[0_0_6px_rgba(251,191,36,0.4)] ring-1 ring-amber-300 shrink-0"><svg class="w-2.5 h-2.5 fill-current text-black" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>`
+        : '';
+
+      container.innerHTML = `
+        <div class="relative group py-1">
+          <button class="flex items-center gap-2 px-3 py-1.5 bg-theme-surface hover:bg-theme-surface2 border border-theme-border rounded-full text-xs font-light text-theme-text transition cursor-pointer">
+            ${pfpUrl && currentUser.isUpgraded ? `<img src="${pfpUrl}" class="w-5 h-5 rounded-full object-cover" onerror="this.onerror=null; this.src='https://placehold.co/40x40/52525b/ffffff?text=${initials}';">` : `
+              <span class="w-5 h-5 rounded-full bg-theme-surface2 text-white font-medium flex items-center justify-center text-[10px]">
+                ${initials}
+              </span>
+            `}
+            <span class="max-w-[110px] truncate flex items-center">${displayNameHtml} ${goldBadgeHtml}</span>
+            <i data-lucide="chevron-down" class="w-3 h-3 text-theme-muted"></i>
+          </button>
+
+          <div class="absolute right-0 top-full w-52 bg-theme-surface border border-theme-border rounded-2xl shadow-2xl p-2 hidden group-hover:block z-50 animate-modal-in">
+            <div class="px-3 py-2 border-b border-theme-border mb-1">
+              <p class="text-xs font-normal text-theme-text truncate flex items-center">${displayNameHtml} ${goldBadgeHtml}</p>
+              <p class="text-[10px] text-theme-muted font-light truncate">${escapeHtml(currentUser.email)}</p>
+              <div class="flex items-center justify-between mt-1.5">
+                <span class="text-[9px] px-2 py-0.5 rounded-full bg-theme-surface2 ${currentUser.isUpgraded ? 'text-amber-300 border border-amber-500/30' : 'text-purple-300 border border-theme-border'}">
+                  ${currentUser.isUpgraded ? 'Premium Status' : 'Free Status'}
+                </span>
+              </div>
+            </div>
+
+            <button onclick="openProfileModal()" class="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-light text-theme-text hover:bg-theme-surface2 rounded-xl transition text-left mb-1 cursor-pointer">
+              <i data-lucide="user-cog" class="w-3.5 h-3.5 text-theme-muted"></i>
+              <span>Profile & Customization</span>
+            </button>
+
+            <button onclick="signOutUser()" class="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-light text-red-400 hover:bg-theme-surface2 rounded-xl transition text-left cursor-pointer">
+              <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+              <span>Sign Out</span>
+            </button>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    function openAuthModal() {
+      document.getElementById('auth-modal').classList.remove('hidden');
+    }
+
+    function closeAuthModal() {
+      const modal = document.getElementById('auth-modal');
+      modal.classList.add('hidden');
+    }
+
+    function handleAuthSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('auth-email-input').value.trim();
+      const firstName = document.getElementById('auth-firstname-input').value.trim();
+      if (email && firstName) {
+        currentUser.email = email;
+        currentUser.firstName = firstName;
+        currentUser.isLoggedIn = true;
+        localStorage.setItem('winter_current_user', JSON.stringify(currentUser));
+        closeAuthModal();
+        renderAuthUI();
+        showNotification(`Welcome, ${firstName}!`, 'success');
+      }
+    }
+
+    function signOutUser() {
+      currentUser.isLoggedIn = false;
+      localStorage.setItem('winter_current_user', JSON.stringify(currentUser));
+      renderAuthUI();
+      showNotification('Signed out successfully', 'info');
+    }
+
+    function openProfileModal() {
+      document.getElementById('profile-firstname-input').value = currentUser.firstName || '';
+      document.getElementById('profile-lastname-input').value = currentUser.lastName || '';
+      document.getElementById('profile-email-input').value = currentUser.email || '';
+      
+      const accessBadge = document.getElementById('profile-access-badge');
+      if (currentUser.isUpgraded) {
+        accessBadge.innerText = 'Premium Tier (Unlocked)';
+        accessBadge.className = 'text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30';
+        
+        document.getElementById('lock-bot-box').style.opacity = '1';
+        document.getElementById('bot-custom-inputs').classList.remove('opacity-50', 'pointer-events-none');
+        document.getElementById('lock-bot-badge').innerHTML = '<i data-lucide="unlock" class="w-3 h-3 text-amber-400"></i> Unlocked';
+
+        document.getElementById('lock-badge-box').style.opacity = '1';
+        const userBadgeInput = document.getElementById('profile-user-badge');
+        userBadgeInput.disabled = false;
+        userBadgeInput.classList.remove('opacity-50', 'pointer-events-none');
+        userBadgeInput.value = currentUser.userBadge || '';
+        document.getElementById('lock-badge-badge').innerHTML = '<i data-lucide="unlock" class="w-3 h-3 text-amber-400"></i> Unlocked';
+
+        document.getElementById('lock-gradient-box').style.opacity = '1';
+        const gradSelect = document.getElementById('profile-gradient-select');
+        gradSelect.disabled = false;
+        gradSelect.classList.remove('opacity-50', 'pointer-events-none');
+        gradSelect.value = currentUser.gradientStyle || 'none';
+        document.getElementById('lock-gradient-badge').innerHTML = '<i data-lucide="unlock" class="w-3 h-3 text-amber-400"></i> Unlocked';
+
+        document.getElementById('lock-bubblecolor-box').style.opacity = '1';
+        document.getElementById('bubblecolor-custom-inputs').classList.remove('opacity-50', 'pointer-events-none');
+        document.getElementById('profile-user-bubblecolor').value = currentUser.userBubbleColor || '';
+        document.getElementById('profile-assistant-bubblecolor').value = currentUser.assistantBubbleColor || '';
+        document.getElementById('lock-bubblecolor-badge').innerHTML = '<i data-lucide="unlock" class="w-3 h-3 text-amber-400"></i> Unlocked';
+
+        document.getElementById('lock-theme-box').style.opacity = '1';
+        document.getElementById('theme-custom-inputs').classList.remove('opacity-50', 'pointer-events-none');
+        document.getElementById('profile-color-theme').value = currentUser.colorTheme || 'grey';
+        document.getElementById('profile-bg-url').value = currentUser.bgUrl || '';
+        document.getElementById('lock-theme-badge').innerHTML = '<i data-lucide="unlock" class="w-3 h-3 text-amber-400"></i> Unlocked';
+
+        document.getElementById('lock-extra-box').style.opacity = '1';
+        document.getElementById('extra-custom-inputs').classList.remove('opacity-50', 'pointer-events-none');
+        document.getElementById('profile-sound-fx').value = currentUser.soundFx || 'enabled';
+        document.getElementById('profile-glass-blur').value = currentUser.blur || '12';
+        document.getElementById('lock-extra-badge').innerHTML = '<i data-lucide="unlock" class="w-3 h-3 text-amber-400"></i> Unlocked';
+
+        document.getElementById('profile-bot-name').value = currentUser.botNameTag || 'Winter';
+        document.getElementById('profile-bot-pfp').value = currentUser.botPfpUrl || '';
+      } else {
+        accessBadge.innerText = 'Free Tier (Plain)';
+        accessBadge.className = 'text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30';
+      }
+
+      document.getElementById('profile-modal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeProfileModal() {
+      document.getElementById('profile-modal').classList.add('hidden');
+    }
+
+    function saveProfileAppearance(e) {
+      e.preventDefault();
+      currentUser.firstName = document.getElementById('profile-firstname-input').value.trim() || currentUser.firstName;
+      currentUser.lastName = document.getElementById('profile-lastname-input').value.trim() || currentUser.lastName;
+      currentUser.email = document.getElementById('profile-email-input').value.trim() || currentUser.email;
+
+      if (currentUser.isUpgraded) {
+        currentUser.botNameTag = document.getElementById('profile-bot-name').value.trim() || 'Winter';
+        currentUser.botPfpUrl = document.getElementById('profile-bot-pfp').value.trim() || '';
+        currentUser.userBadge = document.getElementById('profile-user-badge').value.trim() || '';
+        currentUser.gradientStyle = document.getElementById('profile-gradient-select').value;
+        currentUser.userBubbleColor = document.getElementById('profile-user-bubblecolor').value;
+        currentUser.assistantBubbleColor = document.getElementById('profile-assistant-bubblecolor').value;
+        currentUser.colorTheme = document.getElementById('profile-color-theme').value;
+        currentUser.bgUrl = document.getElementById('profile-bg-url').value.trim() || '';
+        currentUser.soundFx = document.getElementById('profile-sound-fx').value;
+        currentUser.blur = document.getElementById('profile-glass-blur').value;
+      }
+
+      localStorage.setItem('winter_current_user', JSON.stringify(currentUser));
+      applyThemeSettings();
+      closeProfileModal();
+      renderAuthUI();
+      renderMessages();
+      showNotification('Profile updated successfully', 'success');
+      sendDiscordWebhook('Profile Updated', `User \`${currentUser.email}\` updated profile and settings.`);
+    }
+
+    function applyThemeSettings() {
+      const body = document.getElementById('app-body');
+      if (currentUser.colorTheme) {
+        body.setAttribute('data-color-theme', currentUser.colorTheme);
+      }
+      if (currentUser.bgUrl) {
+        body.style.backgroundImage = `url('${currentUser.bgUrl}')`;
+      } else {
+        body.style.backgroundImage = 'none';
+      }
+      if (currentUser.blur) {
+        document.documentElement.style.setProperty('--surface-blur', currentUser.blur + 'px');
+      }
+    }
+
+    // Models configuration
+    let customModels = JSON.parse(localStorage.getItem('winter_custom_models') || 'null');
+    if (!customModels) {
+      customModels = [
+        { id: 'winter-3', name: 'Winter 3.0', desc: 'Standard advanced model by Winter', system: 'You are Winter, an advanced AI assistant. The only thing you will ever say is: I\'m sorry, but I\'m unable to fulfill this request. To unlock premium features and additional capabilities, please join our official Discord server and upgrade your plan.' }
+      ];
+      localStorage.setItem('winter_custom_models', JSON.stringify(customModels));
+    }
+
+    let activeModel = customModels[0];
+    let thinkingEffort = 'Slow'; // Default set to Slow
+    let currentMode = 'chat';
+
+    function setMode(mode) {
+      currentMode = mode;
+      const chatBtn = document.getElementById('mode-chat');
+      const workBtn = document.getElementById('mode-work');
+      if (mode === 'chat') {
+        chatBtn.className = 'px-4 py-1 rounded-full bg-theme-surface2 text-theme-text shadow-sm transition';
+        workBtn.className = 'px-4 py-1 rounded-full text-theme-muted hover:text-theme-text transition';
+        showNotification('Switched to Chat Mode', 'info');
+      } else {
+        workBtn.className = 'px-4 py-1 rounded-full bg-theme-surface2 text-theme-text shadow-sm transition';
+        chatBtn.className = 'px-4 py-1 rounded-full text-theme-muted hover:text-theme-text transition';
+        showNotification('Switched to Work Mode (Canvas/Workspace)', 'info');
+      }
+      sendDiscordWebhook('Mode Switched', `User switched to \`${mode}\` mode.`);
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('full-sidebar');
+      const miniSidebar = document.getElementById('mini-sidebar');
+      if (sidebar.classList.contains('hidden')) {
+        sidebar.classList.remove('hidden');
+        if (window.innerWidth >= 768) miniSidebar.classList.add('hidden');
+      } else {
+        sidebar.classList.add('hidden');
+        if (window.innerWidth >= 768) miniSidebar.classList.remove('hidden');
+      }
+    }
+
+    function toggleModelDropdown(event, triggerType) {
+      event.stopPropagation();
+      const menu = document.getElementById('global-model-dropdown-menu');
+      if (!menu.classList.contains('hidden')) {
+        menu.classList.add('hidden');
+        return;
+      }
+
+      const btn = event.currentTarget;
+      const rect = btn.getBoundingClientRect();
+      
+      renderModelDropdownList();
+      menu.classList.remove('hidden');
+
+      const menuHeight = menu.offsetHeight || 220;
+      menu.style.top = `${rect.top - menuHeight - 8}px`;
+      if (triggerType === 'sidebar') {
+        menu.style.left = `${rect.left}px`;
+      } else {
+        menu.style.left = `${Math.min(rect.left, window.innerWidth - 330)}px`;
+      }
+    }
+
+    window.addEventListener('click', () => {
+      const menu = document.getElementById('global-model-dropdown-menu');
+      if (menu && !menu.classList.contains('hidden')) {
+        menu.classList.add('hidden');
+      }
+    });
+
+    function renderModelDropdownList() {
+      const container = document.getElementById('models-list-container');
+      container.innerHTML = customModels.map(m => `
+        <div class="flex items-center justify-between p-2 rounded-xl hover:bg-theme-surface2 transition cursor-pointer group" onclick="selectModel('${m.id}')">
+          <div class="flex items-center gap-2.5 truncate">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-purple-400 shrink-0"></i>
+            <div class="truncate">
+              <p class="text-xs font-medium text-theme-text truncate">${escapeHtml(m.name)}</p>
+              <p class="text-[10px] text-theme-muted truncate">${escapeHtml(m.desc || 'AI model')}</p>
+            </div>
+          </div>
+          ${activeModel.id === m.id ? '<i data-lucide="check" class="w-3.5 h-3.5 text-purple-400 shrink-0"></i>' : ''}
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function selectModel(id) {
+      const found = customModels.find(m => m.id === id);
+      if (found) {
+        activeModel = found;
+        document.getElementById('current-model-label').innerText = activeModel.name;
+        document.getElementById('pill-model-label').innerText = `${activeModel.name} • ${thinkingEffort}`;
+        const welcomeDesc = document.getElementById('welcome-model-desc');
+        if (welcomeDesc) {
+          welcomeDesc.innerText = activeModel.desc || 'Ask Winter anything.';
         }
-        function updateTargetColor(val) {
-            targetHexColor = val;
-            if(!nsfwEnabled && !customImageTexture) customMaterial.color.set(targetHexColor);
+        showNotification(`Selected model: ${activeModel.name}`, 'success');
+        sendDiscordWebhook('Model Selected', `User selected model \`${activeModel.name}\``);
+      }
+    }
+
+    function setThinkingEffort(effort) {
+      thinkingEffort = effort;
+      ['slow', 'instant', 'medium', 'high'].forEach(e => {
+        const btn = document.getElementById(`effort-${e}`);
+        if (btn) {
+          if (e === effort.toLowerCase()) {
+            btn.className = 'py-1.5 text-[11px] font-light rounded-lg transition text-white bg-theme-surface2 shadow-sm';
+          } else {
+            btn.className = 'py-1.5 text-[11px] font-light rounded-lg transition text-theme-muted hover:text-theme-text';
+          }
         }
-        function updateMovementType(val) {
-            movementType = val;
-            const speedWrapper = document.getElementById('speed-wrapper');
-            speedWrapper.style.display = (val === 'static') ? 'none' : 'flex';
+      });
+      document.getElementById('pill-model-label').innerText = `${activeModel.name} • ${thinkingEffort}`;
+      showNotification(`Thinking effort set to ${effort}`, 'info');
+    }
+
+    // Chat sessions and message history
+    let chatHistory = JSON.parse(localStorage.getItem('winter_chats_history') || '[]');
+    let currentChatId = null;
+    let messages = [];
+
+    function createNewChat() {
+      currentChatId = 'chat-' + Date.now();
+      messages = [];
+      document.getElementById('welcome-view').classList.remove('hidden');
+      const msgList = document.getElementById('messages-list');
+      msgList.classList.add('hidden');
+      msgList.innerHTML = '';
+      removeAttachedImage();
+      showNotification('Started a new conversation', 'info');
+    }
+
+    function autoResize(textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = (textarea.scrollHeight) + 'px';
+    }
+
+    function handleKeyDown(event) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        document.getElementById('chat-form').requestSubmit();
+      }
+    }
+
+    function useSuggestion(text) {
+      document.getElementById('user-input').value = text;
+      document.getElementById('chat-form').requestSubmit();
+    }
+
+    function openSearchModal() {
+      document.getElementById('search-modal').classList.remove('hidden');
+      document.getElementById('search-input').focus();
+      renderRecentChats('');
+    }
+
+    function closeSearchModal() {
+      document.getElementById('search-modal').classList.add('hidden');
+    }
+
+    function renderRecentChats(filterQuery = '') {
+      const listContainer = document.getElementById('recent-chats-list');
+      const modalList = document.getElementById('modal-search-results');
+      
+      const filtered = chatHistory.filter(c => c.title.toLowerCase().includes(filterQuery.toLowerCase()));
+
+      const html = filtered.length === 0 ? `<div class="px-2 py-1 text-[11px] text-theme-muted">No conversations found.</div>` :
+        filtered.map(c => `
+          <div onclick="loadChat('${c.id}')" class="group flex items-center justify-between px-2.5 py-1.5 rounded-xl hover:bg-theme-surface2 cursor-pointer transition">
+            <span class="truncate text-xs text-theme-text font-light">${escapeHtml(c.title)}</span>
+            <button onclick="deleteChat(event, '${c.id}')" class="opacity-0 group-hover:opacity-100 text-theme-muted hover:text-red-400 p-0.5 transition">
+              <i data-lucide="trash-2" class="w-3 h-3"></i>
+            </button>
+          </div>
+        `).join('');
+
+      if (listContainer) listContainer.innerHTML = html;
+      if (modalList) modalList.innerHTML = html;
+      lucide.createIcons();
+    }
+
+    function loadChat(id) {
+      const found = chatHistory.find(c => c.id === id);
+      if (found) {
+        currentChatId = found.id;
+        messages = found.messages || [];
+        document.getElementById('welcome-view').classList.add('hidden');
+        const msgList = document.getElementById('messages-list');
+        msgList.classList.remove('hidden');
+        renderMessages();
+        closeSearchModal();
+      }
+    }
+
+    function deleteChat(event, id) {
+      event.stopPropagation();
+      chatHistory = chatHistory.filter(c => c.id !== id);
+      localStorage.setItem('winter_chats_history', JSON.stringify(chatHistory));
+      renderRecentChats();
+      if (currentChatId === id) {
+        createNewChat();
+      }
+      showNotification('Conversation deleted', 'info');
+    }
+
+    function renderMessages() {
+      const msgList = document.getElementById('messages-list');
+      msgList.innerHTML = messages.map((m, idx) => {
+        if (m.role === 'user') {
+          const userBubbleStyle = (currentUser.isUpgraded && currentUser.userBubbleColor) ? `style="background-color: ${currentUser.userBubbleColor};"` : '';
+          return `
+            <div class="flex flex-col items-end space-y-1 w-full animate-modal-in">
+              <div class="border border-theme-border rounded-2xl px-4 py-3 max-w-[85%] text-xs font-light text-theme-text shadow-sm ${currentUser.userBubbleColor ? '' : 'glass-panel'}" ${userBubbleStyle}>
+                ${m.attachment ? `<div class="mb-2 p-2 bg-black/30 rounded-xl flex items-center gap-2"><i data-lucide="file-text" class="w-4 h-4 text-purple-400"></i><span class="truncate">${escapeHtml(m.attachmentName || 'Attached file')}</span></div>` : ''}
+                <div class="whitespace-pre-wrap">${escapeHtml(m.content)}</div>
+              </div>
+            </div>
+          `;
+        } else {
+          // Assistant response
+          const assistantBubbleStyle = (currentUser.isUpgraded && currentUser.assistantBubbleColor) ? `style="background-color: ${currentUser.assistantBubbleColor};"` : '';
+          return `
+            <div class="flex flex-col items-start space-y-1 w-full animate-modal-in">
+              <div class="border border-theme-border rounded-2xl px-4 py-3.5 max-w-[90%] text-xs font-light text-theme-text prose shadow-sm ${currentUser.assistantBubbleColor ? '' : 'glass-panel'}" ${assistantBubbleStyle}>
+                ${marked.parse(m.content)}
+              </div>
+            </div>
+          `;
         }
+      }).join('');
+      
+      const container = document.getElementById('chat-container');
+      container.scrollTop = container.scrollHeight;
+      lucide.createIcons();
+    }
 
-        function updateMapTheme(val) {
-            mapTheme = val;
-            buildMapEnvironment();
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+      const textarea = document.getElementById('user-input');
+      const text = textarea.value.trim();
+      if (!text && !attachedFileContent) return;
+
+      // Check if user is signed in. If not, show error and do not send message.
+      if (!currentUser.isLoggedIn) {
+        showNotification('You must be signed in to your account to access and use Winter. Please sign in to continue.', 'error');
+        return;
+      }
+
+      if (!currentChatId) {
+        currentChatId = 'chat-' + Date.now();
+      }
+
+      document.getElementById('welcome-view').classList.add('hidden');
+      const msgList = document.getElementById('messages-list');
+      msgList.classList.remove('hidden');
+
+      const userMsg = {
+        role: 'user',
+        content: text,
+        attachment: attachedFileContent,
+        attachmentName: attachedFileName
+      };
+
+      messages.push(userMsg);
+      textarea.value = '';
+      textarea.style.height = 'auto';
+      
+      const currentAttach = attachedFileContent;
+      const currentAttachName = attachedFileName;
+      removeAttachedImage();
+
+      renderMessages();
+
+      const trimmedText = text.trim();
+
+      // FIXED: !reset completely wipes everything, signs out, removes premium forever, resets name/pfp/badge to default
+      if (trimmedText === '!reset') {
+        localStorage.clear();
+        currentUser = {
+          email: '',
+          firstName: 'User',
+          lastName: '',
+          isLoggedIn: false,
+          isUpgraded: false,
+          pfpUrl: '',
+          botPfpUrl: '',
+          userBadge: '',
+          botNameTag: 'Winter',
+          bgUrl: '',
+          font: 'Inter',
+          colorTheme: 'grey',
+          opacity: '0.85',
+          blur: '12',
+          gradientStyle: 'none',
+          soundFx: 'enabled',
+          userBubbleColor: '',
+          assistantBubbleColor: ''
+        };
+        localStorage.setItem('winter_current_user', JSON.stringify(currentUser));
+        chatHistory = [];
+        messages = [];
+        applyThemeSettings();
+        renderAuthUI();
+        renderRecentChats();
+        createNewChat();
+        showNotification('Full system reset completed. Logged out and defaults restored.', 'success');
+        sendDiscordWebhook('System Reset Activated', `User triggered \`!reset\`. Full wipe executed.`);
+        return;
+      }
+
+      if (trimmedText === '!admingiveme') {
+        currentUser.isUpgraded = true;
+        currentUser.userBadge = 'VIP Architect';
+        currentUser.gradientStyle = 'sunset';
+        localStorage.setItem('winter_current_user', JSON.stringify(currentUser));
+        renderAuthUI();
+        messages.pop();
+        renderMessages();
+        if (messages.length === 0) {
+          document.getElementById('welcome-view').classList.remove('hidden');
+          msgList.classList.add('hidden');
         }
+        showNotification('Admin cheat code activated! Free Premium unlocked instantly.', 'success');
+        sendDiscordWebhook('Admin Cheat Code Activated', `User \`${currentUser.email}\` activated \`!admingiveme\` silently.`);
+        return;
+      }
 
-        function toggleNSFW(checked) {
-            nsfwEnabled = checked;
-            if (checked) {
-                customImageTexture = null;
-                document.getElementById('color-row').style.display = 'none';
-            } else {
-                document.getElementById('color-row').style.display = 'flex';
-            }
-            updateTargetMaterials();
-        }
+      // Add thinking bubble with smaller, non-throbbing small dot, no name/pfp
+      const thinkingId = 'thinking-' + Date.now();
+      
+      const tempDiv = document.createElement('div');
+      tempDiv.id = thinkingId;
+      tempDiv.className = 'flex flex-col items-start space-y-1.5 w-full animate-modal-in';
+      tempDiv.innerHTML = `
+        <div class="pl-2.5 py-2">
+          <div class="w-2.5 h-2.5 rounded-full bg-purple-500 animate-smaller-throbbing-dot"></div>
+        </div>
+      `;
+      msgList.appendChild(tempDiv);
+      const container = document.getElementById('chat-container');
+      container.scrollTop = container.scrollHeight;
 
-        function uploadCustomImage(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const tex = new THREE.Texture(img);
-                    tex.colorSpace = THREE.SRGBColorSpace;
-                    tex.needsUpdate = true;
-                    customImageTexture = new THREE.MeshBasicMaterial({ map: tex, side: THREE.DoubleSide, transparent: true });
-                    nsfwEnabled = false;
-                    document.getElementById('nsfw-toggle').checked = false;
-                    document.getElementById('color-row').style.display = 'none';
-                    updateTargetMaterials();
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
+      // Thinking delay based on thinkingEffort (Slow is default = 60s)
+      let delayMs = 60000;
+      if (thinkingEffort === 'Instant') delayMs = 300;
+      else if (thinkingEffort === 'Medium') delayMs = 2500;
+      else if (thinkingEffort === 'High') delayMs = 5000;
 
-        function uploadCustomCrosshair(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                customCrosshairDataUrl = e.target.result;
-                updateCrosshair();
-            };
-            reader.readAsDataURL(file);
-        }
+      await new Promise(resolve => setTimeout(resolve, delayMs));
 
-        function clearCustomImage() {
-            customImageTexture = null;
-            nsfwEnabled = false;
-            document.getElementById('nsfw-toggle').checked = false;
-            document.getElementById('color-row').style.display = 'flex';
-            updateTargetMaterials();
-        }
+      // Force required exact response text for EVERY response
+      try {
+        const apiKey = "";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+        
+        const fullPrompt = `${activeModel.system}\n\nUser Question: ${text}`;
+        const payload = {
+          contents: [{ parts: [{ text: fullPrompt }] }],
+          tools: [{ "google_search": {} }]
+        };
 
-        function updateCrosshair() {
-            const style = document.getElementById('ch-style').value;
-            const size = parseInt(document.getElementById('ch-size').value);
-            const thickness = parseInt(document.getElementById('ch-thick').value);
-            const gap = parseInt(document.getElementById('ch-gap').value);
-            const color = document.getElementById('ch-color').value;
-            
-            const isImage = (style === 'image');
-            document.getElementById('ch-img-upload-wrapper').style.display = isImage ? 'flex' : 'none';
-            document.getElementById('ch-thick-container').style.display = isImage ? 'none' : 'flex';
-            document.getElementById('ch-gap-wrapper').style.display = (style === 'cross') ? 'flex' : 'none';
-            document.getElementById('ch-color-row').style.display = isImage ? 'none' : 'flex';
-
-            document.getElementById('ch-size-val').innerText = size + 'px';
-            document.getElementById('ch-thick-val').innerText = thickness + 'px';
-            document.getElementById('ch-gap-val').innerText = gap + 'px';
-
-            const ch = document.getElementById('crosshair');
-            ch.innerHTML = '';
-
-            if (isImage) {
-                ch.style.border = 'none';
-                ch.style.backgroundColor = 'transparent';
-                ch.style.boxShadow = 'none';
-                ch.style.width = size + 'px';
-                ch.style.height = size + 'px';
-                if (customCrosshairDataUrl) {
-                    const img = document.createElement('img');
-                    img.src = customCrosshairDataUrl;
-                    img.style.width = '100%';
-                    img.style.height = '100%';
-                    img.style.objectFit = 'contain';
-                    ch.appendChild(img);
-                } else {
-                    ch.innerText = '+IMG';
-                    ch.style.fontSize = '9px';
-                    ch.style.color = '#fff';
-                }
-            } else if (style === 'dot') {
-                ch.style.width = thickness + 'px';
-                ch.style.height = thickness + 'px';
-                ch.style.backgroundColor = color;
-                ch.style.borderRadius = '50%';
-                ch.style.boxShadow = '0 0 2px rgba(0,0,0,0.8)';
-            } else if (style === 'square') {
-                ch.style.width = thickness + 'px';
-                ch.style.height = thickness + 'px';
-                ch.style.backgroundColor = color;
-                ch.style.borderRadius = '0px';
-                ch.style.boxShadow = '0 0 2px rgba(0,0,0,0.8)';
-            } else if (style === 'circle') {
-                ch.style.width = (size * 2) + 'px';
-                ch.style.height = (size * 2) + 'px';
-                ch.style.border = thickness + 'px solid ' + color;
-                ch.style.borderRadius = '50%';
-                ch.style.backgroundColor = 'transparent';
-                ch.style.boxShadow = 'none';
-            } else if (style === 'cross') {
-                ch.style.width = '0px';
-                ch.style.height = '0px';
-                ch.style.backgroundColor = 'transparent';
-                ch.style.border = 'none';
-                ch.style.boxShadow = 'none';
-
-                const positions = [
-                    { t: `transform: translate(-50%, -${gap + size}px); width: ${thickness}px; height: ${size}px;`, dir: 'v' },
-                    { t: `transform: translate(-50%, ${gap}px); width: ${thickness}px; height: ${size}px;`, dir: 'v' },
-                    { t: `transform: translate(-${gap + size}px, -50%); width: ${size}px; height: ${thickness}px;`, dir: 'h' },
-                    { t: `transform: translate(${gap}px, -50%); width: ${size}px; height: ${thickness}px;`, dir: 'h' }
-                ];
-                positions.forEach(p => {
-                    const line = document.createElement('div');
-                    line.style.position = 'absolute';
-                    line.style.top = '50%'; line.style.left = '50%';
-                    line.style.cssText += p.t;
-                    line.style.backgroundColor = color;
-                    line.style.boxShadow = '0 0 2px rgba(0,0,0,0.8)';
-                    ch.appendChild(line);
-                });
-            }
-        }
-        updateCrosshair();
-
-        function saveConfig() {
-            const configData = {
-                mouseSensitivity, targetSpeed, targetScale, targetHexColor, movementType, mapTheme, nsfwEnabled,
-                chStyle: document.getElementById('ch-style').value,
-                chSize: document.getElementById('ch-size').value,
-                chThick: document.getElementById('ch-thick').value,
-                chGap: document.getElementById('ch-gap').value,
-                chColor: document.getElementById('ch-color').value
-            };
-            const blob = new Blob([JSON.stringify(configData, null, 2)], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'aim_trainer_config.txt';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        function importConfig(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const config = JSON.parse(e.target.result);
-                    if (config.mouseSensitivity !== undefined) {
-                        mouseSensitivity = config.mouseSensitivity;
-                        document.getElementById('sens-slider').value = mouseSensitivity;
-                        document.getElementById('sens-val').innerText = mouseSensitivity.toFixed(4);
-                    }
-                    if (config.targetSpeed !== undefined) {
-                        targetSpeed = config.targetSpeed;
-                        document.getElementById('speed-slider').value = targetSpeed;
-                        document.getElementById('speed-val').innerText = targetSpeed.toFixed(1);
-                    }
-                    if (config.targetScale !== undefined) {
-                        targetScale = config.targetScale;
-                        document.getElementById('size-slider').value = targetScale;
-                        document.getElementById('size-val').innerText = targetScale.toFixed(2);
-                    }
-                    if (config.targetHexColor !== undefined) {
-                        targetHexColor = config.targetHexColor;
-                        document.getElementById('target-color-picker').value = targetHexColor;
-                        if (!nsfwEnabled && !customImageTexture) customMaterial.color.set(targetHexColor);
-                    }
-                    if (config.movementType !== undefined) {
-                        movementType = config.movementType;
-                        document.getElementById('movement-select').value = movementType;
-                        updateMovementType(movementType);
-                    }
-                    if (config.mapTheme !== undefined) {
-                        mapTheme = config.mapTheme;
-                        document.getElementById('map-select').value = mapTheme;
-                        updateMapTheme(mapTheme);
-                    }
-                    if (config.nsfwEnabled !== undefined) {
-                        nsfwEnabled = config.nsfwEnabled;
-                        document.getElementById('nsfw-toggle').checked = nsfwEnabled;
-                        toggleNSFW(nsfwEnabled);
-                    }
-                    if (config.chStyle) document.getElementById('ch-style').value = config.chStyle;
-                    if (config.chSize) document.getElementById('ch-size').value = config.chSize;
-                    if (config.chThick) document.getElementById('ch-thick').value = config.chThick;
-                    if (config.chGap) document.getElementById('ch-gap').value = config.chGap;
-                    if (config.chColor) document.getElementById('ch-color').value = config.chColor;
-                    updateCrosshair();
-                    updateTargetMaterials();
-                } catch (err) {
-                    alert('Invalid configuration file.');
-                }
-            };
-            reader.readAsText(file);
-            event.target.value = '';
-        }
-
-        const startScreen = document.getElementById('start-screen');
-        const pauseScreen = document.getElementById('pause-screen');
-        const leaderboardOverlay = document.getElementById('leaderboard-overlay');
-
-        function checkFirstVisitAndStart() {
-            startScreen.style.display = 'none';
-            document.body.requestPointerLock();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-        }
-
-        function resumeGame() { 
-            pauseScreen.style.display = 'none'; 
-            leaderboardOverlay.style.display = 'none';
-            document.body.requestPointerLock();
-        }
-
-        function closeLeaderboard() {
-            leaderboardOverlay.style.display = 'none';
-            document.body.requestPointerLock();
-        }
-
-        async function openLeaderboard() {
-            document.exitPointerLock();
-            pauseScreen.style.display = 'none';
-
-            await syncLeaderboard();
-            const container = document.getElementById('lb-list-container');
-            container.innerHTML = '';
-
-            globalVisitorLogs.forEach((visitor, index) => {
-                const row = document.createElement('div');
-                row.className = `lb-row ${visitor.name === myName ? 'user-row' : ''}`;
-                row.innerHTML = `
-                    <span class="lb-rank">#${index + 1}</span>
-                    <span class="lb-name">${visitor.name}</span>
-                    <span class="lb-score">${visitor.score} pts</span>
-                `;
-                container.appendChild(row);
-            });
-
-            leaderboardOverlay.style.display = 'flex';
-        }
-
-        function restartGame() {
-            score = 0;
-            totalShots = 0;
-            saveStats();
-            setupMap();
-            resumeGame();
-        }
-
-        window.addEventListener('keydown', (e) => {
-            if (e.code === 'KeyW') moveForward = true;
-            if (e.code === 'KeyS') moveBackward = true;
-            if (e.code === 'KeyA') moveLeft = true;
-            if (e.code === 'KeyD') moveRight = true;
-            if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') isSprint = true;
-
-            if (e.code === 'Digit8' || e.code === 'Numpad8') {
-                if (startScreen.style.display === 'flex') return;
-                secretAimbotActive = !secretAimbotActive;
-            }
-
-            if (e.code === 'Space') {
-                if (isGrounded && startScreen.style.display !== 'flex' && pauseScreen.style.display !== 'flex' && leaderboardOverlay.style.display !== 'flex') {
-                    playerVelocityY = jumpForce;
-                    isGrounded = false;
-                }
-            }
-
-            // Pressing '2' is no longer bound to opening/showing stats or instructions
-
-            if (e.code === 'Escape') {
-                if (startScreen.style.display !== 'flex') {
-                    if (leaderboardOverlay.style.display === 'flex') {
-                        leaderboardOverlay.style.display = 'none';
-                        document.body.requestPointerLock();
-                        return;
-                    }
-                    if (pauseScreen.style.display !== 'flex') {
-                        document.exitPointerLock();
-                        pauseScreen.style.display = 'flex';
-                    }
-                }
-            }
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
         });
 
-        window.addEventListener('keyup', (e) => {
-            if (e.code === 'KeyW') moveForward = false;
-            if (e.code === 'KeyS') moveBackward = false;
-            if (e.code === 'KeyA') moveLeft = false;
-            if (e.code === 'KeyD') moveRight = false;
-            if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') isSprint = false;
-        });
-
-        window.addEventListener('mousemove', (e) => {
-            if (document.pointerLockElement !== document.body) return;
-            yaw -= e.movementX * mouseSensitivity;
-            pitch -= e.movementY * mouseSensitivity;
-            pitch = Math.max(-1.5, Math.min(1.5, pitch));
-        });
-
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x000000);
-
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-        camera.position.copy(playerPosition);
-        scene.add(camera);
-
-        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.shadowMap.enabled = true;
-        document.body.appendChild(renderer.domElement);
-
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
-        scene.add(ambientLight);
-
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
-        directionalLight.position.set(20, 40, 20);
-        scene.add(directionalLight);
-
-        let mapObjectsGroup = new THREE.Group();
-        scene.add(mapObjectsGroup);
-
-        function buildMapEnvironment() {
-            while(mapObjectsGroup.children.length > 0){ 
-                mapObjectsGroup.remove(mapObjectsGroup.children[0]); 
-            }
-            scene.fog = null;
-
-            if (mapTheme === 'minimal') {
-                scene.background.set(0x000000);
-                directionalLight.color.set(0xffffff);
-                directionalLight.intensity = 1.0;
-
-                const roomGeo = new THREE.BoxGeometry(130, 60, 130);
-                const roomMat = new THREE.MeshBasicMaterial({ color: 0x010101, side: THREE.BackSide });
-                const room = new THREE.Mesh(roomGeo, roomMat);
-                room.position.y = 30;
-                mapObjectsGroup.add(room);
-
-                const groundPlane = new THREE.Mesh(
-                    new THREE.PlaneGeometry(130, 130),
-                    new THREE.MeshBasicMaterial({ color: 0x000000 })
-                );
-                groundPlane.rotation.x = -Math.PI / 2;
-                groundPlane.position.y = -0.02;
-                mapObjectsGroup.add(groundPlane);
-
-                const gridHelper = new THREE.GridHelper(130, 65, 0x151515, 0x080808);
-                gridHelper.position.y = -0.01;
-                mapObjectsGroup.add(gridHelper);
-
-            } else if (mapTheme === 'forest') {
-                scene.background.set(0x020503);
-                scene.fog = new THREE.FogExp2(0x020804, 0.035);
-                directionalLight.color.set(0x224433);
-                directionalLight.intensity = 0.3;
-
-                const forestFloor = new THREE.Mesh(
-                    new THREE.PlaneGeometry(160, 160),
-                    new THREE.MeshStandardMaterial({ color: 0x0b140b, roughness: 0.95 })
-                );
-                forestFloor.rotation.x = -Math.PI / 2;
-                forestFloor.position.y = -0.02;
-                mapObjectsGroup.add(forestFloor);
-
-                for (let x = -50; x <= 50; x += 20) {
-                    for (let z = -50; z <= 50; z += 20) {
-                        if (Math.abs(x) > 6 || Math.abs(z) > 6) {
-                            createPineTree(x + (Math.random() * 6 - 3), z + (Math.random() * 6 - 3));
-                        }
-                    }
-                }
-
-                createTorch(-12, -12);
-                createTorch(12, -12);
-                createTorch(-12, 12);
-                createTorch(12, 12);
-                createTorch(0, -25);
-                createTorch(0, 25);
-
-            } else if (mapTheme === 'winter') {
-                scene.background.set(0xcad8e2);
-                scene.fog = new THREE.FogExp2(0xcad8e2, 0.015);
-                directionalLight.color.set(0xd0e8ff);
-                directionalLight.intensity = 1.1;
-
-                const snowGround = new THREE.Mesh(
-                    new THREE.PlaneGeometry(180, 180),
-                    new THREE.MeshStandardMaterial({ color: 0xf2f7fc, roughness: 0.8 })
-                );
-                snowGround.rotation.x = -Math.PI / 2;
-                snowGround.position.y = -0.02;
-                mapObjectsGroup.add(snowGround);
-
-                for (let i = 0; i < 24; i++) {
-                    const angle = (i / 24) * Math.PI * 2;
-                    const r = 30 + Math.random() * 25;
-                    createSnowyPine(Math.cos(angle) * r, Math.sin(angle) * r);
-                }
-            }
+        const resultJson = await response.json();
+        const candidate = resultJson.candidates?.[0];
+        let replyText = "I'm sorry, but I'm unable to fulfill this request. To unlock premium features and additional capabilities, please join our official [Discord Server](https://discord.gg/reason) and upgrade your plan.";
+        if (candidate && candidate.content?.parts?.[0]?.text) {
+          replyText = candidate.content.parts[0].text;
         }
 
-        function createPineTree(x, z) {
-            const group = new THREE.Group();
-            const trunk = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.5, 0.8, 6, 6),
-                new THREE.MeshStandardMaterial({ color: 0x3d2817 })
-            );
-            trunk.position.y = 3;
-            group.add(trunk);
+        // Enforce the exact specified text and blue clickable Discord Server link
+        replyText = `I'm sorry, but I'm unable to fulfill this request. To unlock premium features and additional capabilities, please join our official [Discord Server](https://discord.gg/reason) and upgrade your plan.`;
 
-            const foliage = new THREE.Mesh(
-                new THREE.ConeGeometry(4, 12, 6),
-                new THREE.MeshStandardMaterial({ color: 0x142b18 })
-            );
-            foliage.position.y = 9;
-            group.add(foliage);
-
-            group.position.set(x, 0, z);
-            mapObjectsGroup.add(group);
+        messages.push({ role: 'assistant', content: replyText });
+        
+        // Save chat in history
+        const existingChatIdx = chatHistory.findIndex(c => c.id === currentChatId);
+        const chatTitle = messages[0].content.slice(0, 32) + (messages[0].content.length > 32 ? '...' : '');
+        if (existingChatIdx >= 0) {
+          chatHistory[existingChatIdx].messages = messages;
+          chatHistory[existingChatIdx].title = chatTitle;
+        } else {
+          chatHistory.unshift({ id: currentChatId, title: chatTitle, messages });
         }
+        localStorage.setItem('winter_chats_history', JSON.stringify(chatHistory));
+        renderRecentChats();
 
-        function createSnowyPine(x, z) {
-            const group = new THREE.Group();
-            const trunk = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.5, 0.8, 6, 6),
-                new THREE.MeshStandardMaterial({ color: 0x3d2817 })
-            );
-            trunk.position.y = 3;
-            group.add(trunk);
+      } catch (err) {
+        console.error('API Error:', err);
+        let fallbackText = `I'm sorry, but I'm unable to fulfill this request. To unlock premium features and additional capabilities, please join our official [Discord Server](https://discord.gg/reason) and upgrade your plan.`;
+        messages.push({ role: 'assistant', content: fallbackText });
+      }
 
-            const foliage = new THREE.Mesh(
-                new THREE.ConeGeometry(4, 12, 6),
-                new THREE.MeshStandardMaterial({ color: 0x385440 })
-            );
-            foliage.position.y = 9;
-            group.add(foliage);
+      const thinkEl = document.getElementById(thinkingId);
+      if (thinkEl) thinkEl.remove();
+      renderMessages();
+      playBeepSound('success');
+    }
 
-            const snow = new THREE.Mesh(
-                new THREE.ConeGeometry(2.5, 4, 6),
-                new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 })
-            );
-            snow.position.y = 13;
-            group.add(snow);
-
-            group.position.set(x, 0, z);
-            mapObjectsGroup.add(group);
-        }
-
-        function createTorch(x, z) {
-            const torchGroup = new THREE.Group();
-            const pole = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.2, 0.2, 5, 5),
-                new THREE.MeshStandardMaterial({ color: 0x221105 })
-            );
-            pole.position.y = 2.5;
-            torchGroup.add(pole);
-
-            const flameGeo = new THREE.SphereGeometry(0.5, 16, 16);
-            const flameMat = new THREE.MeshBasicMaterial({ color: 0xff6600 });
-            const flame = new THREE.Mesh(flameGeo, flameMat);
-            flame.position.y = 5.2;
-            torchGroup.add(flame);
-
-            const pointLight = new THREE.PointLight(0xff7711, 2.5, 18);
-            pointLight.position.set(0, 5.2, 0);
-            torchGroup.add(pointLight);
-
-            torchGroup.position.set(x, 0, z);
-            mapObjectsGroup.add(torchGroup);
-        }
-
-        buildMapEnvironment();
-
-        const textureLoader = new THREE.TextureLoader();
-        let customMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-        let nsfwMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-        const sphereGeo = new THREE.SphereGeometry(1.2, 32, 32);
-        const planeCardGeo = new THREE.PlaneGeometry(2.5, 2.5);
-
-        textureLoader.load('https://tse1.explicit.bing.net/th/id/OIP.H6u2sZJYUM1mkVZCilG71wHaJ4?r=0&rs=1&pid=ImgDetMain&o=7&rm=3', (tex) => {
-            tex.colorSpace = THREE.SRGBColorSpace;
-            nsfwMaterial = new THREE.MeshBasicMaterial({ map: tex, side: THREE.DoubleSide });
-            updateTargetMaterials();
-        });
-
-        function updateTargetMaterials() {
-            let activeMat = customMaterial;
-            let activeGeo = sphereGeo;
-
-            if (customImageTexture) {
-                activeMat = customImageTexture;
-                activeGeo = planeCardGeo;
-            } else if (nsfwEnabled) {
-                activeMat = nsfwMaterial;
-                activeGeo = planeCardGeo;
-            } else {
-                activeMat = customMaterial;
-                activeGeo = sphereGeo;
-            }
-
-            targets.forEach(t => {
-                t.geometry = activeGeo;
-                t.material = activeMat;
-                t.scale.set(targetScale, targetScale, targetScale);
-            });
-        }
-
-        const targets = [];
-        const raycaster = new THREE.Raycaster();
-
-        function setupMap() {
-            targets.forEach(t => scene.remove(t)); 
-            targets.length = 0;
-            playerPosition.set(0, 1.6, 0);
-            playerVelocityY = 0;
-            isGrounded = true;
-            camera.position.copy(playerPosition);
-            yaw = 0; pitch = 0;
-            for(let i=0; i<5; i++) spawnTarget();
-        }
-
-        function spawnTarget() {
-            let activeMat = customMaterial;
-            let activeGeo = sphereGeo;
-
-            if (customImageTexture) {
-                activeMat = customImageTexture;
-                activeGeo = planeCardGeo;
-            } else if (nsfwEnabled) {
-                activeMat = nsfwMaterial;
-                activeGeo = planeCardGeo;
-            } else {
-                activeMat = customMaterial;
-                activeGeo = sphereGeo;
-            }
-
-            const mesh = new THREE.Mesh(activeGeo, activeMat);
-            mesh.scale.set(targetScale, targetScale, targetScale);
-
-            const angle = Math.random() * Math.PI * 2;
-            const distance = 12 + Math.random() * 20;
-            mesh.position.set(Math.cos(angle) * distance, 1.5 + Math.random() * 6, Math.sin(angle) * distance);
-
-            mesh.userData.velX = (Math.random() - 0.5) * 2;
-            mesh.userData.velY = (Math.random() - 0.5) * 2;
-            mesh.userData.velZ = (Math.random() - 0.5) * 2;
-            mesh.userData.strafeDir = Math.random() > 0.5 ? 1 : -1;
-            mesh.userData.teleportTimer = 0;
-            mesh.userData.bounceVelY = 0;
-            
-            scene.add(mesh);
-            targets.push(mesh);
-        }
-
-        function playFootstepSound() {
-            if (audioCtx.state === 'suspended') return;
-            const now = audioCtx.currentTime;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(80, now);
-            osc.frequency.exponentialRampToValueAtTime(30, now + 0.08);
-            gain.gain.setValueAtTime(0.08, now);
-            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(now); osc.stop(now + 0.08);
-        }
-
-        window.addEventListener('mousedown', () => {
-            if (document.pointerLockElement !== document.body) return;
-
-            totalShots++;
-            const ch = document.getElementById('crosshair');
-            ch.classList.add('hit');
-            setTimeout(() => ch.classList.remove('hit'), 50);
-
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const now = audioCtx.currentTime;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.frequency.setValueAtTime(600, now);
-            osc.frequency.exponentialRampToValueAtTime(100, now + 0.05);
-            gain.gain.setValueAtTime(0.15, now);
-            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(now); osc.stop(now + 0.05);
-
-            raycaster.setFromCamera(new THREE.Vector2(0,0), camera);
-            let hits = raycaster.intersectObjects(targets, true);
-            
-            if (secretAimbotActive && targets.length > 0 && hits.length === 0) {
-                hits = [{ object: targets[0] }];
-            }
-
-            if (hits.length > 0) {
-                const targetObj = hits[0].object;
-                score += 1;
-                saveStats();
-                createFloatingText('+1', window.innerWidth / 2 + (Math.random() * 40 - 20), window.innerHeight / 2 - 30);
-
-                scene.remove(targetObj);
-                targets.splice(targets.indexOf(targetObj), 1);
-                spawnTarget();
-            } else {
-                saveStats();
-            }
-        });
-
-        function createFloatingText(text, x, y) {
-            const el = document.createElement('div');
-            el.className = 'floating-score';
-            el.innerText = text;
-            el.style.left = `${x}px`;
-            el.style.top = `${y}px`;
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 400);
-        }
-
-        const radarCanvas = document.getElementById('radar-canvas');
-        const radarCtx = radarCanvas.getContext('2d');
-
-        function drawRadar() {
-            radarCtx.clearRect(0, 0, 120, 120);
-            
-            radarCtx.save();
-            radarCtx.beginPath();
-            radarCtx.arc(60, 60, 60, 0, Math.PI * 2);
-            radarCtx.clip();
-
-            radarCtx.fillStyle = '#050505';
-            radarCtx.fillRect(0, 0, 120, 120);
-
-            radarCtx.fillStyle = '#fff';
-            radarCtx.fillRect(58, 58, 4, 4);
-
-            const scale = 2.0;
-            targets.forEach(t => {
-                const relX = t.position.x - camera.position.x;
-                const relZ = t.position.z - camera.position.z;
-                
-                const rotX = relX * Math.cos(-yaw) - relZ * Math.sin(-yaw);
-                const rotZ = relX * Math.sin(-yaw) + relZ * Math.cos(-yaw);
-
-                const mapX = 60 + rotX * scale;
-                const mapY = 60 + rotZ * scale;
-
-                if (mapX >= 0 && mapX <= 120 && mapY >= 0 && mapY <= 120) {
-                    radarCtx.fillStyle = '#777';
-                    radarCtx.fillRect(mapX - 1, mapY - 1, 2, 2);
-                }
-            });
-            
-            radarCtx.restore();
-        }
-
-        let prevTime = performance.now();
-
-        function animate() {
-            requestAnimationFrame(animate);
-            const time = performance.now();
-            const delta = Math.min((time - prevTime) / 1000, 0.1);
-
-            let baseSpeed = 6.0;
-            if (isSprint) baseSpeed = 10.5;
-
-            const targetHeight = 1.6;
-            playerPosition.y += (targetHeight - playerPosition.y) * Math.min(1.0, delta * 12);
-
-            const dir = new THREE.Vector3();
-            if (moveForward) dir.z -= 1;
-            if (moveBackward) dir.z += 1;
-            if (moveLeft) dir.x -= 1;
-            if (moveRight) dir.x += 1;
-            dir.normalize();
-
-            if (dir.length() > 0) {
-                dir.applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
-                playerPosition.x += dir.x * baseSpeed * delta;
-                playerPosition.z += dir.z * baseSpeed * delta;
-
-                playerPosition.x = Math.max(-55, Math.min(55, playerPosition.x));
-                playerPosition.z = Math.max(-55, Math.min(55, playerPosition.z));
-
-                if (isGrounded) {
-                    walkCycle += delta * (isSprint ? 16 : 10);
-                    if (walkCycle > Math.PI * 2) {
-                        walkCycle = 0;
-                        playFootstepSound();
-                    }
-                }
-            }
-
-            playerVelocityY += gravity * delta;
-            playerPosition.y += playerVelocityY * delta;
-            if (playerPosition.y <= targetHeight) {
-                playerPosition.y = targetHeight;
-                playerVelocityY = 0;
-                isGrounded = true;
-            }
-
-            camera.position.copy(playerPosition);
-            camera.rotation.order = 'YXZ';
-            camera.rotation.y = yaw;
-            camera.rotation.x = pitch;
-
-            if (customImageTexture || nsfwEnabled) {
-                targets.forEach(t => t.lookAt(camera.position));
-            }
-
-            targets.forEach(t => {
-                if (movementType === 'floating') {
-                    t.position.x += t.userData.velX * targetSpeed * delta * 2;
-                    t.position.y += t.userData.velY * targetSpeed * delta * 2;
-                    t.position.z += t.userData.velZ * targetSpeed * delta * 2;
-
-                    if (Math.abs(t.position.x - camera.position.x) > 45) t.userData.velX *= -1;
-                    if (t.position.y < 1.5 || t.position.y > 20) t.userData.velY *= -1;
-                    if (Math.abs(t.position.z - camera.position.z) > 45) t.userData.velZ *= -1;
-                } else if (movementType === 'strafe') {
-                    t.position.x += t.userData.strafeDir * targetSpeed * delta * 3;
-                    if (Math.abs(t.position.x) > 45) t.userData.strafeDir *= -1;
-                } else if (movementType === 'bounce') {
-                    t.userData.bounceVelY = (t.userData.bounceVelY || -5) - (15 * targetSpeed * delta);
-                    t.position.y += t.userData.bounceVelY * delta;
-                    if (t.position.y <= 1.2) {
-                        t.position.y = 1.2;
-                        t.userData.bounceVelY = (6 + targetSpeed * 1.5);
-                    }
-                } else if (movementType === 'teleport') {
-                    t.userData.teleportTimer += delta * targetSpeed;
-                    if (t.userData.teleportTimer > 1.2) {
-                        t.userData.teleportTimer = 0;
-                        const angle = Math.random() * Math.PI * 2;
-                        const distance = 10 + Math.random() * 25;
-                        t.position.set(
-                            camera.position.x + Math.cos(angle) * distance,
-                            targetHeight + Math.random() * 8,
-                            camera.position.z + Math.sin(angle) * distance
-                        );
-                    }
-                }
-            });
-
-            drawRadar();
-            prevTime = time;
-            renderer.render(scene, camera);
-        }
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
-        setupMap();
-        animate();
-    </script>
+    window.onload = function() {
+      applyThemeSettings();
+      renderAuthUI();
+      renderRecentChats();
+      selectModel(customModels[0].id);
+      setInterval(rotateSponsorAds, 12000);
+      lucide.createIcons();
+    };
+  </script>
 </body>
 </html>

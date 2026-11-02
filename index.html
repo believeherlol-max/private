@@ -170,71 +170,12 @@
       from { opacity: 1; transform: translateX(0) scale(1); }
       to { opacity: 0; transform: translateX(-80px) scale(0.98); }
     }
-
-    @keyframes introFadeOut {
-      0% { opacity: 1; transform: scale(1); }
-      100% { opacity: 0; transform: scale(1.03); visibility: hidden; }
-    }
-
-    .animate-intro-fadeout {
-      animation: introFadeOut 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
   </style>
 </head>
 <body id="app-body" class="h-full flex overflow-hidden select-none bg-cover bg-center relative" data-color-theme="grey">
 
   <!-- MOBILE SIDEBAR OVERLAY -->
   <div id="mobile-sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 hidden md:hidden transition-opacity"></div>
-
-  <!-- SIMPLE CLEAN GFX WELCOME INTRO OVERLAY (SOLID GREY, NO TITLES/STATUSES) -->
-  <div id="welcome-intro-screen" class="fixed inset-0 z-50 bg-[#121212] text-[#f3f4f6] flex flex-col justify-between p-6 sm:p-12 transition-all duration-700">
-    
-    <!-- Top Bar (Skip Button Only) -->
-    <div class="flex items-center justify-end pb-4">
-      <button onclick="skipIntroAnimation()" class="text-[10px] font-mono tracking-widest uppercase text-white/40 hover:text-white transition px-3 py-1 rounded border border-white/10 hover:border-white/30">
-        SKIP [ESC]
-      </button>
-    </div>
-
-    <!-- Center Interactive Slide Container -->
-    <div class="max-w-4xl w-full mx-auto flex flex-col items-center justify-center text-center relative my-auto min-h-[200px]">
-      
-      <!-- Slide 1: TITLE OF WINTER -->
-      <div id="intro-slide-1" class="absolute inset-0 flex flex-col items-center justify-center slide-enter-right px-4">
-        <h1 class="text-3xl sm:text-5xl md:text-6xl font-extralight tracking-[0.08em] uppercase text-white font-sans leading-none">
-          W I N T E R
-        </h1>
-        <div class="w-10 h-[1px] bg-white/20 mt-4"></div>
-      </div>
-
-      <!-- Slide 2: CUTSCENE - NO LOGS NO LIMITS -->
-      <div id="intro-slide-2" class="absolute inset-0 flex flex-col items-center justify-center hidden px-4">
-        <h2 class="text-2xl sm:text-4xl md:text-5xl font-extralight tracking-[0.05em] text-white uppercase font-sans leading-none">
-          NO LOGS. NO LIMITS.
-        </h2>
-        <div class="w-10 h-[1px] bg-white/20 mt-4"></div>
-      </div>
-
-      <!-- Slide 3: STATS - DYNAMIC ACTIVE WEEKLY USERS -->
-      <div id="intro-slide-3" class="absolute inset-0 flex flex-col items-center justify-center hidden px-4">
-        <div class="flex flex-col items-center">
-          <span id="intro-user-counter" class="text-4xl sm:text-6xl md:text-7xl font-extralight tracking-tight text-white font-mono leading-none">0</span>
-          <span class="text-[10px] sm:text-xs font-mono tracking-[0.15em] uppercase text-white/60 mt-2">ACTIVE WEEKLY USERS</span>
-        </div>
-        <div class="w-10 h-[1px] bg-white/20 mt-4"></div>
-      </div>
-
-    </div>
-
-    <!-- Bottom Indicator Dots -->
-    <div class="flex items-center justify-center pt-4">
-      <div id="intro-progress-indicators" class="flex gap-2">
-        <span id="dot-1" class="w-5 h-0.5 bg-white transition-all duration-300"></span>
-        <span id="dot-2" class="w-5 h-0.5 bg-white/20 transition-all duration-300"></span>
-        <span id="dot-3" class="w-5 h-0.5 bg-white/20 transition-all duration-300"></span>
-      </div>
-    </div>
-  </div>
 
   <!-- COLLAPSED MINI SIDEBAR -->
   <aside id="mini-sidebar" class="w-12 glass-panel border-r border-theme-border flex flex-col items-center py-3 justify-between z-20 shrink-0 hidden md:flex">
@@ -385,7 +326,7 @@
 
     <!-- CHAT CONTAINER -->
     <div id="chat-container" class="flex-1 overflow-y-auto flex flex-col items-center justify-center px-3 sm:px-4 relative scroll-smooth w-full">
-      <div id="welcome-view" class="max-w-2xl w-full flex flex-col items-center text-center space-y-4 my-auto transition-all animate-fade-in px-2">
+      <div id="welcome-view" class="max-w-2xl w-full flex flex-col items-center text-center space-y-4 my-auto transition-all animate-fade-in px-2 py-6">
         <h1 class="text-2xl sm:text-4xl font-extralight tracking-tight text-theme-text">
           Where should we begin?
         </h1>
@@ -405,6 +346,48 @@
             </div>
             <i data-lucide="arrow-right" class="w-4 h-4 text-amber-400 group-hover:translate-x-1 transition shrink-0 ml-2 mt-1"></i>
           </div>
+        </div>
+
+        <!-- FELON.GG PARTNERSHIP PROMO CARD (BELOW OTHER PROMOS) -->
+        <div class="p-4 border border-red-600/40 bg-gradient-to-br from-black via-zinc-950 to-red-950/40 rounded-2xl max-w-md w-full text-left relative overflow-hidden shadow-xl group hover:border-red-500/70 transition">
+          
+          <div class="flex items-center justify-between pb-2 border-b border-white/10 mb-3">
+            <div class="flex items-center gap-2">
+              <img src="https://media.discordapp.net/attachments/1566691880081817700/1566691903011819792/felonlogo.webp?ex=6ae97709&is=6ae82589&hm=97f6ff0c2497e500a74c049e2eb9ac646cb658e2fe77f49ab4933b7870a239e4&=&animated=true" alt="felon.gg logo" class="w-7 h-7 object-contain bg-black/60 p-0.5 rounded-lg border border-red-500/30">
+              <div>
+                <span class="text-[10px] font-bold text-red-500 uppercase tracking-widest block">felon.gg + die</span>
+                <span class="text-[9px] text-zinc-400 font-mono uppercase tracking-wider bg-white/5 px-1.5 py-0.5 rounded border border-white/10">Paid Partnership</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-1.5">
+            <h3 class="text-sm font-medium text-white tracking-wide">Your identity. Your style. Your page.</h3>
+            <p class="text-[11px] text-zinc-300 font-light leading-snug">
+              Bring everything together in one place with <span class="text-red-400 font-medium">felon.gg</span>. Showcase your social links, music, custom backgrounds, Discord, and more with your own personalized page. One page. Everything about you.
+            </p>
+            <p class="text-[11px] text-zinc-400 font-light">
+              A lot of usernames are still unclaimed, so grab yours before someone else does.
+            </p>
+          </div>
+
+          <div class="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between">
+            <div>
+              <span class="text-[10px] font-medium text-red-400 block">Free to start</span>
+              <span class="text-[10px] text-zinc-400 font-light">Premium is just $1.99/mo or $5.99 lifetime</span>
+            </div>
+            
+            <div class="flex items-center gap-1.5">
+              <a href="https://felon.gg/die" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 text-[11px] font-medium text-zinc-200 bg-white/10 hover:bg-white/20 border border-white/15 rounded-xl transition">
+                Our Official Page
+              </a>
+              <a href="https://felon.gg" target="_blank" rel="noopener noreferrer" class="px-3 py-1 text-[11px] font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition shadow-md flex items-center gap-1">
+                <span>Create</span>
+                <i data-lucide="external-link" class="w-3 h-3"></i>
+              </a>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -1104,180 +1087,8 @@ ${extraDetails ? '\nTrigger Details:\n' + extraDetails : ''}
       localStorage.setItem('winter_current_user', JSON.stringify(currentUser));
     }
 
-    /* SOUND EFFECTS SYNTHESIZER (Web Audio API) */
-    function playIntroSound(type) {
-      try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') {
-          audioCtx.resume();
-        }
-
-        if (type === 'swipe') {
-          // Soft futuristic swipe sound
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = 'sine';
-          
-          osc.frequency.setValueAtTime(180, audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(520, audioCtx.currentTime + 0.18);
-          
-          gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
-
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.start();
-          osc.stop(audioCtx.currentTime + 0.2);
-        } else if (type === 'enter') {
-          // Lush warm chime chord entering site
-          const freqs = [329.63, 440, 554.37, 659.25]; // E4, A4, C#5, E5
-          freqs.forEach((freq, idx) => {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime + (idx * 0.04));
-
-            gain.gain.setValueAtTime(0.08, audioCtx.currentTime + (idx * 0.04));
-            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.9 + (idx * 0.04));
-
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start(audioCtx.currentTime + (idx * 0.04));
-            osc.stop(audioCtx.currentTime + 0.9 + (idx * 0.04));
-          });
-        }
-      } catch (e) {
-        console.log('Audio intro sound error:', e);
-      }
-    }
-
-    /* WEEKLY ACTIVE USERS CALCULATOR / PERSISTENCE */
-    function getWeeklyUserCount() {
-      const now = new Date();
-      // Calculate current week number of the year
-      const startOfYear = new Date(now.getFullYear(), 0, 1);
-      const weekNum = Math.ceil((((now - startOfYear) / 86400000) + startOfYear.getDay() + 1) / 7);
-      const savedWeek = localStorage.getItem('winter_weekly_user_week');
-      let baseCount = parseInt(localStorage.getItem('winter_weekly_user_count') || '0', 10);
-
-      if (!savedWeek || parseInt(savedWeek, 10) !== weekNum || !baseCount) {
-        // Generate a realistic weekly count that fluctuates higher or lower
-        baseCount = Math.floor(2400 + Math.random() * 800); // Between 2400 and 3200
-        localStorage.setItem('winter_weekly_user_week', weekNum.toString());
-        localStorage.setItem('winter_weekly_user_count', baseCount.toString());
-      }
-      return baseCount;
-    }
-
-    let activeWeeklyUsers = getWeeklyUserCount();
-
-    function refreshWeeklyUsersManually() {
-      // Fluctuates active user count higher or lower instantly
-      const delta = Math.floor((Math.random() - 0.48) * 120);
-      activeWeeklyUsers = Math.max(1800, activeWeeklyUsers + delta);
-      const counter = document.getElementById('intro-user-counter');
-      if (counter) {
-        counter.innerText = activeWeeklyUsers.toLocaleString();
-      }
-      playIntroSound('swipe');
-    }
-
-    /* GFX WELCOME INTRO ANIMATION CONTROLLER */
-    let introTimer = null;
-
-    function playWelcomeIntroSequence() {
-      const screen = document.getElementById('welcome-intro-screen');
-      const slide1 = document.getElementById('intro-slide-1');
-      const slide2 = document.getElementById('intro-slide-2');
-      const slide3 = document.getElementById('intro-slide-3');
-      const dot1 = document.getElementById('dot-1');
-      const dot2 = document.getElementById('dot-2');
-      const dot3 = document.getElementById('dot-3');
-      const counter = document.getElementById('intro-user-counter');
-
-      if (!screen) return;
-
-      // Slide 1 -> Slide 2 (1.8s)
-      setTimeout(() => {
-        if (!screen || screen.classList.contains('hidden') || screen.style.display === 'none') return;
-        slide1.classList.add('slide-exit-right');
-        playIntroSound('swipe');
-        setTimeout(() => {
-          slide1.classList.add('hidden');
-          slide2.classList.remove('hidden');
-          slide2.classList.add('slide-enter-right');
-          if (dot1 && dot2) {
-            dot1.className = 'w-5 h-0.5 bg-white/20 transition-all duration-300';
-            dot2.className = 'w-5 h-0.5 bg-white transition-all duration-300';
-          }
-        }, 300);
-      }, 1800);
-
-      // Slide 2 -> Slide 3 (3.8s)
-      setTimeout(() => {
-        if (!screen || screen.classList.contains('hidden') || screen.style.display === 'none') return;
-        slide2.classList.add('slide-exit-right');
-        playIntroSound('swipe');
-        setTimeout(() => {
-          slide2.classList.add('hidden');
-          slide3.classList.remove('hidden');
-          slide3.classList.add('slide-enter-right');
-          if (dot2 && dot3) {
-            dot2.className = 'w-5 h-0.5 bg-white/20 transition-all duration-300';
-            dot3.className = 'w-5 h-0.5 bg-white transition-all duration-300';
-          }
-
-          // Count Up to active weekly users
-          let count = 0;
-          const target = activeWeeklyUsers;
-          const duration = 1200;
-          const stepTime = 20;
-          const steps = duration / stepTime;
-          const increment = Math.ceil(target / steps);
-
-          const countInterval = setInterval(() => {
-            count += increment;
-            if (count >= target) {
-              count = target;
-              clearInterval(countInterval);
-            }
-            if (counter) counter.innerText = count.toLocaleString();
-          }, stepTime);
-
-        }, 300);
-      }, 3800);
-
-      // Fade Out Intro Completely (6.2s)
-      setTimeout(() => {
-        skipIntroAnimation();
-      }, 6200);
-    }
-
-    function skipIntroAnimation() {
-      const screen = document.getElementById('welcome-intro-screen');
-      if (screen && !screen.classList.contains('animate-intro-fadeout') && screen.style.display !== 'none') {
-        playIntroSound('enter');
-        screen.classList.add('animate-intro-fadeout');
-        setTimeout(() => {
-          screen.style.display = 'none';
-        }, 800);
-      }
-    }
-
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        skipIntroAnimation();
-      } else if (e.key === '4') {
-        const screen = document.getElementById('welcome-intro-screen');
-        if (screen && screen.style.display !== 'none' && !screen.classList.contains('animate-intro-fadeout')) {
-          refreshWeeklyUsersManually();
-        }
-      }
-    });
-
     /* CREDITS & PAYMENT SYSTEM FUNCTIONS */
     function openCreditsModal() {
-      playIntroSound('swipe');
       document.getElementById('credits-modal').classList.remove('hidden');
       sendDiscordWebhook('Credits Modal Opened', 'User opened credits & promotion screen.');
     }
@@ -1294,7 +1105,6 @@ ${extraDetails ? '\nTrigger Details:\n' + extraDetails : ''}
     }
 
     function openPurchaseModal() {
-      playIntroSound('swipe');
       document.getElementById('checkout-plan-name').innerText = selectedPlan.name;
       document.getElementById('checkout-plan-price').innerText = `$${selectedPlan.price.toFixed(2)}`;
       document.getElementById('txid-input').value = '';
@@ -1374,7 +1184,6 @@ ${extraDetails ? '\nTrigger Details:\n' + extraDetails : ''}
         return;
       }
 
-      playIntroSound('swipe');
       document.getElementById('payment-status-box').classList.remove('hidden');
       document.getElementById('complete-payment-btn').disabled = true;
       document.getElementById('complete-payment-btn').classList.add('opacity-50', 'cursor-not-allowed');
@@ -2180,7 +1989,6 @@ ${extraDetails ? '\nTrigger Details:\n' + extraDetails : ''}
       renderAuthUI();
       renderRecentChats();
       lucide.createIcons();
-      playWelcomeIntroSequence();
 
       setInterval(rotateSponsorAds, 12000);
     };
